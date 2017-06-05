@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.FitWindowsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.nbennettsoftware.android.npad.MainActivity">
+
+
+    <ImageView
+        android:id="@+id/wallpaperImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:layout_editor_absoluteX="78dp"
+        tools:layout_editor_absoluteY="102dp" />
+
+    <!-- Overlay -->
+    <FrameLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        android:background="@color/subtleDarkOverlay"/>
+
+
+    <ScrollView
+        android:id="@+id/masterTextBox_ScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp">
+
+        <EditText
+            android:id="@+id/masterTextBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:textSize="14dp"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:paddingTop="?attr/actionBarSize"
+            android:textColor="@color/textColor"
+            android:drawableBottom="@color/colorAccent"/>
+    </ScrollView>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/masterToolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/transparent"
+        android:layout_gravity="top|right"
+        android:elevation="0dp"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
+</android.support.v7.widget.FitWindowsFrameLayout>
