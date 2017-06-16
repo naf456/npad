@@ -1,57 +1,45 @@
 package com.nbennettsoftware.android.npad;
 
-import android.app.Dialog;
 import android.content.ContentResolver;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedOutputStream;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends NpadActivity {
 
-    private final int GET_DOCUMENT_INTENT_ID = 1;
-    private final int GET_IMAGE_INTENT_ID = 2;
-    private final int GET_SAVE_INTENT_ID = 3;
-    private final String SHARED_PREFS_TAG=this.getClass().getName();
-    private final String PREFS_WALLPAPER_URI_TAG="wallpaperUri";
-    private final String PREFS_WALLPAPER_NAME_ID= "WallpaperName";
+    private final int PICK_DOCUMENT_INTENT_ID = 1;
+    private final int PICK_SAVE_FILE_INTENT_ID = 3;
 
-    private boolean askToSave = false;
+    private boolean documentIsModified = false;
     private Uri currentDocumentUri;
-    private EditText masterTextBox;
+    private String currentDocumentName;
+    private EditText mainTextBox;
     private ImageView wallpaperImageView;
-    private Toolbar masterToolbar;
-    private int defaultWallpaperResource = R.mipmap.landmark_bridge_cliff_california;
+    private int defaultWallpaperResource = R.mipmap.stary_night;
+    private StorageManager storageManager;
+    private Utils utils;
 
 
     @Override
@@ -59,20 +47,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        masterToolbar = (Toolbar)findViewById(R.id.masterToolbar);
-        setSupportActionBar(masterToolbar);
+        mainTextBox = (EditText)findViewById(R.id.main_textBox);
+        wallpaperImageView = (ImageView)findViewById(R.id.main_wallpaperImageView);
+        storageManager = new StorageManager(this);
+        utils = new Utils(this);
+
+        setSupportActionBar((Toolbar)findViewById(R.id.main_toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        masterTextBox = (EditText)findViewById(R.id.masterTextBox);
-        wallpaperImageView = (ImageView)findViewById(R.id.wallpaperImageView);
+        mainTextBox.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void afterTextChanged(Editable s) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                documentIsModified=true;
+            }
+        });
 
-        loadWallpaper();
-        configureWallpaperImageView();
-
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE);
+        refreshUI();
+        setWallpaperFullHeight();
     }
 
-    void configureWallpaperImageView(){
+    void refreshUI(){
+        utils.applyWallpaper(wallpaperImageView);
+        utils.applyFontSize((TextView) findViewById(R.id.main_textBox));
+        utils.applyShade(findViewById(R.id.main_overlay));
+    }
+
+    void setWallpaperFullHeight(){
         //Setting wallpaper to window size so
         Rect windowRect = new Rect();
         wallpaperImageView.getWindowVisibleDisplayFrame(windowRect);
@@ -81,25 +82,34 @@ public class MainActivity extends AppCompatActivity {
         wallpaperImageView.setLayoutParams(layoutParams);
     }
 
-    private void storeWallpaperUri(Uri wallpaperUri){
-        SharedPreferences preferences = getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE);
-        if(wallpaperUri==null) {
-            wallpaperUri=Uri.parse("");
-        }
-        preferences.edit()
-                .putString(PREFS_WALLPAPER_URI_TAG, wallpaperUri.toString())
-                .commit();
+    private void setupKeyboardListener(){
+        final ViewGroup mainFrame = (ViewGroup) findViewById(R.id.main_container);
+        mainFrame.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                //r will be populated with the coordinates of your view that area still visible.
+                mainFrame.getWindowVisibleDisplayFrame(r);
+
+                int heightDiff = mainFrame.getRootView().getHeight() - (r.bottom - r.top);
+                if (heightDiff > 100) {
+                    ViewGroup.LayoutParams layoutParams = mainFrame.getLayoutParams();
+                } else {
+                    Rect windowRect = new Rect();
+                    getWindow().getDecorView().getWindowVisibleDisplayFrame(windowRect);
+                    ViewGroup.LayoutParams layoutParams = mainFrame.getLayoutParams();
+                    layoutParams.height =windowRect.bottom;
+                    mainFrame.setLayoutParams(layoutParams);
+                }
+            }
+        });
+
     }
 
-    private class NoWallpaperUriException extends Exception{}
-
-    private Uri fetchWallpaperUri() throws NoWallpaperUriException {
-        SharedPreferences preferences = getSharedPreferences(SHARED_PREFS_TAG, Context.MODE_PRIVATE);
-        String UriPath = preferences.getString(PREFS_WALLPAPER_URI_TAG, null);
-        if(UriPath==null || UriPath.length() <= 0) {
-            throw new NoWallpaperUriException();
-        }
-        return Uri.parse(UriPath);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshUI();
     }
 
     @Override
@@ -113,35 +123,21 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
 
-        String TEXT_MIME_TYPE="text/*";
-        String IMAGE_MIME_TYPE="image/*";
-
         switch(item.getItemId()) {
             case (R.id.action_new):
-                currentDocumentUri = null;
-                masterTextBox.setText("");
+                unloadDocument();
                 break;
             case (R.id.action_open):
-                askForFile(TEXT_MIME_TYPE, GET_DOCUMENT_INTENT_ID);
+                pickDocument();
                 break;
             case (R.id.action_save):
-                if(currentDocumentUri==null) {
-                    askToSaveDocument(GET_SAVE_INTENT_ID);
-                } else {
-                    save();
-                }
+                save();
                 break;
             case (R.id.action_saveas):
-                askToSaveDocument(GET_SAVE_INTENT_ID);
+                pickSaveFile();
                 break;
-            case (R.id.action_pickWallpaper):
-                askForFile(IMAGE_MIME_TYPE, GET_IMAGE_INTENT_ID);
-                break;
-            case (R.id.action_clearWallpaper):
-                storeWallpaperUri(null);
-                loadWallpaper();
-                break;
-            default:
+            case (R.id.action_gotoSetting):
+                startActivity(new Intent().setClass(this, SettingsActivity.class));
                 break;
         }
         return true;
@@ -149,104 +145,108 @@ public class MainActivity extends AppCompatActivity {
 
     private void save() {
         if(currentDocumentUri==null) {
-            askToSaveDocument(GET_SAVE_INTENT_ID);
+            pickSaveFile();
+            return;
         }
         ContentResolver resolver = getContentResolver();
         try{
             OutputStream outputStream = resolver.openOutputStream(currentDocumentUri);
+            if(outputStream==null){ throw new IOException(); }
             BufferedOutputStream bufOutputStream = new BufferedOutputStream(outputStream);
-            bufOutputStream.write(masterTextBox.getText().toString().getBytes());
-            bufOutputStream.flush();
+            bufOutputStream.write(mainTextBox.getText().toString().getBytes());
             bufOutputStream.close();
-            toast("Saved");
+            utils.toast("Saved");
         } catch (IOException e) {
             e.printStackTrace();
-            toast("Cannot Save!!, Sorry...");
+            utils.toast("Save Failed! Please try \"Save As...\".", Toast.LENGTH_LONG);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            utils.toast("Permission Error. Please try \"Save As...\".", Toast.LENGTH_LONG);
         }
 
     }
 
-    private void askToSaveDocument(int intentId) {
+    private void pickDocument() {
+        final String TEXT_MIME_TYPE="text/*";
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType(TEXT_MIME_TYPE);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        Intent chooser = Intent.createChooser(intent, "Select Document");
+
+        if (chooser.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(chooser, PICK_DOCUMENT_INTENT_ID);
+        } else {
+            utils.toast("No apps installed.");
+        }
+    }
+
+    private void pickSaveFile() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.setType("text/*");
-        intent.putExtra(Intent.EXTRA_TITLE, "My Document.txt");
+        intent.putExtra(Intent.EXTRA_TITLE, "document_name.txt");
 
-        Intent chooser = Intent.createChooser(intent, "Select File");
-
-        if (chooser.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(chooser, intentId);
-        } else {
-            toast("No apps installed to handle pick request");
-        }
-    }
-
-    private void askForFile(String mimeType, int intentId) {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType(mimeType);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-
-        Intent chooser = Intent.createChooser(intent, "Select File");
+        Intent chooser = Intent.createChooser(intent, "Select Document");
 
         if (chooser.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(chooser, intentId);
+            startActivityForResult(chooser, PICK_SAVE_FILE_INTENT_ID);
         } else {
-            toast("No apps installed to handle pick request");
+            utils.toast("No apps installed.");
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == GET_IMAGE_INTENT_ID && resultCode == RESULT_OK) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_DOCUMENT_INTENT_ID && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            if(uri!=null) {
-                storeWallpaperUri(uri);
-                loadWallpaper();
-            }
+            if(uri==null) { return; }
+            loadDocument(uri);
         }
-        if (requestCode == GET_DOCUMENT_INTENT_ID && resultCode == RESULT_OK) {
+        if (requestCode == PICK_SAVE_FILE_INTENT_ID && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            if(uri!=null) {
-                loadDocument(uri);
-            }
-        }
-        if (requestCode == GET_SAVE_INTENT_ID && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            if(uri!=null) {
-                currentDocumentUri=uri;
-                save();
-            }
+            if(uri==null) { return; }
+            currentDocumentUri=uri;
+            save();
         }
     }
 
-    private void loadWallpaper() {
-        try{
-            Uri wallpaperUri = fetchWallpaperUri();
-            wallpaperImageView.setImageURI(wallpaperUri);
-        } catch (NoWallpaperUriException e) {
-            wallpaperImageView.setImageResource(defaultWallpaperResource);
-        }
+    private void unloadDocument() {
+        currentDocumentUri = null;
+        currentDocumentName = null;
+        mainTextBox.setText("");
+        documentIsModified=false;
     }
 
     private void loadDocument(Uri openableUri) {
         ContentResolver resolver = getContentResolver();
         try {
             InputStream inputStream = resolver.openInputStream(openableUri);
+            if(inputStream==null){ throw new IOException(); }
             Scanner s = new Scanner(inputStream).useDelimiter("\\A");
             String content = s.hasNext() ? s.next() : "";
-            masterTextBox.setText(content);
+            inputStream.close();
+            mainTextBox.setText(content);
             currentDocumentUri = openableUri;
+            currentDocumentName = getDocumentDisplayName(openableUri);
+            if(currentDocumentName==null) { currentDocumentName=""; }
         } catch (IOException e) {
-            toast("Oops, can't load document!");
+            e.printStackTrace();
+            utils.toast("Can't read document.");
         }
     }
 
-    private void toast(String msg) {
-        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,0);
-        toast.show();
+    private String getDocumentDisplayName(Uri uri){
+        String stringData=null;
+        ContentResolver resolver = getContentResolver();
+        String[] projection = {OpenableColumns.DISPLAY_NAME};
+        Cursor cursor = resolver.query(uri,projection,null,null,null);
+        if(cursor==null) { return null; }
+        if(cursor.moveToFirst()){
+            int columnId = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
+            stringData = cursor.getString(columnId);
+        }
+        cursor.close();
+        return stringData;
     }
-
-
-
 }

@@ -9,7 +9,7 @@
             app:showAsAction="never" />
         <item
             android:id="@+id/action_open"
-            android:title="Open..."
+            android:title="Open&#8230;"
             app:showAsAction="never" />
     </group>
 
@@ -22,19 +22,14 @@
         <item
             android:id="@+id/action_saveas"
             android:icon="@android:drawable/ic_menu_save"
-            android:title="Save As..."
+            android:title="Save As&#8230;"
             app:showAsAction="never" />
     </group>
 
-    <group android:id="@+id/mg_pickclearwallpaper" android:visible="true">
-        <item
-            android:id="@+id/action_pickWallpaper"
-            android:title="Pick Wallpaper..."
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/action_clearWallpaper"
-            android:title="Clear Wallpaper"
-            app:showAsAction="never" />
-    </group>
+    <item
+        android:id="@+id/action_gotoSetting"
+        android:title="Settings"
+        app:showAsAction="never" />
+
 
 </menu>
