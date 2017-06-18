@@ -1,6 +1,7 @@
 package com.nbennettsoftware.android.npad;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -114,6 +115,16 @@ class Utils {
 
     void toast(String msg, int length) {
         Toast toast = Toast.makeText(activity, msg, length);
+        toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,0);
+        toast.show();
+    }
+
+    static void toast(Context context, String msg) {
+        toast(context, msg, Toast.LENGTH_SHORT);
+    }
+
+    static void toast(Context context, String msg, int length) {
+        Toast toast = Toast.makeText(context, msg, length);
         toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,0);
         toast.show();
     }

@@ -56,7 +56,7 @@
             android:background="@android:color/transparent"
             android:elevation="0dp"
             android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme" />
+            android:theme="?attr/actionBarTheme"/>
     </FrameLayout>
 
 </android.support.v7.widget.FitWindowsFrameLayout>

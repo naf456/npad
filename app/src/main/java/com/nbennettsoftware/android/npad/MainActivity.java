@@ -3,11 +3,9 @@ package com.nbennettsoftware.android.npad;
 import android.app.ActivityOptions;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -35,12 +33,13 @@ public class MainActivity extends NpadActivity {
 
     private boolean documentIsModified = false;
     private Uri currentDocumentUri;
-    private String currentDocumentName;
     private EditText mainTextBox;
     private ImageView wallpaperImageView;
     private int defaultWallpaperResource = R.mipmap.stary_night;
     private StorageManager storageManager;
     private Utils utils;
+
+    private OnDocumentSavedListener onDocumentSavedListener;
 
 
     @Override
@@ -126,16 +125,61 @@ public class MainActivity extends NpadActivity {
 
         switch(item.getItemId()) {
             case (R.id.action_new):
-                unloadDocument();
+                if(documentIsModified) {
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    saveFileDialog.setOnSaveDialogFinished(new SaveFileDialog.OnSaveDialogFinished() {
+                        @Override
+                        public void doSave() {
+                            setOnDocumentSavedListener(new OnDocumentSavedListener() {
+                                @Override
+                                public void onSave() {
+                                    clearOnDocumentSavedListener();
+                                    unloadDocument();
+                                }
+                            });
+                            saveDocument();
+                        }
+
+                        @Override
+                        public void doContinue() {
+                            unloadDocument();
+                        }
+                    });
+                    saveFileDialog.show(getSupportFragmentManager(), null);
+                } else {
+                    unloadDocument();
+                }
                 break;
             case (R.id.action_open):
-                pickDocument();
+                if(documentIsModified) {
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+                    saveFileDialog.setOnSaveDialogFinished(new SaveFileDialog.OnSaveDialogFinished() {
+                        @Override
+                        public void doSave() {
+                            setOnDocumentSavedListener(new OnDocumentSavedListener() {
+                                @Override
+                                public void onSave() {
+                                    clearOnDocumentSavedListener();
+                                    openDocument();
+                                }
+                            });
+                            saveDocument();
+                        }
+
+                        @Override
+                        public void doContinue() {
+                            openDocument();
+                        }
+                    });
+                    saveFileDialog.show(getSupportFragmentManager(), null);
+                } else {
+                    openDocument();
+                }
                 break;
             case (R.id.action_save):
-                save();
+                saveDocument();
                 break;
             case (R.id.action_saveas):
-                pickSaveFile();
                 break;
             case (R.id.action_gotoSetting):
                 ActivityOptions options = ActivityOptions.makeCustomAnimation(
@@ -146,9 +190,30 @@ public class MainActivity extends NpadActivity {
         return true;
     }
 
-    private void save() {
+    private void unloadDocument() {
+        currentDocumentUri = null;
+        mainTextBox.setText("");
+        documentIsModified=false;
+    }
+
+    private void openDocument() {
+        addActivityResultListener(new OnActivityResultListener() {
+            @Override
+            public void OnActivityResult(int requestCode, int resultCode, Intent data) {
+                if (requestCode == PICK_DOCUMENT_INTENT_ID && resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    if(uri==null) { return; }
+                    loadDocument(uri);
+                }
+                removeActivityResultListener(this);
+            }
+        });
+        EditorUtils.startDocumentPickerForResult(this, PICK_DOCUMENT_INTENT_ID);
+    }
+
+    private void saveDocument() {
         if(currentDocumentUri==null) {
-            pickSaveFile();
+            saveDocumentAs();
             return;
         }
         ContentResolver resolver = getContentResolver();
@@ -159,6 +224,10 @@ public class MainActivity extends NpadActivity {
             bufOutputStream.write(mainTextBox.getText().toString().getBytes());
             bufOutputStream.close();
             utils.toast("Saved");
+            documentIsModified=false;
+            if(onDocumentSavedListener != null) {
+                onDocumentSavedListener.onSave();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             utils.toast("Save Failed! Please try \"Save As...\".", Toast.LENGTH_LONG);
@@ -169,56 +238,32 @@ public class MainActivity extends NpadActivity {
 
     }
 
-    private void pickDocument() {
-        final String TEXT_MIME_TYPE="text/*";
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType(TEXT_MIME_TYPE);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-        Intent chooser = Intent.createChooser(intent, "Select Document");
-
-        if (chooser.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(chooser, PICK_DOCUMENT_INTENT_ID);
-        } else {
-            utils.toast("No apps installed.");
-        }
+    private void saveDocumentAs(){
+        addActivityResultListener(new OnActivityResultListener() {
+            @Override
+            public void OnActivityResult(int requestCode, int resultCode, Intent data) {
+                if (requestCode == PICK_SAVE_FILE_INTENT_ID && resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    if(uri==null) { return; }
+                    currentDocumentUri=uri;
+                    saveDocument();
+                }
+                removeActivityResultListener(this);
+            }
+        });
+        EditorUtils.startSaveFilePickerForResult(this, PICK_SAVE_FILE_INTENT_ID);
     }
 
-    private void pickSaveFile() {
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.setType("text/*");
-        intent.putExtra(Intent.EXTRA_TITLE, "document_name.txt");
-
-        Intent chooser = Intent.createChooser(intent, "Select Document");
-
-        if (chooser.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(chooser, PICK_SAVE_FILE_INTENT_ID);
-        } else {
-            utils.toast("No apps installed.");
-        }
+    interface OnDocumentSavedListener {
+        void onSave();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_DOCUMENT_INTENT_ID && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            if(uri==null) { return; }
-            loadDocument(uri);
-        }
-        if (requestCode == PICK_SAVE_FILE_INTENT_ID && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            if(uri==null) { return; }
-            currentDocumentUri=uri;
-            save();
-        }
+    void setOnDocumentSavedListener(OnDocumentSavedListener onDocumentSavedListener) {
+        this.onDocumentSavedListener = onDocumentSavedListener;
     }
 
-    private void unloadDocument() {
-        currentDocumentUri = null;
-        currentDocumentName = null;
-        mainTextBox.setText("");
-        documentIsModified=false;
+    void clearOnDocumentSavedListener(){
+        this.onDocumentSavedListener = null;
     }
 
     private void loadDocument(Uri openableUri) {
@@ -231,25 +276,37 @@ public class MainActivity extends NpadActivity {
             inputStream.close();
             mainTextBox.setText(content);
             currentDocumentUri = openableUri;
-            currentDocumentName = getDocumentDisplayName(openableUri);
-            if(currentDocumentName==null) { currentDocumentName=""; }
+            documentIsModified=false;
         } catch (IOException e) {
             e.printStackTrace();
             utils.toast("Can't read document.");
         }
     }
 
-    private String getDocumentDisplayName(Uri uri){
-        String stringData=null;
-        ContentResolver resolver = getContentResolver();
-        String[] projection = {OpenableColumns.DISPLAY_NAME};
-        Cursor cursor = resolver.query(uri,projection,null,null,null);
-        if(cursor==null) { return null; }
-        if(cursor.moveToFirst()){
-            int columnId = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
-            stringData = cursor.getString(columnId);
+    @Override
+    public void onBackPressed() {
+        if(documentIsModified) {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.setOnSaveDialogFinished(new SaveFileDialog.OnSaveDialogFinished() {
+                @Override
+                public void doSave() {
+                    setOnDocumentSavedListener(new OnDocumentSavedListener() {
+                        @Override
+                        public void onSave() {
+                            MainActivity.super.onBackPressed();
+                        }
+                    });
+                    saveDocument();
+                }
+
+                @Override
+                public void doContinue() {
+                    MainActivity.super.onBackPressed();
+                }
+            });
+            saveFileDialog.show(getSupportFragmentManager(), null);
+        } else {
+            super.onBackPressed();
         }
-        cursor.close();
-        return stringData;
     }
 }

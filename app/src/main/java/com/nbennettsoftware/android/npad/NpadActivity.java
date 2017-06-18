@@ -10,7 +10,7 @@ import java.util.List;
 
 public class NpadActivity extends AppCompatActivity {
 
-    OnActivityResultListener onActivityResultListener = null;
+    List<OnActivityResultListener> onActivityResultListeners = new ArrayList<>();
 
     interface OnActivityResultListener {
         void OnActivityResult(int requestCode, int resultCode, Intent data);
@@ -19,8 +19,19 @@ public class NpadActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(onActivityResultListener != null) {
+
+        for(OnActivityResultListener onActivityResultListener : onActivityResultListeners) {
             onActivityResultListener.OnActivityResult(requestCode, resultCode, data);
         }
+
     }
+
+    void addActivityResultListener(OnActivityResultListener onActivityResultListener) {
+        onActivityResultListeners.add(onActivityResultListener);
+    }
+
+    void removeActivityResultListener(OnActivityResultListener onActivityResultListener) {
+        onActivityResultListeners.remove(onActivityResultListener);
+    }
+
 }
