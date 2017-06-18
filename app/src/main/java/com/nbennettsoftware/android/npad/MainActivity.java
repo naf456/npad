@@ -1,5 +1,6 @@
 package com.nbennettsoftware.android.npad;
 
+import android.app.ActivityOptions;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -137,7 +138,9 @@ public class MainActivity extends NpadActivity {
                 pickSaveFile();
                 break;
             case (R.id.action_gotoSetting):
-                startActivity(new Intent().setClass(this, SettingsActivity.class));
+                ActivityOptions options = ActivityOptions.makeCustomAnimation(
+                        this, android.R.anim.fade_in, android.R.anim.fade_out);
+                startActivity(new Intent().setClass(this, SettingsActivity.class), options.toBundle());
                 break;
         }
         return true;

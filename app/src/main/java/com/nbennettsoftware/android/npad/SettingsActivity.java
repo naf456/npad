@@ -16,8 +16,6 @@ public class SettingsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        setSupportActionBar((Toolbar) findViewById(R.id.settings_toolbar));
-
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setOnWallpaperChangedListener(this);
         settingsFragment.setOnShadeChangedListener(this);
@@ -44,5 +42,11 @@ public class SettingsActivity extends AppCompatActivity
     void refreshUi(){
         utils.applyWallpaper((ImageView) findViewById(R.id.settings_wallpaperImageView));
         utils.applyShade(findViewById(R.id.settings_overlay));
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

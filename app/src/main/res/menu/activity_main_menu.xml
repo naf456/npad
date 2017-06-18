@@ -18,7 +18,7 @@
             android:id="@+id/action_save"
             android:icon="@android:drawable/ic_menu_save"
             android:title="Save"
-            app:showAsAction="ifRoom" />
+            app:showAsAction="never" />
         <item
             android:id="@+id/action_saveas"
             android:icon="@android:drawable/ic_menu_save"
