@@ -52,7 +52,7 @@ public class KeyboardUtil {
             //r will be populated with the coordinates of your view that area still visible.
             decorView.getWindowVisibleDisplayFrame(r);
 
-            //get screen height and calculate the difference with the useable area from the r
+            //get screen height and calculate the difference with the usable area from the r
             int height = decorView.getContext().getResources().getDisplayMetrics().heightPixels;
             int diff = height - r.bottom;
 

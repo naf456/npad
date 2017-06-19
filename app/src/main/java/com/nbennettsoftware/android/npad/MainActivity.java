@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -38,6 +39,7 @@ public class MainActivity extends NpadActivity {
     private int defaultWallpaperResource = R.mipmap.stary_night;
     private StorageManager storageManager;
     private Utils utils;
+    private KeyboardUtil keyboardUtil;
 
     private OnDocumentSavedListener onDocumentSavedListener;
 
@@ -46,6 +48,9 @@ public class MainActivity extends NpadActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         mainTextBox = (EditText)findViewById(R.id.main_textBox);
         wallpaperImageView = (ImageView)findViewById(R.id.main_wallpaperImageView);
@@ -62,6 +67,8 @@ public class MainActivity extends NpadActivity {
                 documentIsModified=true;
             }
         });
+
+        keyboardUtil = new KeyboardUtil(this, (ViewGroup)findViewById(R.id.mainFrame).getParent());
 
         refreshUI();
         setWallpaperFullHeight();

@@ -1,9 +1,8 @@
 package com.nbennettsoftware.android.npad;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
+import android.net.Uri;
 
 /**
  * Created by natha on 18/06/2017.
