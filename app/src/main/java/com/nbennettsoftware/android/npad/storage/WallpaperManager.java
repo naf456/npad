@@ -1,10 +1,11 @@
-package com.nbennettsoftware.android.npad;
+package com.nbennettsoftware.android.npad.storage;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
 import java.io.File;
@@ -12,19 +13,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class StorageManager {
+public class WallpaperManager {
     private Context context;
     private final String SHARED_PREFS_NAME=this.getClass().getName();
     private final String PREFS_ID_INTERNAL_WALLPAPER_NAME="internal_wallpaper_name";
 
-    StorageManager(Context context) {
+    public WallpaperManager(Context context) {
         this.context = context;
     }
 
-    void replaceInternalizeWallpaper(Uri wallpaperUri) throws ReplaceInternalWallpaperException {
+    public void replaceInternalizeWallpaper(Uri wallpaperUri) throws ReplaceInternalWallpaperException {
         try {
             ContentResolver resolver = context.getContentResolver();
-            String displayName = getDisplayNameFromUri(wallpaperUri);
+            String displayName = getWallpaperFileName(wallpaperUri);
 
             deleteInternalizedWallpaper();
 
@@ -52,9 +53,9 @@ class StorageManager {
         }
     }
 
-    class ReplaceInternalWallpaperException extends Exception {}
+    public class ReplaceInternalWallpaperException extends Exception {}
 
-    void deleteInternalizedWallpaper() {
+    public void deleteInternalizedWallpaper() {
         try {
             File internalWallpaper = getInternalizedWallpaper();
             internalWallpaper.delete();
@@ -64,9 +65,9 @@ class StorageManager {
         }
     }
 
-    class NoInternalWallpaperException extends Exception{};
+    public class NoInternalWallpaperException extends Exception{};
 
-    File getInternalizedWallpaper() throws NoInternalWallpaperException {
+    public File getInternalizedWallpaper() throws NoInternalWallpaperException {
         String fileName = getPreferences().getString(PREFS_ID_INTERNAL_WALLPAPER_NAME, null);
         if(fileName==null){ throw new NoInternalWallpaperException(); }
         String internalDirPath = context.getFilesDir().getAbsolutePath();
@@ -79,24 +80,14 @@ class StorageManager {
 
     private class UriDataRetrievalException extends Exception{}
 
-    private String getDisplayNameFromUri(Uri uri) throws UriDataRetrievalException {
-        try {
-            return getStringFromUri(uri, OpenableColumns.DISPLAY_NAME);
-        } catch (BadCursorException e) {
-            throw new UriDataRetrievalException();
-        }
-    }
-
-    private class BadCursorException extends Exception{}
-
-    private String getStringFromUri(Uri uri, String columnName) throws BadCursorException {
+    private String getWallpaperFileName(Uri uri) throws UriDataRetrievalException {
         String stringData=null;
         ContentResolver resolver = context.getContentResolver();
-        String[] projection = {columnName};
+        String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
         Cursor cursor = resolver.query(uri,projection,null,null,null);
-        if(cursor==null) { throw new BadCursorException(); }
+        if(cursor==null) { throw new UriDataRetrievalException(); }
         if(cursor.moveToFirst()){
-            int columnId = cursor.getColumnIndexOrThrow(columnName);
+            int columnId = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
             stringData = cursor.getString(columnId);
         }
         cursor.close();

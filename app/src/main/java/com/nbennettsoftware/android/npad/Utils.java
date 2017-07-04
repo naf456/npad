@@ -5,15 +5,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
+import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nbennettsoftware.android.npad.storage.WallpaperManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,19 +24,19 @@ import java.io.IOException;
 class Utils {
 
     private Activity activity;
-    private StorageManager storageManager;
+    private WallpaperManager wallpaperManager;
     private int defaultWallpaperResource = R.mipmap.stary_night;
 
     Utils(Activity _activity) {
         activity = _activity;
-        storageManager = new StorageManager(activity);
+        wallpaperManager = new WallpaperManager(activity);
     }
 
     void saveWallpaper(Uri wallpaperUri) {
         if (wallpaperUri == null) { toast("Can't set wallpaper."); return; }
         try{
-            new StorageManager(activity).replaceInternalizeWallpaper(wallpaperUri);
-        } catch (StorageManager.ReplaceInternalWallpaperException e){
+            new WallpaperManager(activity).replaceInternalizeWallpaper(wallpaperUri);
+        } catch (WallpaperManager.ReplaceInternalWallpaperException e){
             e.printStackTrace();
             toast("Can't save wallpaper.", Toast.LENGTH_LONG);
         }
@@ -44,11 +45,11 @@ class Utils {
     void applyWallpaper(Uri wallpaperUri, ImageView imageView) {
         if (wallpaperUri == null) { toast("Can't set wallpaper."); return; }
         try{
-            new StorageManager(activity).replaceInternalizeWallpaper(wallpaperUri);
+            new WallpaperManager(activity).replaceInternalizeWallpaper(wallpaperUri);
             applyWallpaper(imageView);
         }
 
-        catch (StorageManager.ReplaceInternalWallpaperException e){
+        catch (WallpaperManager.ReplaceInternalWallpaperException e){
             e.printStackTrace();
             toast("Can't set wallpaper.", Toast.LENGTH_LONG);
         }
@@ -56,13 +57,13 @@ class Utils {
 
     void applyWallpaper(ImageView wallpaperImageView) {
         try {
-            File wallpaperFile = storageManager.getInternalizedWallpaper();
+            File wallpaperFile = wallpaperManager.getInternalizedWallpaper();
             wallpaperImageView.setImageResource(defaultWallpaperResource);
             FileInputStream wallpaperStream = new FileInputStream(wallpaperFile);
             Bitmap wallpaperBitmap = BitmapFactory.decodeStream(wallpaperStream);
             wallpaperStream.close();
             wallpaperImageView.setImageBitmap(wallpaperBitmap);
-        } catch (StorageManager.NoInternalWallpaperException e) {
+        } catch (WallpaperManager.NoInternalWallpaperException e) {
             wallpaperImageView.setImageResource(defaultWallpaperResource);
         } catch (IOException e) {
             wallpaperImageView.setImageResource(defaultWallpaperResource);
@@ -71,7 +72,7 @@ class Utils {
     }
 
     void clearWallpaper(){
-        storageManager.deleteInternalizedWallpaper();
+        wallpaperManager.deleteInternalizedWallpaper();
     }
 
     void applyShade(View shade) {
@@ -83,11 +84,14 @@ class Utils {
     }
 
     void applyShade(View shade, String shadeIntensity) {
+        String SHADE_OFF = activity.getString(R.string.shade_off);
         String SHADE_SUBTLE = activity.getString(R.string.shade_subtle);
         String SHADE_MODERATE = activity.getString(R.string.shade_moderate);
         String SHADE_INTENSE = activity.getString(R.string.shade_intense);
 
-        if(shadeIntensity.equals(SHADE_SUBTLE)) {
+        if(shadeIntensity.equals(SHADE_OFF)) {
+            shade.setBackgroundResource(android.R.color.transparent);
+        } else if(shadeIntensity.equals(SHADE_SUBTLE)) {
             shade.setBackgroundResource(R.color.subtleShade);
         } else if (shadeIntensity.equals(SHADE_MODERATE)) {
             shade.setBackgroundResource(R.color.moderateShade);

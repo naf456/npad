@@ -2,6 +2,21 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <group android:id="@+id/mg_editor" android:visible="false">
+        <item
+            android:id="@+id/action_bold"
+            android:title="bold"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_italic"
+            android:title="italic"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_underline"
+            android:title="Underline"
+            app:showAsAction="never" />
+    </group>
+
     <group android:id="@+id/mg_newopen" android:visible="true">
         <item
             android:id="@+id/action_new"

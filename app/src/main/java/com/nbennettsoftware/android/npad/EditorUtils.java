@@ -1,14 +1,11 @@
 package com.nbennettsoftware.android.npad;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.net.Uri;
 
-/**
- * Created by natha on 18/06/2017.
- */
-
-public class EditorUtils {
+class EditorUtils {
 
     static void startDocumentPickerForResult(Activity activity, int intentId) {
         final String TEXT_MIME_TYPE="text/*";
@@ -19,7 +16,9 @@ public class EditorUtils {
         Intent chooser = Intent.createChooser(intent, "Select Document");
 
         if (chooser.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivityForResult(chooser, intentId);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(
+                    activity, android.R.anim.fade_in, android.R.anim.fade_out);
+            activity.startActivityForResult(chooser, intentId, options.toBundle());
         } else {
             Utils.toast(activity, "No apps installed.");
         }
@@ -33,7 +32,9 @@ public class EditorUtils {
         Intent chooser = Intent.createChooser(intent, "Select Document");
 
         if (chooser.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivityForResult(chooser, intentId);
+            ActivityOptions options = ActivityOptions.makeCustomAnimation(
+                    activity, android.R.anim.fade_in, android.R.anim.fade_out);
+            activity.startActivityForResult(chooser, intentId, options.toBundle());
         } else {
             Utils.toast(activity, "No apps installed.");
         }

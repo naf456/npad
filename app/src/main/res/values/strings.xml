@@ -16,29 +16,32 @@
         <item>Extra Large</item>
     </string-array>
     <string-array name="pref_font_size_values">
-        <item>12</item>
+        <item>14</item>
         <item>16</item>
         <item>20</item>
-        <item>26</item>
+        <item>28</item>
     </string-array>
     <string name="pref_default_font_size">16</string>
 
     <string name="pref_title_shade_intensity">Shade intensity</string>
+    <string name="shade_off">off</string>
     <string name="shade_subtle">subtle</string>
     <string name="shade_moderate">moderate</string>
     <string name="shade_intense">intense</string>
     <string name="pref_key_shade_intensity">shade_intensity</string>
     <string-array name="pref_shade_intensity_titles">
+        <item>Off</item>
         <item>Subtle</item>
         <item>Moderate</item>
         <item>Intense</item>
     </string-array>
     <string-array name="pref_shade_intensity_values">
+        <item>@string/shade_off</item>
         <item>@string/shade_subtle</item>
         <item>@string/shade_moderate</item>
         <item>@string/shade_intense</item>
     </string-array>
-    <string name="pref_default_shade_intensity">@string/shade_moderate</string>
+    <string name="pref_default_shade_intensity">@string/shade_subtle</string>
 
     <string name="pref_category_wallpaper_name">Wallpaper</string>
     <string name="pref_title_pick_wallpaper">Pick Wallpaper</string>

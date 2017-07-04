@@ -7,19 +7,19 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nbennettsoftware.android.npad.storage.WallpaperManager;
+import com.nbennettsoftware.android.npad.widget.FullScreenImageView;
+import com.nbennettsoftware.android.npad.widget.NpadEditText;
+import com.nbennettsoftware.android.npad.widget.NpadScrollView;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -32,14 +32,13 @@ public class MainActivity extends NpadActivity {
     private final int PICK_DOCUMENT_INTENT_ID = 1;
     private final int PICK_SAVE_FILE_INTENT_ID = 3;
 
-    private boolean documentIsModified = false;
     private Uri currentDocumentUri;
-    private EditText mainTextBox;
-    private ImageView wallpaperImageView;
+    private NpadEditText npadEditText;
+    private FullScreenImageView wallpaperImageView;
     private int defaultWallpaperResource = R.mipmap.stary_night;
-    private StorageManager storageManager;
+    private WallpaperManager wallpaperManager;
     private Utils utils;
-    private KeyboardUtil keyboardUtil;
+    private KeyboardDodger keyboardDodger;
 
     private OnDocumentSavedListener onDocumentSavedListener;
 
@@ -49,68 +48,41 @@ public class MainActivity extends NpadActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        utils = new Utils(this);
+        npadEditText = (NpadEditText)findViewById(R.id.main_npadEditText);
+        wallpaperImageView = (FullScreenImageView)findViewById(R.id.main_wallpaperImageView);
+        wallpaperManager = new WallpaperManager(this);
+
+        NpadScrollView npadScrollView = (NpadScrollView)findViewById(R.id.main_npadScrollView);
+        npadScrollView.setFocusedViewOnClick(npadEditText);
+
+        keyboardDodger = new KeyboardDodger(this, (ViewGroup)findViewById(R.id.mainFrame).getParent());
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        mainTextBox = (EditText)findViewById(R.id.main_textBox);
-        wallpaperImageView = (ImageView)findViewById(R.id.main_wallpaperImageView);
-        storageManager = new StorageManager(this);
-        utils = new Utils(this);
 
         setSupportActionBar((Toolbar)findViewById(R.id.main_toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        mainTextBox.addTextChangedListener(new TextWatcher() {
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void afterTextChanged(Editable s) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                documentIsModified=true;
-            }
-        });
-
-        keyboardUtil = new KeyboardUtil(this, (ViewGroup)findViewById(R.id.mainFrame).getParent());
-
         refreshUI();
-        setWallpaperFullHeight();
+        fitWallpaperToWindow();
+    }
+
+    void setupEditorControls(){
+    }
+
+    void fitWallpaperToWindow() {
+        Rect windowRect = new Rect();
+        getWindow().getDecorView().getWindowVisibleDisplayFrame(windowRect);
+        ViewGroup.LayoutParams params = wallpaperImageView.getLayoutParams();
+        params.height = windowRect.height();
+        wallpaperImageView.setLayoutParams(params);
     }
 
     void refreshUI(){
         utils.applyWallpaper(wallpaperImageView);
-        utils.applyFontSize((TextView) findViewById(R.id.main_textBox));
+        utils.applyFontSize((TextView) findViewById(R.id.main_npadEditText));
         utils.applyShade(findViewById(R.id.main_overlay));
-    }
-
-    void setWallpaperFullHeight(){
-        //Setting wallpaper to window size so
-        Rect windowRect = new Rect();
-        wallpaperImageView.getWindowVisibleDisplayFrame(windowRect);
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) wallpaperImageView.getLayoutParams();
-        layoutParams.height = windowRect.height();
-        wallpaperImageView.setLayoutParams(layoutParams);
-    }
-
-    private void setupKeyboardListener(){
-        final ViewGroup mainFrame = (ViewGroup) findViewById(R.id.main_container);
-        mainFrame.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                Rect r = new Rect();
-                //r will be populated with the coordinates of your view that area still visible.
-                mainFrame.getWindowVisibleDisplayFrame(r);
-
-                int heightDiff = mainFrame.getRootView().getHeight() - (r.bottom - r.top);
-                if (heightDiff > 100) {
-                    ViewGroup.LayoutParams layoutParams = mainFrame.getLayoutParams();
-                } else {
-                    Rect windowRect = new Rect();
-                    getWindow().getDecorView().getWindowVisibleDisplayFrame(windowRect);
-                    ViewGroup.LayoutParams layoutParams = mainFrame.getLayoutParams();
-                    layoutParams.height =windowRect.bottom;
-                    mainFrame.setLayoutParams(layoutParams);
-                }
-            }
-        });
-
     }
 
     @Override
@@ -132,7 +104,7 @@ public class MainActivity extends NpadActivity {
 
         switch(item.getItemId()) {
             case (R.id.action_new):
-                if(documentIsModified) {
+                if(npadEditText.needsSaving()) {
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
                     saveFileDialog.setOnSaveDialogFinished(new SaveFileDialog.OnSaveDialogFinished() {
                         @Override
@@ -158,7 +130,7 @@ public class MainActivity extends NpadActivity {
                 }
                 break;
             case (R.id.action_open):
-                if(documentIsModified) {
+                if(npadEditText.needsSaving()) {
                     SaveFileDialog saveFileDialog = new SaveFileDialog();
                     saveFileDialog.setOnSaveDialogFinished(new SaveFileDialog.OnSaveDialogFinished() {
                         @Override
@@ -199,8 +171,8 @@ public class MainActivity extends NpadActivity {
 
     private void unloadDocument() {
         currentDocumentUri = null;
-        mainTextBox.setText("");
-        documentIsModified=false;
+        npadEditText.setText("");
+        npadEditText.notifySave();
     }
 
     private void openDocument() {
@@ -228,10 +200,10 @@ public class MainActivity extends NpadActivity {
             OutputStream outputStream = resolver.openOutputStream(currentDocumentUri);
             if(outputStream==null){ throw new IOException(); }
             BufferedOutputStream bufOutputStream = new BufferedOutputStream(outputStream);
-            bufOutputStream.write(mainTextBox.getText().toString().getBytes());
+            bufOutputStream.write(npadEditText.getText().toString().getBytes());
             bufOutputStream.close();
             utils.toast("Saved");
-            documentIsModified=false;
+            npadEditText.notifySave();
             if(onDocumentSavedListener != null) {
                 onDocumentSavedListener.onSave();
             }
@@ -281,9 +253,9 @@ public class MainActivity extends NpadActivity {
             Scanner s = new Scanner(inputStream).useDelimiter("\\A");
             String content = s.hasNext() ? s.next() : "";
             inputStream.close();
-            mainTextBox.setText(content);
+            npadEditText.setText(content);
             currentDocumentUri = openableUri;
-            documentIsModified=false;
+            npadEditText.notifySave();
         } catch (IOException e) {
             e.printStackTrace();
             utils.toast("Can't read document.");
@@ -292,7 +264,7 @@ public class MainActivity extends NpadActivity {
 
     @Override
     public void onBackPressed() {
-        if(documentIsModified) {
+        if(npadEditText.needsSaving()) {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.setOnSaveDialogFinished(new SaveFileDialog.OnSaveDialogFinished() {
                 @Override

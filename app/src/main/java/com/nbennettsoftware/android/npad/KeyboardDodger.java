@@ -17,11 +17,11 @@ import android.view.inputmethod.InputMethodManager;
  * to allow long lists with editTextViews
  * Basic idea for this solution found here: http://stackoverflow.com/a/9108219/325479
  */
-public class KeyboardUtil {
+public class KeyboardDodger {
     private View decorView;
     private View contentView;
 
-    public KeyboardUtil(Activity act, View contentView) {
+    public KeyboardDodger(Activity act, View contentView) {
         this.decorView = act.getWindow().getDecorView();
         this.contentView = contentView;
 
