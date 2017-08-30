@@ -35,3 +35,7 @@ dependencies {
 dependencies {
     compile 'com.1gravity:android-rteditor:1.6.2'
 }
+
+dependencies {
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
+}
