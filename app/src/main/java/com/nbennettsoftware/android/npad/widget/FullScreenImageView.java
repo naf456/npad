@@ -7,7 +7,9 @@ import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-public class FullScreenImageView extends android.support.v7.widget.AppCompatImageView {
+import pl.droidsonroids.gif.GifImageView;
+
+public class FullScreenImageView extends GifImageView {
 
     public FullScreenImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
