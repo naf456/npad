@@ -65,22 +65,14 @@ public class MainActivity extends NpadActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         refreshUI();
-        fitWallpaperToWindow();
     }
 
     void setupEditorControls(){
     }
 
-    void fitWallpaperToWindow() {
-        Rect windowRect = new Rect();
-        getWindow().getDecorView().getWindowVisibleDisplayFrame(windowRect);
-        ViewGroup.LayoutParams params = wallpaperImageView.getLayoutParams();
-        params.height = windowRect.height();
-        wallpaperImageView.setLayoutParams(params);
-    }
-
     void refreshUI(){
         utils.applyWallpaper(wallpaperImageView);
+        utils.updateWallpaperLayout(wallpaperImageView);
         utils.applyFontSize((TextView) findViewById(R.id.main_npadEditText));
         utils.applyShade(findViewById(R.id.main_overlay));
     }
@@ -90,6 +82,8 @@ public class MainActivity extends NpadActivity {
         super.onResume();
         refreshUI();
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -159,6 +153,7 @@ public class MainActivity extends NpadActivity {
                 saveDocument();
                 break;
             case (R.id.action_saveas):
+                saveDocumentAs();
                 break;
             case (R.id.action_gotoSetting):
                 ActivityOptions options = ActivityOptions.makeCustomAnimation(
@@ -288,4 +283,6 @@ public class MainActivity extends NpadActivity {
             super.onBackPressed();
         }
     }
+
+
 }

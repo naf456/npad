@@ -43,10 +43,36 @@
     </string-array>
     <string name="pref_default_shade_intensity">@string/shade_subtle</string>
 
+
+
+
     <string name="pref_category_wallpaper_name">Wallpaper</string>
+
     <string name="pref_title_pick_wallpaper">Pick Wallpaper</string>
     <string name="pref_key_pick_wallpaper">pick_wallpaper</string>
+
     <string name="pref_title_clear_wallpaper">Clear Wallpaper</string>
     <string name="pref_key_clear_wallpaper">clear_wallpaper</string>
+
+    <string name="pref_title_behind_keyboard">Behind Keyboard</string>
+    <string name="pref_key_behind_keyboard">behind_keyboard</string>
+    <string name="pref_default_behind_keyboard">true</string>
+
+    <string name="pref_title_scaling">Scaling</string>
+    <string name="to_width">width</string>
+    <string name="to_height">height</string>
+    <string name="stretch">stretch</string>
+    <string name="pref_key_scaling">wallpaper_scaling</string>
+    <string-array name="pref_scaling_titles">
+        <item>Fit</item>
+        <item>Fill</item>
+        <item>Stretch</item>
+    </string-array>
+    <string-array name="pref_scaling_values">
+        <item>@string/to_width</item>
+        <item>@string/to_height</item>
+        <item>@string/stretch</item>
+    </string-array>
+    <string name="pref_default_scaling">@string/to_height</string>
 
 </resources>

@@ -6,7 +6,6 @@
             android:entries="@array/pref_font_size_titles"
             android:entryValues="@array/pref_font_size_values"
             android:defaultValue="@string/pref_default_font_size"/>
-
         <ListPreference
             android:title="@string/pref_title_shade_intensity"
             android:key="@string/pref_key_shade_intensity"
@@ -16,10 +15,17 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_category_wallpaper_name">
         <Preference android:key="@string/pref_key_pick_wallpaper"
-            android:persistent="false"
             android:title="@string/pref_title_pick_wallpaper" />
         <Preference android:key="@string/pref_key_clear_wallpaper"
-            android:persistent="false"
             android:title="@string/pref_title_clear_wallpaper"/>
+        <CheckBoxPreference android:key="@string/pref_key_behind_keyboard"
+            android:title="@string/pref_title_behind_keyboard"
+            android:defaultValue="@string/pref_default_behind_keyboard"/>
+        <ListPreference
+            android:title="@string/pref_title_scaling"
+            android:key="@string/pref_key_scaling"
+            android:entries="@array/pref_scaling_titles"
+            android:entryValues="@array/pref_scaling_values"
+            android:defaultValue="@string/pref_default_scaling"/>
     </PreferenceCategory>
 </PreferenceScreen>

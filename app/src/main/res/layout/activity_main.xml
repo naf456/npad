@@ -5,7 +5,8 @@
     android:id="@+id/mainFrame"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context="com.nbennettsoftware.android.npad.MainActivity">
+    tools:context="com.nbennettsoftware.android.npad.MainActivity"
+    android:background="@android:color/black">
 
     <com.nbennettsoftware.android.npad.widget.FullScreenImageView
         android:id="@+id/main_wallpaperImageView"
@@ -31,8 +32,8 @@
             android:id="@+id/main_npadScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp">
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
 
             <com.nbennettsoftware.android.npad.widget.NpadEditText
                 android:id="@+id/main_npadEditText"

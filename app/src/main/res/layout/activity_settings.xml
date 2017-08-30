@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nbennettsoftware.android.npad.SettingsActivity">
+    tools:context="com.nbennettsoftware.android.npad.SettingsActivity"
+    android:background="@android:color/black">
 
-    <ImageView
+    <com.nbennettsoftware.android.npad.widget.FullScreenImageView
         android:id="@+id/settings_wallpaperImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -16,6 +16,7 @@ public class SettingsFragment extends PreferenceFragment {
     private Utils utils;
     private int PICK_WALLPAPER_INTENT_ID = 0;
     public OnWallpaperChangedListener onWallpaperChangedListener = null;
+    public OnScalingChangedListener onScalingChangedListener = null;
     public OnShadeChangedListener onShadeChangedListener = null;
 
     @Override
@@ -28,8 +29,10 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_shade_intensity)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_scaling)));
 
         //We let bindPrefernceSummaryToValue set are summary for us.
+        findPreference(getString(R.string.pref_key_scaling)).setOnPreferenceChangeListener(new OnScalingChangeListener());
         findPreference(getString(R.string.pref_key_shade_intensity)).setOnPreferenceChangeListener(new OnShadeIntensityChangeListener());
 
         findPreference(getString(R.string.pref_key_pick_wallpaper)).setOnPreferenceClickListener(new OnPickWallpaperClickListener());
@@ -53,12 +56,20 @@ public class SettingsFragment extends PreferenceFragment {
         void OnWallpaperChanged();
     }
 
+    interface OnScalingChangedListener {
+        void OnScalingChanged(String scaling);
+    }
+
     interface OnShadeChangedListener {
         void OnShadeChanged(String shadeIntensity);
     }
 
     void setOnWallpaperChangedListener(OnWallpaperChangedListener onWallpaperChangedListener) {
         this.onWallpaperChangedListener = onWallpaperChangedListener;
+    }
+
+    void setOnScalingChangedListener(OnScalingChangedListener onScalingChangedListener) {
+        this.onScalingChangedListener = onScalingChangedListener;
     }
 
     void setOnShadeChangedListener(OnShadeChangedListener onShadeChangedListener) {
@@ -73,10 +84,8 @@ public class SettingsFragment extends PreferenceFragment {
             intent.setType(IMAGE_MIME_TYPE);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-            Intent chooser = Intent.createChooser(intent, "Select Image");
-
-            if (chooser.resolveActivity(getActivity().getPackageManager()) != null) {
-                startActivityForResult(chooser, PICK_WALLPAPER_INTENT_ID);
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivityForResult(intent, PICK_WALLPAPER_INTENT_ID);
             } else {
                 utils.toast("No apps installed.");
             }
@@ -90,6 +99,18 @@ public class SettingsFragment extends PreferenceFragment {
             utils.clearWallpaper();
             if(onWallpaperChangedListener != null) {
                 onWallpaperChangedListener.OnWallpaperChanged();
+            }
+            return true;
+        }
+    }
+
+    private class OnScalingChangeListener implements Preference.OnPreferenceChangeListener {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object scalingObj) {
+            //Update summery
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, scalingObj);
+            if(onScalingChangedListener != null) {
+                onScalingChangedListener.OnScalingChanged(scalingObj.toString());
             }
             return true;
         }
