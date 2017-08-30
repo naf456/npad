@@ -3,9 +3,9 @@
     <color name="colorPrimary">#212121</color>
     <color name="colorPrimaryTrans">#b2000000</color>
     <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#4ae6ed</color>
-    <color name="textColor">#c8ffffff</color>
+    <color name="colorAccent">#80deea</color>
+    <color name="textColor">#ffffffff</color>
     <color name="subtleShade">#46000000</color>
-    <color name="moderateShade">#6e000000</color>
-    <color name="intenseShade">#96000000</color>
+    <color name="moderateShade">#83000000</color>
+    <color name="intenseShade">#c8000000</color>
 </resources>
