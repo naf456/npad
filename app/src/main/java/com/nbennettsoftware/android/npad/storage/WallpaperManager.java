@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
+
+import com.nbennettsoftware.android.npad.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,11 +17,11 @@ import java.io.OutputStream;
 
 public class WallpaperManager {
     private Context context;
-    private final String SHARED_PREFS_NAME=this.getClass().getName();
-    private final String PREFS_ID_INTERNAL_WALLPAPER_NAME="internal_wallpaper_name";
+    private String prefs_key_internal_wallpaper_name;
 
     public WallpaperManager(Context context) {
         this.context = context;
+        prefs_key_internal_wallpaper_name = context.getResources().getString(R.string.pref_key_internal_wallpaper_name);
     }
 
     public void replaceInternalizeWallpaper(Uri wallpaperUri) throws ReplaceInternalWallpaperException {
@@ -45,7 +47,7 @@ public class WallpaperManager {
 
             //Store new wallpaper name in prefs.
             getPreferences().edit()
-                    .putString(PREFS_ID_INTERNAL_WALLPAPER_NAME, displayName)
+                    .putString(prefs_key_internal_wallpaper_name, displayName)
                     .apply();
 
         } catch (IOException | UriDataRetrievalException e ) {
@@ -59,7 +61,7 @@ public class WallpaperManager {
         try {
             File internalWallpaper = getInternalizedWallpaper();
             internalWallpaper.delete();
-            getPreferences().edit().remove(PREFS_ID_INTERNAL_WALLPAPER_NAME).apply();
+            getPreferences().edit().remove(prefs_key_internal_wallpaper_name).apply();
         } catch (NoInternalWallpaperException e) {
             //Do nothing
         }
@@ -68,14 +70,14 @@ public class WallpaperManager {
     public class NoInternalWallpaperException extends Exception{};
 
     public File getInternalizedWallpaper() throws NoInternalWallpaperException {
-        String fileName = getPreferences().getString(PREFS_ID_INTERNAL_WALLPAPER_NAME, null);
+        String fileName = getPreferences().getString(prefs_key_internal_wallpaper_name, null);
         if(fileName==null){ throw new NoInternalWallpaperException(); }
         String internalDirPath = context.getFilesDir().getAbsolutePath();
         return new File(internalDirPath, fileName);
     }
 
     private SharedPreferences getPreferences(){
-        return context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
+        return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     private class UriDataRetrievalException extends Exception{}

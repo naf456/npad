@@ -5,6 +5,8 @@
 
     <!-- Strings related to Settings -->
 
+    <string name="pref_key_internal_wallpaper_name">internal_wallpaper_name</string>
+
     <string name="pref_category_general_name">Editor</string>
 
     <string name="pref_title_font_size">Font size</string>
@@ -23,11 +25,11 @@
     </string-array>
     <string name="pref_default_font_size">16</string>
 
-    <string name="pref_title_shade_intensity">Shade intensity</string>
-    <string name="shade_off">off</string>
-    <string name="shade_subtle">subtle</string>
-    <string name="shade_moderate">moderate</string>
-    <string name="shade_intense">intense</string>
+    <string name="pref_title_shade_intensity">Shade</string>
+    <string name="shade_off">Off</string>
+    <string name="shade_subtle">Subtle</string>
+    <string name="shade_moderate">Moderate</string>
+    <string name="shade_intense">Intense</string>
     <string name="pref_key_shade_intensity">shade_intensity</string>
     <string-array name="pref_shade_intensity_titles">
         <item>Off</item>
@@ -42,9 +44,6 @@
         <item>@string/shade_intense</item>
     </string-array>
     <string name="pref_default_shade_intensity">@string/shade_subtle</string>
-
-
-
 
     <string name="pref_category_wallpaper_name">Wallpaper</string>
 

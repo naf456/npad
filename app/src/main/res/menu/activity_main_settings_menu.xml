@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/mg_settings" android:visible="false">
+        <item
+            android:id="@+id/action_fontsize"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="Font Size&#8230;"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/action_shade"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="Shade&#8230;"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/action_pick_wallpaper"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="Shade&#8230;"
+            app:showAsAction="always" />
+    </group>
+
+</menu>

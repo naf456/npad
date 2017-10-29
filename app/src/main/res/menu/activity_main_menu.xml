@@ -41,6 +41,19 @@
             app:showAsAction="never" />
     </group>
 
+    <group android:id="@+id/mg_settings" android:visible="false">
+        <item
+            android:id="@+id/action_fontsize"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="Font Size&#8230;"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/action_shade"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="Shade&#8230;"
+            app:showAsAction="always" />
+    </group>
+
     <item
         android:id="@+id/action_gotoSetting"
         android:title="Settings"

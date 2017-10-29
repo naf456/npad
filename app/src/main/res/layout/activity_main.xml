@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.FitWindowsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.nbennettsoftware.android.npad.widget.KeyboardDodgingFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainFrame"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context="com.nbennettsoftware.android.npad.MainActivity"
     android:background="@android:color/black">
 
-    <com.nbennettsoftware.android.npad.widget.FullScreenImageView
+    <com.nbennettsoftware.android.npad.widget.WallpaperImageView
         android:id="@+id/main_wallpaperImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,9 +32,7 @@
         <com.nbennettsoftware.android.npad.widget.NpadScrollView
             android:id="@+id/main_npadScrollView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp">
+            android:layout_height="match_parent">
 
             <com.nbennettsoftware.android.npad.widget.NpadEditText
                 android:id="@+id/main_npadEditText"
@@ -43,6 +42,8 @@
                 android:gravity="top|start"
                 android:inputType="textMultiLine"
                 android:paddingTop="?attr/actionBarSize"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:textColor="@color/textColor"
                 android:textSize="14sp" />
 
@@ -52,11 +53,7 @@
             android:id="@+id/main_toolbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme"/>
+            android:layout_gravity="top|end"/>
     </FrameLayout>
 
-</android.support.v7.widget.FitWindowsFrameLayout>
+</com.nbennettsoftware.android.npad.widget.KeyboardDodgingFrameLayout>

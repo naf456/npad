@@ -1,19 +1,23 @@
 package com.nbennettsoftware.android.npad;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
-import java.util.List;
+import com.nbennettsoftware.android.npad.storage.WallpaperManager;
 
 public class SettingsFragment extends PreferenceFragment {
 
     private Utils utils;
+    private WallpaperManager wallpaperManager;
     private int PICK_WALLPAPER_INTENT_ID = 0;
     public OnWallpaperChangedListener onWallpaperChangedListener = null;
     public OnScalingChangedListener onScalingChangedListener = null;
@@ -24,6 +28,7 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         utils = new Utils(this.getActivity());
+        wallpaperManager = new WallpaperManager(getActivity());
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
@@ -45,7 +50,12 @@ public class SettingsFragment extends PreferenceFragment {
         if(requestCode == PICK_WALLPAPER_INTENT_ID && resultCode == Activity.RESULT_OK) {
             Uri uri = data.getData();
             if(uri==null) { return; }
-            utils.saveWallpaper(uri);
+            try{
+                wallpaperManager.replaceInternalizeWallpaper(uri);
+            } catch (WallpaperManager.ReplaceInternalWallpaperException e) {
+                e.printStackTrace();
+                Toast.makeText(getActivity(), "Cannot replace internal wallpaper", Toast.LENGTH_LONG).show();
+            }
             if(onWallpaperChangedListener != null) {
                 onWallpaperChangedListener.OnWallpaperChanged();
             }
@@ -96,7 +106,7 @@ public class SettingsFragment extends PreferenceFragment {
     private class OnClearWallpaperClickListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            utils.clearWallpaper();
+            new WallpaperManager(getActivity()).deleteInternalizedWallpaper();
             if(onWallpaperChangedListener != null) {
                 onWallpaperChangedListener.OnWallpaperChanged();
             }

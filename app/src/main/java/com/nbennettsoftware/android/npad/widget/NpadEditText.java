@@ -31,7 +31,6 @@ public class NpadEditText extends android.support.v7.widget.AppCompatEditText {
 
     public void notifySave(){
         this.needsSaving=false;
-        addTextChangedListener(new OnTextModifiedNeedsSavingSetter());
     }
 
     public boolean needsSaving(){
@@ -43,7 +42,6 @@ public class NpadEditText extends android.support.v7.widget.AppCompatEditText {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             needsSaving = true;
-            removeTextChangedListener(this);
         }
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

@@ -6,7 +6,7 @@
     tools:context="com.nbennettsoftware.android.npad.SettingsActivity"
     android:background="@android:color/black">
 
-    <com.nbennettsoftware.android.npad.widget.FullScreenImageView
+    <com.nbennettsoftware.android.npad.widget.WallpaperImageView
         android:id="@+id/settings_wallpaperImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

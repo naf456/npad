@@ -3,21 +3,18 @@ package com.nbennettsoftware.android.npad;
 import android.app.ActivityOptions;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nbennettsoftware.android.npad.storage.WallpaperManager;
-import com.nbennettsoftware.android.npad.widget.FullScreenImageView;
+import com.nbennettsoftware.android.npad.widget.WallpaperImageView;
 import com.nbennettsoftware.android.npad.widget.NpadEditText;
 import com.nbennettsoftware.android.npad.widget.NpadScrollView;
 
@@ -34,11 +31,9 @@ public class MainActivity extends NpadActivity {
 
     private Uri currentDocumentUri;
     private NpadEditText npadEditText;
-    private FullScreenImageView wallpaperImageView;
+    private WallpaperImageView wallpaperImageView;
     private int defaultWallpaperResource = R.mipmap.stary_night;
-    private WallpaperManager wallpaperManager;
     private Utils utils;
-    private KeyboardDodger keyboardDodger;
 
     private OnDocumentSavedListener onDocumentSavedListener;
 
@@ -50,16 +45,11 @@ public class MainActivity extends NpadActivity {
 
         utils = new Utils(this);
         npadEditText = (NpadEditText)findViewById(R.id.main_npadEditText);
-        wallpaperImageView = (FullScreenImageView)findViewById(R.id.main_wallpaperImageView);
-        wallpaperManager = new WallpaperManager(this);
+        wallpaperImageView = (WallpaperImageView)findViewById(R.id.main_wallpaperImageView);
+        wallpaperImageView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
 
         NpadScrollView npadScrollView = (NpadScrollView)findViewById(R.id.main_npadScrollView);
         npadScrollView.setFocusedViewOnClick(npadEditText);
-
-        keyboardDodger = new KeyboardDodger(this, (ViewGroup)findViewById(R.id.mainFrame).getParent());
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setSupportActionBar((Toolbar)findViewById(R.id.main_toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -71,8 +61,9 @@ public class MainActivity extends NpadActivity {
     }
 
     void refreshUI(){
-        utils.applyWallpaper(wallpaperImageView);
-        utils.updateWallpaperLayout(wallpaperImageView);
+        wallpaperImageView.setImageToWallpaper();
+        wallpaperImageView.setScalingFromPreferences();
+        wallpaperImageView.setBelowKeyboard();
         utils.applyFontSize((TextView) findViewById(R.id.main_npadEditText));
         utils.applyShade(findViewById(R.id.main_overlay));
     }

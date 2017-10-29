@@ -3,10 +3,11 @@ package com.nbennettsoftware.android.npad;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.widget.ImageView;
+import android.view.View;
+import android.view.WindowManager;
 
-import com.nbennettsoftware.android.npad.widget.FullScreenImageView;
+import com.nbennettsoftware.android.npad.storage.WallpaperManager;
+import com.nbennettsoftware.android.npad.widget.WallpaperImageView;
 
 public class SettingsActivity extends AppCompatActivity
         implements SettingsFragment.OnWallpaperChangedListener,
@@ -14,6 +15,7 @@ public class SettingsActivity extends AppCompatActivity
                     SettingsFragment.OnScalingChangedListener{
 
     private Utils utils;
+    private WallpaperImageView wallpaperImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,7 @@ public class SettingsActivity extends AppCompatActivity
                 .commit();
 
         utils = new Utils(this);
+        wallpaperImageView = (WallpaperImageView)findViewById(R.id.settings_wallpaperImageView);
 
         refreshUi();
     }
@@ -46,15 +49,24 @@ public class SettingsActivity extends AppCompatActivity
 
     @Override
     public void OnScalingChanged(String scaling) {
-        utils.applyWallpaperScaling((ImageView) findViewById(R.id.settings_wallpaperImageView), scaling);
+        wallpaperImageView.setScalingFromPreference(scaling);
     }
 
     void refreshUi(){
-        utils.applyWallpaper((FullScreenImageView) findViewById(R.id.settings_wallpaperImageView));
-        utils.applyWallpaperScaling((ImageView) findViewById(R.id.settings_wallpaperImageView));
+        wallpaperImageView.setImageToWallpaper();
+        wallpaperImageView.setScalingFromPreferences();
+        wallpaperImageView.setBelowKeyboard();
         utils.applyShade(findViewById(R.id.settings_overlay));
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshUi();
+    }
 
     @Override
     public void onBackPressed() {
