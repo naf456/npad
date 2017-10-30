@@ -10,12 +10,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textCursorDrawable">@null</item>
-        <item name="android:popupMenuStyle">@style/AppTheme.PopupMenu</item>
     </style>
 
-    <style name="AppTheme.PopupMenu" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:panelColorBackground">@color/colorAccent</item>
-        <item name="android:popupBackground">@drawable/ic_format_bold_white_24dp</item>
-    </style>
+
+
 
 </resources>
