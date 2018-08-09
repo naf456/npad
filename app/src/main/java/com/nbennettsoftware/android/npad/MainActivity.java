@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +31,6 @@ public class MainActivity extends NpadActivity {
     private Uri currentDocumentUri;
     private NpadEditText npadEditText;
     private WallpaperImageView wallpaperImageView;
-    private int defaultWallpaperResource = R.mipmap.stary_night;
     private Utils utils;
 
     private OnDocumentSavedListener onDocumentSavedListener;
@@ -46,7 +44,8 @@ public class MainActivity extends NpadActivity {
         utils = new Utils(this);
         npadEditText = (NpadEditText)findViewById(R.id.main_npadEditText);
         wallpaperImageView = (WallpaperImageView)findViewById(R.id.main_wallpaperImageView);
-        wallpaperImageView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
 
         NpadScrollView npadScrollView = (NpadScrollView)findViewById(R.id.main_npadScrollView);
         npadScrollView.setFocusedViewOnClick(npadEditText);

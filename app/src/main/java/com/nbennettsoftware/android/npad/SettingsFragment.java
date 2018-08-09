@@ -12,6 +12,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.nbennettsoftware.android.npad.R;
+import com.nbennettsoftware.android.npad.Utils;
 import com.nbennettsoftware.android.npad.storage.WallpaperManager;
 
 public class SettingsFragment extends PreferenceFragment {
