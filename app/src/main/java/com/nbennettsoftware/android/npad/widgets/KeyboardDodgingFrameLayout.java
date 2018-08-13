@@ -1,4 +1,4 @@
-package com.nbennettsoftware.android.npad.widget;
+package com.nbennettsoftware.android.npad.widgets;
 
 import android.app.Activity;
 import android.content.Context;

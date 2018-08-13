@@ -1,21 +1,21 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat">
-        <item name="windowNoTitle">true</item>
+
+        <!-- Use support toolbar instead -->
         <item name="windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowTranslucentNavigation">true</item>
+
+        <item name="windowNoTitle">true</item>
 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textCursorDrawable">@null</item>
-        <item name="android:popupMenuStyle">@style/AppTheme.PopupMenu</item>
-    </style>
 
-    <style name="AppTheme.PopupMenu" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:panelColorBackground">@color/colorAccent</item>
-        <item name="android:popupBackground">@drawable/ic_format_bold_white_24dp</item>
+        <item name="android:textCursorDrawable">@null</item>
+
+        <item name="android:windowContentOverlay">@null</item>
+
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
 </resources>

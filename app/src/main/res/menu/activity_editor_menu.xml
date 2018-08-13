@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/mg_newopen" android:visible="true">
+        <item
+            android:id="@+id/action_new"
+            android:title="@string/editor_action_new"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_open"
+            android:title="@string/editor_action_open"
+            app:showAsAction="never" />
+    </group>
+
+    <group android:id="@+id/mg_savesaveas" android:visible="true">
+        <item
+            android:id="@+id/action_save"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="@string/editor_action_save"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_saveas"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="@string/editor_action_saveAs" />
+    </group>
+
+
+    <item
+        android:id="@+id/action_gotoSetting"
+        android:title="@string/editor_action_setting"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_photoMode"
+        android:checkable="true"
+        android:checked="false"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="@string/editor_action_photoMode"
+        app:showAsAction="never" />
+
+
+</menu>

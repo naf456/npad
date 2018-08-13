@@ -5,7 +5,7 @@
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#80deea</color>
     <color name="textColor">#ffffffff</color>
-    <color name="subtleShade">#46000000</color>
-    <color name="moderateShade">#83000000</color>
-    <color name="intenseShade">#c8000000</color>
+    <color name="dimmerSubtle">#46000000</color>
+    <color name="dimmerModerate">#83000000</color>
+    <color name="dimmerIntense">#c8000000</color>
 </resources>

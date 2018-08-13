@@ -1,9 +1,7 @@
 package com.nbennettsoftware.android.npad;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -12,13 +10,10 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import com.nbennettsoftware.android.npad.R;
-import com.nbennettsoftware.android.npad.Utils;
 import com.nbennettsoftware.android.npad.storage.WallpaperManager;
 
 public class SettingsFragment extends PreferenceFragment {
 
-    private Utils utils;
     private WallpaperManager wallpaperManager;
     private int PICK_WALLPAPER_INTENT_ID = 0;
     public OnWallpaperChangedListener onWallpaperChangedListener = null;
@@ -29,18 +24,17 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        utils = new Utils(this.getActivity());
         wallpaperManager = new WallpaperManager(getActivity());
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size)));
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_shade_intensity)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_dimmer_intensity)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_scaling)));
 
-        //We let bindPrefernceSummaryToValue set are summary for us.
+        //We let bindPreferenceSummaryToValue set are summary for us.
         findPreference(getString(R.string.pref_key_scaling)).setOnPreferenceChangeListener(new OnScalingChangeListener());
-        findPreference(getString(R.string.pref_key_shade_intensity)).setOnPreferenceChangeListener(new OnShadeIntensityChangeListener());
+        findPreference(getString(R.string.pref_key_dimmer_intensity)).setOnPreferenceChangeListener(new OnShadeIntensityChangeListener());
 
         findPreference(getString(R.string.pref_key_pick_wallpaper)).setOnPreferenceClickListener(new OnPickWallpaperClickListener());
         findPreference(getString(R.string.pref_key_clear_wallpaper)).setOnPreferenceClickListener(new OnClearWallpaperClickListener());
@@ -73,7 +67,7 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     interface OnShadeChangedListener {
-        void OnShadeChanged(String shadeIntensity);
+        void OnDimmerChanged(String shadeIntensity);
     }
 
     void setOnWallpaperChangedListener(OnWallpaperChangedListener onWallpaperChangedListener) {
@@ -99,7 +93,7 @@ public class SettingsFragment extends PreferenceFragment {
             if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
                 startActivityForResult(intent, PICK_WALLPAPER_INTENT_ID);
             } else {
-                utils.toast("No apps installed.");
+                Toast.makeText(getActivity(), "No apps installed.", Toast.LENGTH_SHORT).show();
             }
             return true;
         }
@@ -134,7 +128,7 @@ public class SettingsFragment extends PreferenceFragment {
             //Update summery
             sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, shadeIntensityObj);
             if(onShadeChangedListener != null) {
-                onShadeChangedListener.OnShadeChanged(shadeIntensityObj.toString());
+                onShadeChangedListener.OnDimmerChanged(shadeIntensityObj.toString());
             }
             return true;
         }
