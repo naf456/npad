@@ -2,23 +2,22 @@ package com.nbennettsoftware.android.npad;
 
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.WindowManager;
 
-import com.nbennettsoftware.android.npad.widget.WallpaperImageView;
+import com.nbennettsoftware.android.npad.widgets.WallpaperView;
 
-public class SettingsActivity extends AppCompatActivity
+public class SettingsActivity extends NpadActivity
         implements SettingsFragment.OnWallpaperChangedListener,
                     SettingsFragment.OnShadeChangedListener,
                     SettingsFragment.OnScalingChangedListener{
 
-    private Utils utils;
-    private WallpaperImageView wallpaperImageView;
+    private WallpaperView wallpaperView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+
 
         SettingsFragment settingsFragment = new SettingsFragment();
         settingsFragment.setOnWallpaperChangedListener(this);
@@ -29,8 +28,8 @@ public class SettingsActivity extends AppCompatActivity
                 .replace(R.id.settings_fragment_placeholder, settingsFragment)
                 .commit();
 
-        utils = new Utils(this);
-        wallpaperImageView = (WallpaperImageView)findViewById(R.id.settings_wallpaperImageView);
+
+        wallpaperView = findViewById(R.id.settings_wallpaperImageView);
 
         refreshUi();
     }
@@ -41,23 +40,19 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnShadeChanged(String shadeIntensity) {
-        utils.applyShade(findViewById(R.id.settings_overlay), shadeIntensity);
+    public void OnDimmerChanged(String dimmerIntensity) {
+        wallpaperView.applyWallpaperDimmer(dimmerIntensity);
     }
 
     @Override
     public void OnScalingChanged(String scaling) {
-        wallpaperImageView.setScalingFromPreference(scaling);
+        wallpaperView.applyScaling(scaling);
     }
 
     void refreshUi(){
-        wallpaperImageView.setImageToWallpaper();
-        wallpaperImageView.setScalingFromPreferences();
-        wallpaperImageView.setBelowKeyboard();
-        utils.applyShade(findViewById(R.id.settings_overlay));
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        wallpaperView.applyWallpaperFromPreferences();
+        wallpaperView.applyWallpaperDimmerFromPreferences();
+        wallpaperView.applyScalingFromPreferences();
     }
 
     @Override

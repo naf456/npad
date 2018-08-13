@@ -1,6 +1,15 @@
 <resources>
     <string name="app_name">Npad</string>
-    <string name="save_msg">Save changes to document before closing?</string>
+
+    <string name="editor_action_new">New</string>
+    <string name="editor_action_open">Open&#8230;</string>
+    <string name="editor_action_saveAs">Save As&#8230;</string>
+    <string name="editor_action_save">Save</string>
+    <string name="editor_action_setting">Settings</string>
+    <string name="editor_action_photoMode">Photo mode</string>
+
+    <string name="save_dialog_msg">Save changes to document before closing?</string>
+
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -25,26 +34,6 @@
     </string-array>
     <string name="pref_default_font_size">16</string>
 
-    <string name="pref_title_shade_intensity">Shade</string>
-    <string name="shade_off">Off</string>
-    <string name="shade_subtle">Subtle</string>
-    <string name="shade_moderate">Moderate</string>
-    <string name="shade_intense">Intense</string>
-    <string name="pref_key_shade_intensity">shade_intensity</string>
-    <string-array name="pref_shade_intensity_titles">
-        <item>Off</item>
-        <item>Subtle</item>
-        <item>Moderate</item>
-        <item>Intense</item>
-    </string-array>
-    <string-array name="pref_shade_intensity_values">
-        <item>@string/shade_off</item>
-        <item>@string/shade_subtle</item>
-        <item>@string/shade_moderate</item>
-        <item>@string/shade_intense</item>
-    </string-array>
-    <string name="pref_default_shade_intensity">@string/shade_subtle</string>
-
     <string name="pref_category_wallpaper_name">Wallpaper</string>
 
     <string name="pref_title_pick_wallpaper">Pick Wallpaper</string>
@@ -53,15 +42,31 @@
     <string name="pref_title_clear_wallpaper">Clear Wallpaper</string>
     <string name="pref_key_clear_wallpaper">clear_wallpaper</string>
 
-    <string name="pref_title_behind_keyboard">Behind Keyboard</string>
-    <string name="pref_key_behind_keyboard">behind_keyboard</string>
-    <string name="pref_default_behind_keyboard">true</string>
+    <string name="pref_title_dimmer_intensity">Wallpaper dimmer</string>
+    <string name="pref_key_dimmer_intensity">dimmer_intensity</string>
+    <string name="dimmer_off">off</string>
+    <string name="dimmer_subtle">subtle</string>
+    <string name="dimmer_moderate">moderate</string>
+    <string name="dimmer_intense">intense</string>
+    <string-array name="pref_dimmer_intensity_titles">
+        <item>Off</item>
+        <item>Subtle</item>
+        <item>Moderate</item>
+        <item>Intense</item>
+    </string-array>
+    <string-array name="pref_dimmer_intensity_values">
+        <item>@string/dimmer_off</item>
+        <item>@string/dimmer_subtle</item>
+        <item>@string/dimmer_moderate</item>
+        <item>@string/dimmer_intense</item>
+    </string-array>
+    <string name="pref_default_shade_intensity">@string/dimmer_subtle</string>
 
     <string name="pref_title_scaling">Scaling</string>
+    <string name="pref_key_scaling">wallpaper_scaling</string>
     <string name="to_width">width</string>
     <string name="to_height">height</string>
     <string name="stretch">stretch</string>
-    <string name="pref_key_scaling">wallpaper_scaling</string>
     <string-array name="pref_scaling_titles">
         <item>Fit</item>
         <item>Fill</item>
