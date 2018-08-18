@@ -33,9 +33,6 @@ dependencies {
 }
 
 dependencies {
-    implementation 'com.1gravity:android-rteditor:1.6.2'
-}
-
-dependencies {
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
 }
+

@@ -31,6 +31,7 @@
         android:title="@string/editor_action_setting"
         app:showAsAction="never" />
 
+    <!-- TODO:
     <item
         android:id="@+id/action_photoMode"
         android:checkable="true"
@@ -38,6 +39,7 @@
         android:icon="@android:drawable/ic_menu_camera"
         android:title="@string/editor_action_photoMode"
         app:showAsAction="never" />
+        -->
 
 
 </menu>

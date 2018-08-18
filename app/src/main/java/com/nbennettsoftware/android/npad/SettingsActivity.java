@@ -31,12 +31,15 @@ public class SettingsActivity extends NpadActivity
 
         wallpaperView = findViewById(R.id.settings_wallpaperImageView);
 
-        refreshUi();
+        wallpaperView.applyWallpaperFromPreferences();
+        wallpaperView.applyWallpaperDimmerFromPreferences();
+        wallpaperView.applyScalingFromPreferences();
+
     }
 
     @Override
     public void OnWallpaperChanged() {
-        refreshUi();
+        wallpaperView.applyWallpaperFromPreferences();
     }
 
     @Override
@@ -49,16 +52,9 @@ public class SettingsActivity extends NpadActivity
         wallpaperView.applyScaling(scaling);
     }
 
-    void refreshUi(){
-        wallpaperView.applyWallpaperFromPreferences();
-        wallpaperView.applyWallpaperDimmerFromPreferences();
-        wallpaperView.applyScalingFromPreferences();
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-        refreshUi();
     }
 
     @Override

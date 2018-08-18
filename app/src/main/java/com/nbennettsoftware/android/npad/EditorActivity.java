@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,7 +14,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -35,7 +33,7 @@ public class EditorActivity extends NpadActivity {
     private final int PICK_DOCUMENT_INTENT_ID = 1;
     private final int PICK_SAVE_FILE_INTENT_ID = 2;
 
-    private EditText mMainEditText;
+    private EditText mEditor;
     private WallpaperView mWallpaperView;
 
     private Uri mCurrentDocumentUri;
@@ -43,20 +41,28 @@ public class EditorActivity extends NpadActivity {
 
     private List<OnDocumentSaveListener> onDocumentSaveListeners = new ArrayList<>();
 
-
-    private TextWatcher mTextWatcher =  new TextWatcher() {
-
+    private TextWatcher mRequireSavingOnText = new TextWatcher() {
         @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             mCurrentDocumentNeedsSaving = true;
         }
-
         @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
         @Override
-        public void afterTextChanged(Editable editable) {}
+        public void afterTextChanged(Editable editable) { }
     };
 
+    void toast(String msg) {
+        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,0);
+        toast.show();
+    }
+
+    void toastLong(String msg){
+        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,0);
+        toast.show();
+    }
 
 
     @Override
@@ -65,13 +71,16 @@ public class EditorActivity extends NpadActivity {
 
         setContentView(R.layout.activity_editor);
 
-        mMainEditText = findViewById(R.id.editor_npadEditText);
+        mEditor = findViewById(R.id.editor_npadEditText);
         mWallpaperView = findViewById(R.id.editor_wallpaperImageView);
 
-        mMainEditText.addTextChangedListener(mTextWatcher);
+        mEditor.addTextChangedListener(mRequireSavingOnText);
 
         setSupportActionBar((Toolbar)findViewById(R.id.editor_toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        clearDocument();
+
         configureUI();
     }
 
@@ -89,7 +98,7 @@ public class EditorActivity extends NpadActivity {
         String fontSize = preferences.getString(fontSizeKey, fontSizeDefault);
         try {
             Integer fontSizeInt = Integer.parseInt(fontSize);
-            mMainEditText.setTextSize(fontSizeInt);
+            mEditor.setTextSize(fontSizeInt);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
@@ -171,7 +180,7 @@ public class EditorActivity extends NpadActivity {
 
      private void clearDocument() {
         mCurrentDocumentUri = null;
-        mMainEditText.setText("");
+        mEditor.setText("");
         //Blank documents considered useless
         mCurrentDocumentNeedsSaving = false;
     }
@@ -235,6 +244,30 @@ public class EditorActivity extends NpadActivity {
         }
     }
 
+    private void loadDocument(Uri openableUri) {
+        ContentResolver resolver = getContentResolver();
+        try {
+            InputStream inputStream = resolver.openInputStream(openableUri);
+            if(inputStream==null){ throw new IOException(); }
+
+            Scanner s = new Scanner(inputStream).useDelimiter("\\A");
+            String content = s.hasNext() ? s.next() : "";
+
+            inputStream.close();
+
+            mEditor.setText(content);
+            mCurrentDocumentUri = openableUri;
+            mCurrentDocumentNeedsSaving =false;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            toast("Can't read document");
+        }
+    }
+
+    private abstract class OnDocumentSaveListener {
+        abstract void onSaved();
+    }
 
     private void saveDocument() {
 
@@ -249,7 +282,7 @@ public class EditorActivity extends NpadActivity {
             if(outputStream == null){ throw new IOException(); }
 
             BufferedOutputStream bufOutputStream = new BufferedOutputStream(outputStream);
-            bufOutputStream.write(mMainEditText.getText().toString().getBytes());
+            bufOutputStream.write(mEditor.getText().toString().getBytes());
             bufOutputStream.close();
 
             mCurrentDocumentNeedsSaving = false;
@@ -302,37 +335,12 @@ public class EditorActivity extends NpadActivity {
         }
     }
 
-    private abstract class OnDocumentSaveListener {
-        abstract void onSaved();
-    }
-
     private void addOnDocumentSavedListener(OnDocumentSaveListener listener){
         onDocumentSaveListeners.add(listener);
     }
 
     private void removeOnDocumentSaveListener(OnDocumentSaveListener listener){
         onDocumentSaveListeners.remove(listener);
-    }
-
-    private void loadDocument(Uri openableUri) {
-        ContentResolver resolver = getContentResolver();
-        try {
-            InputStream inputStream = resolver.openInputStream(openableUri);
-            if(inputStream==null){ throw new IOException(); }
-
-            Scanner s = new Scanner(inputStream).useDelimiter("\\A");
-            String content = s.hasNext() ? s.next() : "";
-
-            inputStream.close();
-
-            mMainEditText.setText(content);
-            mCurrentDocumentUri = openableUri;
-            mCurrentDocumentNeedsSaving =false;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            toast("Can't read document");
-        }
     }
 
     @Override
@@ -354,19 +362,4 @@ public class EditorActivity extends NpadActivity {
             super.onBackPressed();
         }
     }
-
-
-    void toast(String msg) {
-        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,0);
-        toast.show();
-    }
-
-    void toastLong(String msg){
-        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.TOP | Gravity.CENTER, 0,0);
-        toast.show();
-    }
-
-
 }
