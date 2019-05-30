@@ -1,14 +1,23 @@
 <resources>
     <string name="app_name">Npad</string>
 
+    <string name="editor_action_file_menu">File</string>
     <string name="editor_action_new">New</string>
     <string name="editor_action_open">Open&#8230;</string>
     <string name="editor_action_saveAs">Save As&#8230;</string>
     <string name="editor_action_save">Save</string>
     <string name="editor_action_setting">Settings</string>
     <string name="editor_action_photoMode">Photo mode</string>
+    <string name="editor_action_format_menu">Format</string>
+
 
     <string name="save_dialog_msg">Save changes to document before closing?</string>
+
+    <string name="dialog_msg_incompatible_document_type"> is not a compatible document type.</string>
+
+    <string name="toast_msg_photo_mode_instruction">Tap and hold to exit</string>
+
+    <string name="dialog_msg_exi_photo_mode">Exit Photo Mode?</string>
 
     <string name="title_activity_settings">Settings</string>
 
@@ -78,5 +87,46 @@
         <item>@string/stretch</item>
     </string-array>
     <string name="pref_default_scaling">@string/to_height</string>
+    <string name="pref_key_draw_default_background">draw_default_background</string>
+    <bool name="pref_default_draw_default_background">false</bool>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Custom Views -->
+
+    <string name="preference_clearable_btn_text">Clear</string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </resources>

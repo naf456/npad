@@ -2,6 +2,7 @@ package com.nbennettsoftware.android.npad;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -102,7 +103,17 @@ public class SettingsFragment extends PreferenceFragment {
     private class OnClearWallpaperClickListener implements Preference.OnPreferenceClickListener {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-            new WallpaperManager(getActivity()).deleteInternalizedWallpaper();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String drawDefaultBackground_key = getActivity().getResources().getString(R.string.pref_key_draw_default_background);
+            boolean drawDefaultBackground_default = getActivity().getResources().getBoolean(R.bool.pref_default_draw_default_background);
+
+            boolean drawDefaultBackground = preferences.getBoolean(drawDefaultBackground_key, drawDefaultBackground_default);
+
+            if(wallpaperManager.hasInternalizedWallpaper()) {
+                wallpaperManager.deleteInternalizedWallpaper();
+            } else {
+                preferences.edit().putBoolean(drawDefaultBackground_key, !drawDefaultBackground).apply();
+            }
             if(onWallpaperChangedListener != null) {
                 onWallpaperChangedListener.OnWallpaperChanged();
             }

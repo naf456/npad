@@ -19,6 +19,8 @@ public class WallpaperManager {
     private Context context;
     private String prefs_key_internal_wallpaper_name;
 
+    private OnWallpaperChangedListener onWallpaperChangedListener;
+
     public WallpaperManager(Context context) {
         this.context = context;
         prefs_key_internal_wallpaper_name = context.getResources().getString(R.string.pref_key_internal_wallpaper_name);
@@ -26,10 +28,10 @@ public class WallpaperManager {
 
     public void replaceInternalizeWallpaper(Uri wallpaperUri) throws ReplaceInternalWallpaperException {
         try {
-            ContentResolver resolver = context.getContentResolver();
-            String displayName = getWallpaperFileName(wallpaperUri);
-
             deleteInternalizedWallpaper();
+
+            String displayName = getWallpaperFileName(wallpaperUri);
+            ContentResolver resolver = context.getContentResolver();
 
             //Copy the wallpaper to internal storage
             OutputStream outputStream = context.openFileOutput(displayName,0);
@@ -49,6 +51,9 @@ public class WallpaperManager {
             getPreferences().edit()
                     .putString(prefs_key_internal_wallpaper_name, displayName)
                     .apply();
+            if(this.onWallpaperChangedListener != null) {
+                this.onWallpaperChangedListener.onWallpaperChanged();
+            }
 
         } catch (IOException | UriDataRetrievalException e ) {
             throw new ReplaceInternalWallpaperException();
@@ -62,8 +67,21 @@ public class WallpaperManager {
             File internalWallpaper = getInternalizedWallpaper();
             internalWallpaper.delete();
             getPreferences().edit().remove(prefs_key_internal_wallpaper_name).apply();
+            if(this.onWallpaperChangedListener != null) {
+                this.onWallpaperChangedListener.onWallpaperChanged();
+            }
         } catch (NoInternalWallpaperException e) {
             //Do nothing
+        }
+    }
+
+    public boolean hasInternalizedWallpaper(){
+        SharedPreferences preferences = getPreferences();
+        String wallpaper = preferences.getString(prefs_key_internal_wallpaper_name, null);
+        if(wallpaper == null) {
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -96,4 +114,11 @@ public class WallpaperManager {
         return stringData;
     }
 
+    public interface OnWallpaperChangedListener {
+        void onWallpaperChanged();
+    }
+
+    public void setOnWallpaperChangedListener(OnWallpaperChangedListener onWallpaperChangedListener) {
+        this.onWallpaperChangedListener = onWallpaperChangedListener;
+    }
 }

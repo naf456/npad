@@ -2,34 +2,73 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:id="@+id/mg_newopen" android:visible="true">
-        <item
-            android:id="@+id/action_new"
-            android:title="@string/editor_action_new"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/action_open"
-            android:title="@string/editor_action_open"
-            app:showAsAction="never" />
-    </group>
-
-    <group android:id="@+id/mg_savesaveas" android:visible="true">
-        <item
-            android:id="@+id/action_save"
-            android:icon="@android:drawable/ic_menu_save"
-            android:title="@string/editor_action_save"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/action_saveas"
-            android:icon="@android:drawable/ic_menu_save"
-            android:title="@string/editor_action_saveAs" />
-    </group>
-
-
     <item
-        android:id="@+id/action_gotoSetting"
+        android:id="@+id/editor_action_undo"
+        android:icon="@drawable/ic_action_undo"
+        android:orderInCategory="1"
+        android:title="Undo"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/editor_action_redo"
+        android:icon="@drawable/ic_action_redo"
+        android:orderInCategory="2"
+        android:title="Redo"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/editor_action_format_menu"
+        android:icon="@drawable/ic_action_format"
+        android:orderInCategory="3"
+        android:title="Format"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/editor_action_text_bold"
+                android:icon="@drawable/ic_action_bold"
+                android:title="Bold"
+                app:showAsAction="always" />
+            <item
+                android:id="@+id/editor_action_text_italic"
+                android:icon="@drawable/ic_action_italic"
+                android:title="Italic"
+                app:showAsAction="always" />
+            <item
+                android:id="@+id/editor_action_text_underline"
+                android:icon="@drawable/ic_action_underline"
+                android:title="Underline"
+                app:showAsAction="always" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/editor_action_new"
+        android:orderInCategory="4"
+        android:title="@string/editor_action_new"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_open"
+        android:orderInCategory="5"
+        android:title="@string/editor_action_open"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_save"
+        android:orderInCategory="6"
+        android:title="@string/editor_action_save"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_save_as"
+        android:orderInCategory="7"
+        android:title="@string/editor_action_saveAs"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_gotoSetting"
+        android:icon="@drawable/ic_action_settings"
+        android:orderInCategory="8"
         android:title="@string/editor_action_setting"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_photomode"
+        android:orderInCategory="9"
+        android:title="@string/editor_action_photoMode" />
+
 
     <!-- TODO:
     <item

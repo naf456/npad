@@ -23,68 +23,114 @@ import java.io.IOException;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
-public class WallpaperView extends GifImageView {
+public class WallpaperView extends GifImageView implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private WallpaperManager mWallpaperManager;
-    private Paint mDimmerPaint;
+    private WallpaperManager wallpaperManager;
+    private Paint dimmerPaint;
 
     public WallpaperView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();    }
+        if(!isInEditMode()) {
+            init();
+        }
+    }
 
     public WallpaperView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();    }
+        if(!isInEditMode()) {
+            init();
+        }
+    }
 
     public WallpaperView(Context context) {
         super(context);
-        init();
+        if(!isInEditMode()) {
+            init();
+        }
     }
 
     private void init() {
-        mWallpaperManager = new WallpaperManager(getContext());
+        wallpaperManager = new WallpaperManager(getContext());
 
-        mDimmerPaint = new Paint();
-        mDimmerPaint.setColor(Color.BLACK);
-        mDimmerPaint.setAlpha(0);
+        this.dimmerPaint = new Paint();
+        this.dimmerPaint.setColor(Color.BLACK);
+        this.dimmerPaint.setAlpha(0);
+
+
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawRect(0,0, canvas.getWidth(), canvas.getHeight(), mDimmerPaint);
+        canvas.drawRect(0,0, getWidth(), getHeight(), dimmerPaint);
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        applyWallpaperFromPreferences();
-        applyScalingFromPreferences();
-        forceWallpaperBelowKeyboard();
+        if(!isInEditMode()) {
+            this.applyWallpaperFromPreferences();
+            this.applyWallpaperDimmerFromPreferences();
+            this.applyScalingFromPreferences();
+            this.forceWallpaperBehindKeyboard();
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        String wallpaper_key = getResources().getString(R.string.pref_key_internal_wallpaper_name);
+        String dimmerIntensity_key = getResources().getString(R.string.pref_key_dimmer_intensity);
+        String scaling_key = getResources().getString(R.string.pref_key_scaling);
+
+        if(key.equals(wallpaper_key)){
+            applyWallpaperFromPreferences();
+        } else if(key.equals(dimmerIntensity_key)) {
+            applyWallpaperDimmerFromPreferences();
+        } else if (key.equals(scaling_key)) {
+            applyScalingFromPreferences();
+        }
     }
 
     public void applyWallpaperFromPreferences() {
-        int defaultWallpaperResource = R.mipmap.beautiful_background;
-
         try {
-            File wallpaperFile = mWallpaperManager.getInternalizedWallpaper();
+            File wallpaperFile = wallpaperManager.getInternalizedWallpaper();
 
-            setImageResource(defaultWallpaperResource);
+            this.setDefaultWallpaper();
 
             if(wallpaperFile.getName().endsWith(".gif")) {
                 GifDrawable drawable = new GifDrawable(wallpaperFile);
-                setImageDrawable(drawable);
+                this.setImageDrawable(drawable);
             }
             else {
                 Drawable drawable = Drawable.createFromPath(wallpaperFile.getPath());
                 setImageDrawable(drawable);
             }
         } catch (WallpaperManager.NoInternalWallpaperException e) {
-            setImageResource(defaultWallpaperResource);
+            this.setDefaultWallpaper();
         }catch (IOException e) {
-            setImageResource(defaultWallpaperResource);
+            this.setDefaultWallpaper();
             Toast.makeText(getContext(), "Can't copy wallpaper", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void setDefaultWallpaper(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        String drawDefaultBackground_key = this.getResources().getString(R.string.pref_key_draw_default_background);
+        boolean drawDefaultBackground_default = this.getResources().getBoolean(R.bool.pref_default_draw_default_background);
+
+        boolean drawDefaultBackground = preferences.getBoolean(drawDefaultBackground_key, drawDefaultBackground_default);
+
+        if(drawDefaultBackground) {
+            int defaultWallpaperResource = R.mipmap.beautiful_background;
+            this.setImageResource(defaultWallpaperResource);
+        } else {
+            this.setImageDrawable(null);
+        }
+
     }
 
     public void applyWallpaperDimmerFromPreferences(){
@@ -102,18 +148,18 @@ public class WallpaperView extends GifImageView {
         String DIMMER_INTENSE = getContext().getString(R.string.dimmer_intense);
 
         if(dimmingIntensity.equals(DIMMER_OFF)) {
-            mDimmerPaint.setARGB(0,0,0,0); //transparent
+            dimmerPaint.setARGB(0,0,0,0); //transparent
         } else if(dimmingIntensity.equals(DIMMER_SUBTLE)) {
-            mDimmerPaint.setColor(getResources().getColor(R.color.dimmerSubtle));
+            dimmerPaint.setColor(getResources().getColor(R.color.dimmerSubtle));
         } else if (dimmingIntensity.equals(DIMMER_MODERATE)) {
-            mDimmerPaint.setColor(getResources().getColor(R.color.dimmerModerate));
+            dimmerPaint.setColor(getResources().getColor(R.color.dimmerModerate));
         } else if (dimmingIntensity.equals(DIMMER_INTENSE)) {
-            mDimmerPaint.setColor(getResources().getColor(R.color.dimmerIntense));
+            dimmerPaint.setColor(getResources().getColor(R.color.dimmerIntense));
         }
         invalidate();
     }
 
-    private void forceWallpaperBelowKeyboard(){
+    private void forceWallpaperBehindKeyboard(){
         /* Instead of Match Parent, which shrinks the wallpaper when the soft keyboard is active,
         set height to window height. */
         Point screenSize = new Point();

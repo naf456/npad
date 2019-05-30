@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#212121</color>
-    <color name="colorPrimaryTrans">#b2000000</color>
-    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryTrans">#B2FFFFFF</color>
+    <color name="colorPrimaryDark">#DDDDDD</color>
     <color name="colorAccent">#80deea</color>
     <color name="textColor">#ffffffff</color>
     <color name="dimmerSubtle">#46000000</color>

@@ -15,12 +15,12 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 /*
- * In fullscreen mode or with translucent system bars's, android fails to resize the window on IME
+ * In fullscreen modroe or with translucent system bars's, andid fails to resize the window on IME
  * input, which means the text editor doesn't shrink to the IME, the IME obscuring everything.
  * This class counteracts that. It's simple, and probably "brittle" (I might flat out not work on
  * some devices.)
  * NOTE: You'll need/still need adjustResize in the windowSoftInputMode, as that provides the call
- *  to the globalLayoutListener (At least on huawei it does).
+ *  to the globalLayoutListener.
  */
 
 public class KeyboardShrinkingFrameLayout extends FrameLayout {
@@ -28,17 +28,23 @@ public class KeyboardShrinkingFrameLayout extends FrameLayout {
 
     public KeyboardShrinkingFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        if(!isInEditMode()) {
+            init(context);
+        }
     }
 
     public KeyboardShrinkingFrameLayout(Context context) {
         super(context);
-        init(context);
+        if(!isInEditMode()) {
+            init(context);
+        }
     }
 
     public KeyboardShrinkingFrameLayout(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        if(!isInEditMode()) {
+            init(context);
+        }
     }
 
     private void init(Context context){

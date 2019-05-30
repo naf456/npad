@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context="com.nbennettsoftware.android.npad.EditorActivity">
+    tools:context="com.nbennettsoftware.android.npad.MainActivity">
 
     <com.nbennettsoftware.android.npad.widgets.WallpaperView
         android:id="@+id/editor_wallpaperImageView"
@@ -15,33 +15,36 @@
 
     <com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent">
 
         <ScrollView
-            android:id="@+id/editor_controls_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:overScrollMode="always">
 
-            <EditText
-                android:id="@+id/editor_npadEditText"
+            <io.github.mthli.knife.KnifeText
+                android:id="@+id/editor_knifeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="?attr/actionBarSize"
                 android:background="@android:color/transparent"
                 android:gravity="top|start"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="?attr/actionBarSize"
                 android:textColor="@color/textColor"
-                android:textSize="14sp"/>
+                android:imeOptions="flagNoExtractUi"
+                tools:text="Hello World"/>
 
         </ScrollView>
+
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/editor_toolbar"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|end"/>
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="bottom|end" />
+
     </com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout>
 
 </FrameLayout>
