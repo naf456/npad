@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context="com.nbennettsoftware.android.npad.MainActivity">
+    tools:context="com.nbennettsoftware.android.npad.EditorActivity">
 
     <com.nbennettsoftware.android.npad.widgets.WallpaperView
         android:id="@+id/editor_wallpaperImageView"
@@ -43,7 +43,8 @@
             android:id="@+id/editor_toolbar"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
-            android:layout_gravity="bottom|end" />
+            android:layout_gravity="bottom|end"
+            android:theme="@style/smallerActionBarButtons"/>
 
     </com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout>
 
