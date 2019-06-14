@@ -2,7 +2,6 @@ package com.nbennettsoftware.android.npad
 
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
 
 import com.nbennettsoftware.android.npad.widgets.WallpaperView
@@ -21,7 +20,7 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnWallpaperChange
         settingsFragment.setOnShadeChangedListener(this)
         settingsFragment.setOnScalingChangedListener(this)
 
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .replace(R.id.settings_fragment_placeholder, settingsFragment)
                 .commit()
 
@@ -34,15 +33,15 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnWallpaperChange
 
     }
 
-    override fun OnWallpaperChanged() {
+    override fun onWallpaperChanged() {
         wallpaperView?.applyWallpaperFromPreferences()
     }
 
-    override fun OnDimmerChanged(intensity: String) {
-        wallpaperView?.applyWallpaperDimmer(intensity)
+    override fun onDimmerChanged(shadeIntensity: String) {
+        wallpaperView?.applyWallpaperDimmer(shadeIntensity)
     }
 
-    override fun OnScalingChanged(scaling: String) {
+    override fun onScalingChanged(scaling: String) {
         wallpaperView?.applyScaling(scaling)
     }
 

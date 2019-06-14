@@ -1,28 +1,30 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/pref_category_general_name">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory app:title="@string/pref_category_general_name">
         <ListPreference
-            android:title="@string/pref_title_font_size"
-            android:key="@string/pref_key_font_size"
-            android:entries="@array/pref_font_size_titles"
-            android:entryValues="@array/pref_font_size_values"
-            android:defaultValue="@string/pref_default_font_size"/>
+            app:defaultValue="@string/pref_default_font_size"
+            app:entries="@array/pref_font_size_titles"
+            app:entryValues="@array/pref_font_size_values"
+            app:key="@string/pref_key_font_size"
+            app:title="@string/pref_title_font_size"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_category_wallpaper_name">
-        <Preference android:key="@string/pref_key_pick_wallpaper"
-            android:title="@string/pref_title_pick_wallpaper" />
-        <Preference android:key="@string/pref_key_clear_wallpaper"
-            android:title="@string/pref_title_clear_wallpaper"/>
+    <PreferenceCategory app:title="@string/pref_category_wallpaper_name">
+        <Preference
+            app:key="@string/pref_key_pick_wallpaper"
+            app:title="@string/pref_title_pick_wallpaper" />
+        <Preference
+            app:key="@string/pref_key_clear_wallpaper"
+            app:title="@string/pref_title_clear_wallpaper" />
         <ListPreference
-            android:title="@string/pref_title_dimmer_intensity"
-            android:key="@string/pref_key_dimmer_intensity"
-            android:entries="@array/pref_dimmer_intensity_titles"
-            android:entryValues="@array/pref_dimmer_intensity_values"
-            android:defaultValue="@string/pref_default_shade_intensity"/>
+            app:defaultValue="@string/pref_default_shade_intensity"
+            app:entries="@array/pref_dimmer_intensity_titles"
+            app:entryValues="@array/pref_dimmer_intensity_values"
+            app:key="@string/pref_key_dimmer_intensity"
+            app:title="@string/pref_title_dimmer_intensity" />
         <ListPreference
-            android:title="@string/pref_title_scaling"
-            android:key="@string/pref_key_scaling"
-            android:entries="@array/pref_scaling_titles"
-            android:entryValues="@array/pref_scaling_values"
-            android:defaultValue="@string/pref_default_scaling"/>
+            app:defaultValue="@string/pref_default_scaling"
+            app:entries="@array/pref_scaling_titles"
+            app:entryValues="@array/pref_scaling_values"
+            app:key="@string/pref_key_scaling"
+            app:title="@string/pref_title_scaling" />
     </PreferenceCategory>
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

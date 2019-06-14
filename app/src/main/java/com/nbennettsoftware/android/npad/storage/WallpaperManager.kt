@@ -2,8 +2,8 @@ package com.nbennettsoftware.android.npad.storage
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import android.net.Uri
-import android.preference.PreferenceManager
 import android.provider.MediaStore
 
 import com.nbennettsoftware.android.npad.R

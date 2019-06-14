@@ -3,29 +3,28 @@ package com.nbennettsoftware.android.npad
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.preference.ListPreference
-import android.preference.Preference
-import android.preference.PreferenceFragment
-import android.preference.PreferenceManager
 import android.widget.Toast
+import androidx.preference.*
 
 import com.nbennettsoftware.android.npad.storage.WallpaperManager
 
-class SettingsFragment : PreferenceFragment() {
+const val PICK_WALLPAPER_INTENT_ID = 0
+
+class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var wallpaperManager: WallpaperManager
-    private val pickWallpaperIntentId = 0
     var onWallpaperChangedListener: OnWallpaperChangedListener? = null
     var onScalingChangedListener: OnScalingChangedListener? = null
     var onShadeChangedListener: OnShadeChangedListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        wallpaperManager = WallpaperManager(activity as Activity)
+    }
 
-        wallpaperManager = WallpaperManager(activity)
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        // Load the preferences from an XML resource
-        addPreferencesFromResource(R.xml.preferences)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size)))
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_dimmer_intensity)))
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_scaling)))
@@ -40,7 +39,7 @@ class SettingsFragment : PreferenceFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == pickWallpaperIntentId && resultCode == Activity.RESULT_OK) {
+        if (requestCode == PICK_WALLPAPER_INTENT_ID && resultCode == Activity.RESULT_OK) {
             val uri = data.data ?: return
             try {
                 wallpaperManager.replaceInternalizeWallpaper(uri)
@@ -50,21 +49,21 @@ class SettingsFragment : PreferenceFragment() {
             }
 
             if (onWallpaperChangedListener != null) {
-                onWallpaperChangedListener!!.OnWallpaperChanged()
+                onWallpaperChangedListener!!.onWallpaperChanged()
             }
         }
     }
 
     interface OnWallpaperChangedListener {
-        fun OnWallpaperChanged()
+        fun onWallpaperChanged()
     }
 
     interface OnScalingChangedListener {
-        fun OnScalingChanged(scaling: String)
+        fun onScalingChanged(scaling: String)
     }
 
     interface OnShadeChangedListener {
-        fun OnDimmerChanged(shadeIntensity: String)
+        fun onDimmerChanged(shadeIntensity: String)
     }
 
     internal fun setOnWallpaperChangedListener(onWallpaperChangedListener: OnWallpaperChangedListener) {
@@ -81,13 +80,13 @@ class SettingsFragment : PreferenceFragment() {
 
     private inner class OnPickWallpaperClickListener : Preference.OnPreferenceClickListener {
         override fun onPreferenceClick(preference: Preference): Boolean {
-            val IMAGE_MIME_TYPE = "image/*"
+            val imageMimeType = "image/*"
             val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.type = IMAGE_MIME_TYPE
+            intent.type = imageMimeType
             intent.addCategory(Intent.CATEGORY_OPENABLE)
 
-            if (intent.resolveActivity(activity.packageManager) != null) {
-                startActivityForResult(intent, pickWallpaperIntentId)
+            if (intent.resolveActivity(activity!!.packageManager) != null) {
+                startActivityForResult(intent, PICK_WALLPAPER_INTENT_ID)
             } else {
                 Toast.makeText(activity, "No apps installed.", Toast.LENGTH_SHORT).show()
             }
@@ -98,8 +97,8 @@ class SettingsFragment : PreferenceFragment() {
     private inner class OnClearWallpaperClickListener : Preference.OnPreferenceClickListener {
         override fun onPreferenceClick(preference: Preference): Boolean {
             val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
-            val drawDefaultBackground_key = activity.resources.getString(R.string.pref_key_draw_default_background)
-            val drawDefaultBackground_default = activity.resources.getBoolean(R.bool.pref_default_draw_default_background)
+            val drawDefaultBackground_key = activity!!.resources.getString(R.string.pref_key_draw_default_background)
+            val drawDefaultBackground_default = activity!!.resources.getBoolean(R.bool.pref_default_draw_default_background)
 
             val drawDefaultBackground = preferences.getBoolean(drawDefaultBackground_key, drawDefaultBackground_default)
 
@@ -109,7 +108,7 @@ class SettingsFragment : PreferenceFragment() {
                 preferences.edit().putBoolean(drawDefaultBackground_key, !drawDefaultBackground).apply()
             }
             if (onWallpaperChangedListener != null) {
-                onWallpaperChangedListener!!.OnWallpaperChanged()
+                onWallpaperChangedListener!!.onWallpaperChanged()
             }
             return true
         }
@@ -120,7 +119,7 @@ class SettingsFragment : PreferenceFragment() {
             //Update summery
             sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, scalingObj)
             if (onScalingChangedListener != null) {
-                onScalingChangedListener!!.OnScalingChanged(scalingObj.toString())
+                onScalingChangedListener!!.onScalingChanged(scalingObj.toString())
             }
             return true
         }
@@ -131,7 +130,7 @@ class SettingsFragment : PreferenceFragment() {
             //Update summery
             sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, shadeIntensityObj)
             if (onShadeChangedListener != null) {
-                onShadeChangedListener!!.OnDimmerChanged(shadeIntensityObj.toString())
+                onShadeChangedListener!!.onDimmerChanged(shadeIntensityObj.toString())
             }
             return true
         }
