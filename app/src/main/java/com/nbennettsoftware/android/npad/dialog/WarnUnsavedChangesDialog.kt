@@ -2,8 +2,8 @@ package com.nbennettsoftware.android.npad.dialog
 
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatDialogFragment
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDialogFragment
 
 class WarnUnsavedChangesDialog : AppCompatDialogFragment() {
 
