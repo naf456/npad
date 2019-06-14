@@ -30,6 +30,6 @@
             app:entryValues="@array/pref_scaling_values"
             app:key="@string/pref_key_scaling"
             app:title="@string/pref_title_scaling"
-            app:icon="@drawable/ic_action_wallpaper_dimmer"/>
+            app:icon="@drawable/ic_action_wallpaper_scaling"/>
     </PreferenceCategory>
 </PreferenceScreen>
