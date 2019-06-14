@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
+import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 
 import com.nbennettsoftware.android.npad.dialog.WarnUnsavedChangesDialog
@@ -18,7 +18,7 @@ import java.util.Scanner
 import io.github.mthli.knife.KnifeText
 import kotlinx.android.synthetic.main.activity_editor.*
 
-class EditorActivity : AppCompatActivity() {
+class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
     companion object {
         internal const val OPEN_DOCUMENT_REQUEST = 1
@@ -31,37 +31,17 @@ class EditorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_editor)
-
-        setSupportActionBar(editor_toolbar)
-        supportActionBar?.title = ""
-
+        setupToolbar()
         resetEditor()
-
         applyFontSize()
     }
 
-    private fun applyFontSize() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val fontSizeKey = getString(R.string.pref_key_font_size)
-        val fontSizeDefault = getString(R.string.pref_default_font_size)
-        val fontSize = preferences.getString(fontSizeKey, fontSizeDefault)
-        try {
-            val fontSizeInt = Integer.parseInt(fontSize!!)
-            editor_knifeText.textSize = fontSizeInt.toFloat()
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-        }
-
+    private fun setupToolbar() {
+        menuInflater.inflate(R.menu.activity_editor_menu, editor_toolbar.menu)
+        editor_toolbar.setOnMenuItemClickListener(this)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.activity_editor_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        super.onOptionsItemSelected(menuItem)
+    override fun onMenuItemClick(menuItem: MenuItem): Boolean {
 
         when (menuItem.itemId) {
             R.id.editor_action_new -> newDocument()
@@ -76,6 +56,20 @@ class EditorActivity : AppCompatActivity() {
             R.id.editor_action_redo -> if (editor_knifeText.redoValid()) editor_knifeText.redo()
         }
         return true
+    }
+
+    private fun applyFontSize() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val fontSizeKey = getString(R.string.pref_key_font_size)
+        val fontSizeDefault = getString(R.string.pref_default_font_size)
+        val fontSize = preferences.getString(fontSizeKey, fontSizeDefault)
+        try {
+            val fontSizeInt = Integer.parseInt(fontSize!!)
+            editor_knifeText.textSize = fontSizeInt.toFloat()
+        } catch (e: NumberFormatException) {
+            e.printStackTrace()
+        }
+
     }
 
     private fun startSettings() {

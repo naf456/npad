@@ -781,11 +781,7 @@ public class KnifeText extends EditText implements TextWatcher {
             return false;
         }
 
-        if (historyList.size() <= 0 || historyCursor <= 0) {
-            return false;
-        }
-
-        return true;
+        return historyList.size() > 0 && historyCursor > 0;
     }
 
     public void clearHistory() {

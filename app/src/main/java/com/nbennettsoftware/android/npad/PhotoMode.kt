@@ -1,10 +1,11 @@
 package com.nbennettsoftware.android.npad
 
-import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.View
 import android.widget.Toast
+
+//Keeping this for now, for reference...
 
 class PhotoMode internal constructor(private val activity: AppCompatActivity) {
     private val touchOverlay: View? = null

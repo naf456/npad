@@ -21,8 +21,8 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnWallpaperChange
         settingsFragment.setOnShadeChangedListener(this)
         settingsFragment.setOnScalingChangedListener(this)
 
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.settings_fragment_placeholder, settingsFragment as Fragment)
+        fragmentManager.beginTransaction()
+                .replace(R.id.settings_fragment_placeholder, settingsFragment)
                 .commit()
 
 

@@ -41,7 +41,7 @@ class WallpaperManager(private val context: Context) {
 
             inputStream.use { input ->
                 outputStream.use { output ->
-                    input!!.copyTo(output);
+                    input!!.copyTo(output)
                 }
             }
 
