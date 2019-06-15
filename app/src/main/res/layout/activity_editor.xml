@@ -1,51 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/editor_rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
+    android:focusableInTouchMode="true"
+    android:descendantFocusability="beforeDescendants"
     tools:context="com.nbennettsoftware.android.npad.EditorActivity">
 
-    <com.nbennettsoftware.android.npad.widgets.WallpaperView
-        android:id="@+id/editor_wallpaperImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
-
-    <com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout
+    <FrameLayout
+        android:id="@+id/editor_contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <com.nbennettsoftware.android.npad.widgets.WallpaperView
+            android:id="@+id/editor_wallpaperImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:overScrollMode="always">
+            android:scaleType="centerCrop" />
 
-            <io.github.mthli.knife.KnifeText
-                android:id="@+id/editor_knifeText"
+        <com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="?attr/actionBarSize"
-                android:background="@android:color/transparent"
-                android:gravity="top|start"
-                android:textColor="@color/textColor"
-                android:imeOptions="flagNoExtractUi"
-                tools:text="Hello World"/>
+                android:layout_height="match_parent"
+                android:overScrollMode="always">
 
-        </ScrollView>
+                <io.github.mthli.knife.KnifeText
+                    android:id="@+id/editor_knifeText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:gravity="top|start"
+                    android:imeOptions="flagNoExtractUi"
+                    android:paddingLeft="8dp"
+                    android:paddingTop="16dp"
+                    android:paddingRight="8dp"
+                    android:paddingBottom="?attr/actionBarSize"
+                    android:textColor="@color/textColor"
+                    tools:text="Hello World" />
 
+            </ScrollView>
+
+
+        </com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout>
+    </FrameLayout>
+
+    <com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout
+        android:id="@+id/editor_controls"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/editor_toolbar"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="bottom|end"
-            android:theme="@style/smallerActionBarButtons"/>
-
+            android:theme="@style/smallerActionBarButtons" />
     </com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout>
 
 </FrameLayout>

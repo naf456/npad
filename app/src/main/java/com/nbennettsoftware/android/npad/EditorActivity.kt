@@ -18,14 +18,13 @@ import java.util.Scanner
 import io.github.mthli.knife.KnifeText
 import kotlinx.android.synthetic.main.activity_editor.*
 
+const val OPEN_DOCUMENT_REQUEST = 1
+const val SAVE_DOCUMENT_REQUEST = 2
+
 class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
-    companion object {
-        internal const val OPEN_DOCUMENT_REQUEST = 1
-        internal const val SAVE_DOCUMENT_REQUEST = 2
-    }
-
     private var currentDocument = NpadDocument(null, null)
+    private lateinit var photoMode : PhotoMode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +33,13 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         setupToolbar()
         resetEditor()
         applyFontSize()
+
+        photoMode = PhotoMode(
+                activity = this,
+                rootView = editor_rootView,
+                contentView = editor_contentView,
+                controlsView = editor_controls,
+                hideSystemWindows = true)
     }
 
     private fun setupToolbar() {
@@ -48,6 +54,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             R.id.editor_action_open -> openDocument()
             R.id.editor_action_save -> saveDocument(currentDocument)
             R.id.editor_action_save_as -> saveDocumentAs()
+            R.id.editor_action_photoMode -> activatePhotomode()
             R.id.editor_action_gotoSetting -> startSettings()
             R.id.editor_action_text_bold -> editor_knifeText.bold(!editor_knifeText.contains(KnifeText.FORMAT_BOLD))
             R.id.editor_action_text_italic -> editor_knifeText.italic(!editor_knifeText.contains(KnifeText.FORMAT_ITALIC))
@@ -70,6 +77,10 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             e.printStackTrace()
         }
 
+    }
+
+    private fun activatePhotomode() {
+        photoMode.enterPhotoMode()
     }
 
     private fun startSettings() {

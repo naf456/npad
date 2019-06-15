@@ -3,50 +3,107 @@ package com.nbennettsoftware.android.npad
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.Toast
 
-//Keeping this for now, for reference...
+const val HIDE_SYSTEM_WINDOWS_FLAGS = (View.SYSTEM_UI_FLAG_FULLSCREEN
+        or View.SYSTEM_UI_FLAG_IMMERSIVE
+        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
 
-class PhotoMode internal constructor(private val activity: AppCompatActivity) {
-    private val touchOverlay: View? = null
+const val EXIT_TOUCH_FRAME_TAG = "photoMode_exitTouchFrame"
 
-    internal fun goIntoPhotoMode(activity: AppCompatActivity) {
-        val decorView = activity.window.decorView
+class PhotoMode (private val activity: AppCompatActivity,
+                 private val rootView: ViewGroup,
+                 private val contentView : ViewGroup,
+                 private val controlsView: View,
+                 private val hideSystemWindows : Boolean) {
 
-        decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+    private val view = rootView//A random view reference to access context etc...
+    private var touchFrame: FrameLayout? = null
+    private var systemUiFlagsBackup = view.systemUiVisibility
+    private var systemWindowsHidden = false
 
-        val actionBar = activity.supportActionBar
-        actionBar?.hide()
+    fun enterPhotoMode() {
+        hideControls()
+        hideKeyboard()
+        defocusEditText()
+        setContentViewUnfocusable()
+        if(hideSystemWindows) doHideSystemWindows()
+        applyPhotoModeExitOverlay()
+    }
 
-        //editor.hideSoftInput();
-        //editor.clearFocus();
-        //editor.setFocusable(false);
+    private fun hideKeyboard(){
+        val imm = activity.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
 
-        touchOverlay!!.visibility = View.VISIBLE
-        touchOverlay.setOnLongClickListener {
+    private fun hideControls() {
+        controlsView.visibility = View.INVISIBLE
+    }
+
+    private fun showControls() {
+        controlsView.visibility = View.VISIBLE
+    }
+
+    private fun defocusEditText() {
+        val focusedView = view.findFocus()
+        if(focusedView is EditText) {
+            focusedView.clearFocus()
+        }
+    }
+
+    private fun doHideSystemWindows(){
+        systemUiFlagsBackup = view.systemUiVisibility
+        view.systemUiVisibility = HIDE_SYSTEM_WINDOWS_FLAGS
+        systemWindowsHidden = true
+    }
+
+    private fun unhideSystemWindows(){
+        view.systemUiVisibility = systemUiFlagsBackup
+    }
+
+    private fun setContentViewUnfocusable(){
+        contentView.isFocusable = false
+        contentView.isFocusableInTouchMode = false
+    }
+
+    private fun setContentViewFocusable() {
+        contentView.isFocusable = true
+        contentView.isFocusableInTouchMode = false
+    }
+
+    private fun applyPhotoModeExitOverlay() {
+        touchFrame = FrameLayout(view.context)
+        touchFrame!!.tag = EXIT_TOUCH_FRAME_TAG
+        val layoutParam = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT)
+
+        touchFrame!!.setOnLongClickListener{
             exitPhotoMode()
             true
         }
+
+        rootView.addView(touchFrame, layoutParam)
 
         val toast = Toast.makeText(activity, R.string.toast_msg_photo_mode_instruction, Toast.LENGTH_SHORT)
         toast.setGravity(Gravity.BOTTOM or Gravity.CENTER, 0, 0)
         toast.show()
     }
 
-    internal fun exitPhotoMode() {
-        touchOverlay!!.setOnClickListener(null)
-        touchOverlay.visibility = View.GONE
+    private fun removePotentialPhotoModeExitOverlay() {
+        if(touchFrame == null) return
+        rootView.removeView(touchFrame)
+        touchFrame = null
+    }
 
-        //editor.setFocusable(true);
-        //editor.setFocusableInTouchMode(true);
-        //editor.showSoftInput();
-
-        val actionBar = activity.supportActionBar
-        actionBar?.show()
-
-        val decorView = activity.window.decorView
-        decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+    private fun exitPhotoMode() {
+        showControls()
+        setContentViewFocusable()
+        if(systemWindowsHidden) unhideSystemWindows()
+        removePotentialPhotoModeExitOverlay()
     }
 }
