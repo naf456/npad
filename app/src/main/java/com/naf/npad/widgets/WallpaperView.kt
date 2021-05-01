@@ -1,4 +1,4 @@
-package com.nbennettsoftware.android.npad.widgets
+package com.naf.npad.widgets
 
 import android.app.Activity
 import android.content.Context
@@ -13,8 +13,8 @@ import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.widget.Toast
 
-import com.nbennettsoftware.android.npad.R
-import com.nbennettsoftware.android.npad.storage.WallpaperManager
+import com.naf.npad.R
+import com.naf.npad.storage.WallpaperManager
 
 import java.io.IOException
 

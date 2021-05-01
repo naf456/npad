@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/knife/knife.iml" filepath="$PROJECT_DIR$/knife/knife.iml" />
       <module fileurl="file://$PROJECT_DIR$/npad.iml" filepath="$PROJECT_DIR$/npad.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/npad.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/npad.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/npad.knife.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/npad.knife.iml" />
     </modules>
   </component>
 </project>

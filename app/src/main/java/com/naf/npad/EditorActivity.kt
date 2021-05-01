@@ -1,4 +1,4 @@
-package com.nbennettsoftware.android.npad
+package com.naf.npad
 
 import android.app.ActivityOptions
 import android.content.Intent
@@ -8,15 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.MenuItem
 import androidx.preference.PreferenceManager
+import com.naf.npad.databinding.ActivityEditorBinding
 
-import com.nbennettsoftware.android.npad.dialog.WarnUnsavedChangesDialog
+import com.naf.npad.dialog.WarnUnsavedChangesDialog
 
 import java.io.BufferedOutputStream
 import java.io.IOException
 import java.util.Scanner
 
 import io.github.mthli.knife.KnifeText
-import kotlinx.android.synthetic.main.activity_editor.*
 
 class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
@@ -26,19 +26,25 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private var currentDocument = NpadDocument(null, null)
+    private lateinit var views: ActivityEditorBinding
+    private lateinit var knifeText : KnifeText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_editor)
+        views = ActivityEditorBinding.inflate(layoutInflater)
+        knifeText = views.editorKnifeText
+        setContentView(views.root)
         setupToolbar()
         resetEditor()
         applyFontSize()
+
+
     }
 
     private fun setupToolbar() {
-        menuInflater.inflate(R.menu.activity_editor_menu, editor_toolbar.menu)
-        editor_toolbar.setOnMenuItemClickListener(this)
+        menuInflater.inflate(R.menu.activity_editor_menu, views.editorToolbar.menu)
+        views.editorToolbar.setOnMenuItemClickListener(this)
     }
 
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
@@ -49,11 +55,11 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             R.id.editor_action_save -> saveDocument(currentDocument)
             R.id.editor_action_save_as -> saveDocumentAs()
             R.id.editor_action_gotoSetting -> startSettings()
-            R.id.editor_action_text_bold -> editor_knifeText.bold(!editor_knifeText.contains(KnifeText.FORMAT_BOLD))
-            R.id.editor_action_text_italic -> editor_knifeText.italic(!editor_knifeText.contains(KnifeText.FORMAT_ITALIC))
-            R.id.editor_action_text_underline -> editor_knifeText.underline(!editor_knifeText.contains(KnifeText.FORMAT_UNDERLINED))
-            R.id.editor_action_undo -> if (editor_knifeText.undoValid()) editor_knifeText.undo()
-            R.id.editor_action_redo -> if (editor_knifeText.redoValid()) editor_knifeText.redo()
+            R.id.editor_action_text_bold -> knifeText.bold(!knifeText.contains(KnifeText.FORMAT_BOLD))
+            R.id.editor_action_text_italic -> knifeText.italic(!knifeText.contains(KnifeText.FORMAT_ITALIC))
+            R.id.editor_action_text_underline -> knifeText.underline(!knifeText.contains(KnifeText.FORMAT_UNDERLINED))
+            R.id.editor_action_undo -> if (knifeText.undoValid()) knifeText.undo()
+            R.id.editor_action_redo -> if (knifeText.redoValid()) knifeText.redo()
         }
         return true
     }
@@ -65,7 +71,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         val fontSize = preferences.getString(fontSizeKey, fontSizeDefault)
         try {
             val fontSizeInt = Integer.parseInt(fontSize!!)
-            editor_knifeText.textSize = fontSizeInt.toFloat()
+            knifeText.textSize = fontSizeInt.toFloat()
         } catch (e: NumberFormatException) {
             e.printStackTrace()
         }
@@ -84,7 +90,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
     private fun resetEditor() {
         currentDocument = NpadDocument(null, null)
-        editor_knifeText.setText("")
+        knifeText.setText("")
     }
 
     private fun openDocument() {
@@ -125,9 +131,9 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             inputStream.close()
 
             if (document.type == NpadDocument.TYPE_NPAD_ML) {
-                editor_knifeText.fromHtml(content)
+                knifeText.fromHtml(content)
             } else {
-                editor_knifeText.setText(content)
+                knifeText.setText(content)
             }
 
             currentDocument = document
@@ -153,9 +159,9 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             val bufOutputStream = BufferedOutputStream(outputStream)
             val bytes: ByteArray
             if (currentDocument.type == NpadDocument.TYPE_NPAD_ML) {
-                bytes = editor_knifeText.toHtml().toByteArray()
+                bytes = knifeText.toHtml().toByteArray()
             } else {
-                bytes = editor_knifeText.text.toString().toByteArray()
+                bytes = knifeText.text.toString().toByteArray()
             }
             bufOutputStream.write(bytes)
             bufOutputStream.close()

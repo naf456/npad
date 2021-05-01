@@ -1,5 +1,6 @@
-package com.nbennettsoftware.android.npad
+package com.naf.npad
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Gravity
 import android.view.View
@@ -7,15 +8,19 @@ import android.widget.Toast
 
 //Keeping this for now, for reference...
 
+@Suppress("DEPRECATION")
 class PhotoMode internal constructor(private val activity: AppCompatActivity) {
     private val touchOverlay: View? = null
 
     internal fun goIntoPhotoMode(activity: AppCompatActivity) {
-        val decorView = activity.window.decorView
 
-        decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity.window.setDecorFitsSystemWindows(false)
+        } else {
+            activity.window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+        }
 
         val actionBar = activity.supportActionBar
         actionBar?.hide()

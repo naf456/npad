@@ -1,10 +1,10 @@
-package com.nbennettsoftware.android.npad
+package com.naf.npad
 
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-import com.nbennettsoftware.android.npad.widgets.WallpaperView
+import com.naf.npad.widgets.WallpaperView
 
 class SettingsActivity : AppCompatActivity(), SettingsFragment.OnWallpaperChangedListener, SettingsFragment.OnShadeChangedListener, SettingsFragment.OnScalingChangedListener {
 

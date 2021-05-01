@@ -5,15 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context="com.nbennettsoftware.android.npad.EditorActivity">
+    tools:context="com.naf.npad.EditorActivity">
 
-    <com.nbennettsoftware.android.npad.widgets.WallpaperView
+    <com.naf.npad.widgets.WallpaperView
         android:id="@+id/editor_wallpaperImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout
+    <com.naf.npad.widgets.KeyboardShrinkingFrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -46,6 +46,6 @@
             android:layout_gravity="bottom|end"
             android:theme="@style/smallerActionBarButtons"/>
 
-    </com.nbennettsoftware.android.npad.widgets.KeyboardShrinkingFrameLayout>
+    </com.naf.npad.widgets.KeyboardShrinkingFrameLayout>
 
 </FrameLayout>

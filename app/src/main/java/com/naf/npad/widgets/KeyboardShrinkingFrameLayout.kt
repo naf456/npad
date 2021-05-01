@@ -1,8 +1,7 @@
-package com.nbennettsoftware.android.npad.widgets
+package com.naf.npad.widgets
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build

@@ -1,4 +1,4 @@
-package com.nbennettsoftware.android.npad.dialog
+package com.naf.npad.dialog
 
 import android.app.Dialog
 import android.os.Bundle

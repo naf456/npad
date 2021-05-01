@@ -1,4 +1,4 @@
-package com.nbennettsoftware.android.npad
+package com.naf.npad
 
 import android.content.Context
 import android.provider.MediaStore

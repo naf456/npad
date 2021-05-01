@@ -1,4 +1,4 @@
-package com.nbennettsoftware.android.npad
+package com.naf.npad
 
 import android.app.Activity
 import android.content.Intent
@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.*
 
-import com.nbennettsoftware.android.npad.storage.WallpaperManager
+import com.naf.npad.storage.WallpaperManager
 
 const val PICK_WALLPAPER_INTENT_ID = 0
 
@@ -25,22 +25,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size)))
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_dimmer_intensity)))
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_scaling)))
+
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size))!!)
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_dimmer_intensity))!!)
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_scaling))!!)
 
         //We let bindPreferenceSummaryToValue set are summary for us.
-        findPreference(getString(R.string.pref_key_scaling)).onPreferenceChangeListener = OnScalingChangeListener()
-        findPreference(getString(R.string.pref_key_dimmer_intensity)).onPreferenceChangeListener = OnShadeIntensityChangeListener()
+        findPreference<Preference>(getString(R.string.pref_key_scaling))?.onPreferenceChangeListener = OnScalingChangeListener()
+        findPreference<Preference>(getString(R.string.pref_key_dimmer_intensity))?.onPreferenceChangeListener = OnShadeIntensityChangeListener()
 
-        findPreference(getString(R.string.pref_key_pick_wallpaper)).onPreferenceClickListener = OnPickWallpaperClickListener()
-        findPreference(getString(R.string.pref_key_clear_wallpaper)).onPreferenceClickListener = OnClearWallpaperClickListener()
+        findPreference<Preference>(getString(R.string.pref_key_pick_wallpaper))?.onPreferenceClickListener = OnPickWallpaperClickListener()
+        findPreference<Preference>(getString(R.string.pref_key_clear_wallpaper))?.onPreferenceClickListener = OnClearWallpaperClickListener()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_WALLPAPER_INTENT_ID && resultCode == Activity.RESULT_OK) {
-            val uri = data.data ?: return
+            data?: return
+            data.data?: return
+
+            val uri = data.data!!
             try {
                 wallpaperManager.replaceInternalizeWallpaper(uri)
             } catch (e: WallpaperManager.ReplaceInternalWallpaperException) {
