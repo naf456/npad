@@ -4,6 +4,8 @@ import android.app.ActivityOptions
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.ActionMode
+import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.MenuItem
@@ -23,11 +25,17 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     companion object {
         internal const val OPEN_DOCUMENT_REQUEST = 1
         internal const val SAVE_DOCUMENT_REQUEST = 2
+
+        val DOCUMENT_TYPE_PLAIN_TEXT = ".txt"
+        val DOCUMENT_TYPE_NPAD_ML = ".npml"
+        val DEFAULT_DOCUMENT_TYPE = DOCUMENT_TYPE_NPAD_ML
     }
 
-    private var currentDocument = NpadDocument(null, null)
     private lateinit var views: ActivityEditorBinding
     private lateinit var knifeText : KnifeText
+
+    private var currentDocumentUri : Uri? = null
+    private var currentDocumentType = DEFAULT_DOCUMENT_TYPE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +44,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         knifeText = views.editorKnifeText
         setContentView(views.root)
         setupToolbar()
+        setupSelectionStyling()
         resetEditor()
         applyFontSize()
 
@@ -47,17 +56,50 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         views.editorToolbar.setOnMenuItemClickListener(this)
     }
 
+    private fun setupSelectionStyling() {
+        knifeText.customSelectionActionModeCallback = object : ActionMode.Callback {
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                menuInflater.inflate(R.menu.knife_text_selection_styling, menu)
+                return true
+            }
+
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                return false
+            }
+
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                item?: return false
+                item.title?: return false
+                when(item.title){
+                    getString(R.string.text_styling_bold) -> {
+                        knifeText.bold(!knifeText.contains(KnifeText.FORMAT_BOLD))
+                        return true
+                    }
+                    getString(R.string.text_styling_italic) -> {
+                        knifeText.italic(!knifeText.contains(KnifeText.FORMAT_ITALIC))
+                        return true
+                    }
+                    getString(R.string.text_styling_underline) -> {
+                        knifeText.underline(!knifeText.contains(KnifeText.FORMAT_UNDERLINED))
+                        return true
+                    }
+                }
+                return false
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode?) {}
+
+        }
+    }
+
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
 
         when (menuItem.itemId) {
             R.id.editor_action_new -> newDocument()
             R.id.editor_action_open -> openDocument()
-            R.id.editor_action_save -> saveDocument(currentDocument)
+            R.id.editor_action_save -> saveDocument()
             R.id.editor_action_save_as -> saveDocumentAs()
             R.id.editor_action_gotoSetting -> startSettings()
-            R.id.editor_action_text_bold -> knifeText.bold(!knifeText.contains(KnifeText.FORMAT_BOLD))
-            R.id.editor_action_text_italic -> knifeText.italic(!knifeText.contains(KnifeText.FORMAT_ITALIC))
-            R.id.editor_action_text_underline -> knifeText.underline(!knifeText.contains(KnifeText.FORMAT_UNDERLINED))
             R.id.editor_action_undo -> if (knifeText.undoValid()) knifeText.undo()
             R.id.editor_action_redo -> if (knifeText.redoValid()) knifeText.redo()
         }
@@ -89,7 +131,8 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun resetEditor() {
-        currentDocument = NpadDocument(null, null)
+        currentDocumentUri = null
+        currentDocumentType = DEFAULT_DOCUMENT_TYPE
         knifeText.setText("")
     }
 
@@ -107,58 +150,59 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun continueOpeningDocument(documentUri: Uri?) {
-        if (documentUri == null) return
+        documentUri?: return
+        currentDocumentUri = documentUri
 
         val extension = Utls.Uri.getExtension(this@EditorActivity, documentUri)
 
-        if (extension == NpadDocument.TYPE_NPAD_ML) {
-            loadDocumentContent(NpadDocument(documentUri, NpadDocument.TYPE_NPAD_ML))
+        if (extension == DOCUMENT_TYPE_NPAD_ML) {
+            currentDocumentType = DOCUMENT_TYPE_NPAD_ML
+            loadDocumentContent()
         } else {
-            loadDocumentContent(NpadDocument(documentUri, NpadDocument.TYPE_PLAIN_TEXT))
+            currentDocumentType = DOCUMENT_TYPE_PLAIN_TEXT
+            loadDocumentContent()
         }
     }
 
-    private fun loadDocumentContent(document: NpadDocument) {
+    private fun loadDocumentContent() {
         try {
 
             val resolver = contentResolver
 
-            val inputStream = resolver.openInputStream(document.uri!!) ?: throw NullPointerException()
+            val inputStream = resolver.openInputStream(currentDocumentUri!!) ?: throw NullPointerException()
 
             val scanner = Scanner(inputStream).useDelimiter("\\A")
             val content = if (scanner.hasNext()) scanner.next() else ""
 
             inputStream.close()
 
-            if (document.type == NpadDocument.TYPE_NPAD_ML) {
+            if (currentDocumentType == DOCUMENT_TYPE_NPAD_ML) {
                 knifeText.fromHtml(content)
             } else {
                 knifeText.setText(content)
             }
-
-            currentDocument = document
-
         } catch (e: Exception) {
             e.printStackTrace()
             Utls.toast(this, "Can't read document")
+            resetEditor()
         }
 
     }
 
-    private fun saveDocument(document: NpadDocument?) {
+    private fun saveDocument() {
 
-        if (document?.uri == null) {
+        if (currentDocumentUri == null) {
             saveDocumentAs()
             return
         }
 
         try {
             val resolver = contentResolver
-            val outputStream = resolver.openOutputStream(document.uri) ?: throw IOException()
+            val outputStream = resolver.openOutputStream(currentDocumentUri!!) ?: throw IOException()
 
             val bufOutputStream = BufferedOutputStream(outputStream)
             val bytes: ByteArray
-            if (currentDocument.type == NpadDocument.TYPE_NPAD_ML) {
+            if (currentDocumentType == DOCUMENT_TYPE_NPAD_ML) {
                 bytes = knifeText.toHtml().toByteArray()
             } else {
                 bytes = knifeText.text.toString().toByteArray()
@@ -185,7 +229,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     private fun startSaveFilePicker() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.type = "*/*"
-        intent.putExtra(Intent.EXTRA_TITLE, "document_name" + NpadDocument.TYPE_NPAD_ML)
+        intent.putExtra(Intent.EXTRA_TITLE, "document_name" + DOCUMENT_TYPE_NPAD_ML)
         val chooser = Intent.createChooser(intent, "Select Npad Document")
         startActivityForResult(chooser, SAVE_DOCUMENT_REQUEST)
     }
@@ -195,10 +239,14 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
         val extension = Utls.Uri.getExtension(this@EditorActivity, documentUri)
 
-        if (extension == NpadDocument.TYPE_NPAD_ML) {
-            saveDocument(NpadDocument(documentUri, NpadDocument.TYPE_NPAD_ML))
+        if (extension == DOCUMENT_TYPE_NPAD_ML) {
+            currentDocumentUri = documentUri
+            currentDocumentType = DOCUMENT_TYPE_NPAD_ML
+            saveDocument()
         } else {
-            saveDocument(NpadDocument(documentUri, NpadDocument.TYPE_PLAIN_TEXT))
+            currentDocumentUri = documentUri
+            currentDocumentType = DOCUMENT_TYPE_PLAIN_TEXT
+            saveDocument()
         }
     }
 

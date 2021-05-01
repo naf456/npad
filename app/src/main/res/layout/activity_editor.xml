@@ -42,9 +42,10 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/editor_toolbar"
             android:layout_width="wrap_content"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="48dp"
             android:layout_gravity="bottom|end"
-            android:theme="@style/smallerActionBarButtons"/>
+            android:minHeight="48dp"
+            android:theme="@style/smallerActionBarButtons" />
 
     </com.naf.npad.widgets.KeyboardShrinkingFrameLayout>
 

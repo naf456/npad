@@ -8,7 +8,13 @@
     <string name="editor_action_save">Save</string>
     <string name="editor_action_setting">Settings</string>
     <string name="editor_action_photoMode">Photo mode</string>
-    <string name="editor_action_format_menu">Format</string>
+    <string name="editor_action_undo">Undo</string>
+    <string name="editor_action_redo">Redo</string>
+
+    <string name="text_styling_bold">Bold</string>
+    <string name="text_styling_italic">Italic</string>
+    <string name="text_styling_underline">Underline</string>
+
 
 
     <string name="save_dialog_msg">Save changes to document before closing?</string>
