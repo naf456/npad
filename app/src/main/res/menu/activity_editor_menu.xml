@@ -35,8 +35,13 @@
         android:title="@string/editor_action_saveAs"
         app:showAsAction="never" />
     <item
-        android:id="@+id/editor_action_gotoSetting"
+        android:id="@+id/editor_action_photo_mode"
         android:orderInCategory="8"
+        android:title="@string/editor_action_photoMode"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_gotoSetting"
+        android:orderInCategory="9"
         android:title="@string/editor_action_setting"
         app:showAsAction="never" />
 </menu>

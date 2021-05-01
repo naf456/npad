@@ -49,4 +49,10 @@
 
     </com.naf.npad.widgets.KeyboardShrinkingFrameLayout>
 
+    <View
+        android:id="@+id/editor_photomode_exit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
 </FrameLayout>

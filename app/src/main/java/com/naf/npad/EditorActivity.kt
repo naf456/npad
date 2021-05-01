@@ -3,12 +3,12 @@ package com.naf.npad
 import android.app.ActivityOptions
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.view.ActionMode
-import android.view.Menu
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import android.view.MenuItem
+import android.widget.Toast
 import androidx.preference.PreferenceManager
 import com.naf.npad.databinding.ActivityEditorBinding
 
@@ -99,6 +99,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             R.id.editor_action_open -> openDocument()
             R.id.editor_action_save -> saveDocument()
             R.id.editor_action_save_as -> saveDocumentAs()
+            R.id.editor_action_photo_mode -> enterPhotoMode()
             R.id.editor_action_gotoSetting -> startSettings()
             R.id.editor_action_undo -> if (knifeText.undoValid()) knifeText.undo()
             R.id.editor_action_redo -> if (knifeText.redoValid()) knifeText.redo()
@@ -268,5 +269,47 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         val warningDialog = WarnUnsavedChangesDialog()
         warningDialog.onWarningFinished = onWarningFinished
         warningDialog.show(supportFragmentManager, null)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun enterPhotoMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+        } else {
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+        }
+
+        knifeText.hideSoftInput()
+        knifeText.clearFocus()
+        knifeText.isFocusable = false
+
+        views.editorToolbar.visibility = View.GONE
+
+        views.editorPhotomodeExit.visibility = View.VISIBLE
+        views.editorPhotomodeExit.setOnLongClickListener {
+            exitPhotoMode()
+            true
+        }
+
+        val toast = Toast.makeText(this, R.string.toast_msg_photo_mode_instruction, Toast.LENGTH_SHORT)
+        toast.setGravity(Gravity.BOTTOM or Gravity.CENTER, 0, 0)
+        toast.show()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun exitPhotoMode() {
+        knifeText.isFocusable = true
+
+        views.editorToolbar.visibility = View.VISIBLE
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(true)
+        } else {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        }
+
+        views.editorPhotomodeExit.visibility = View.GONE
     }
 }
