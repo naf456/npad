@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 import com.naf.npad.widgets.WallpaperView
 
-class SettingsActivity : AppCompatActivity(), SettingsFragment.OnWallpaperChangedListener, SettingsFragment.OnShadeChangedListener, SettingsFragment.OnScalingChangedListener {
+class SettingsActivity : AppCompatActivity() {
 
     private var wallpaperView: WallpaperView? = null
 
@@ -16,9 +16,6 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnWallpaperChange
 
 
         val settingsFragment = SettingsFragment()
-        settingsFragment.setOnWallpaperChangedListener(this)
-        settingsFragment.setOnShadeChangedListener(this)
-        settingsFragment.setOnScalingChangedListener(this)
 
         supportFragmentManager.beginTransaction()
                 .replace(R.id.settings_fragment_placeholder, settingsFragment)
@@ -31,18 +28,6 @@ class SettingsActivity : AppCompatActivity(), SettingsFragment.OnWallpaperChange
         wallpaperView?.applyWallpaperDimmerFromPreferences()
         wallpaperView?.applyScalingFromPreferences()
 
-    }
-
-    override fun onWallpaperChanged() {
-        wallpaperView?.applyWallpaperFromPreferences()
-    }
-
-    override fun onDimmerChanged(shadeIntensity: String) {
-        wallpaperView?.applyWallpaperDimmer(shadeIntensity)
-    }
-
-    override fun onScalingChanged(scaling: String) {
-        wallpaperView?.applyScaling(scaling)
     }
 
     override fun onBackPressed() {

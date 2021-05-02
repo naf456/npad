@@ -64,8 +64,7 @@ class WallpaperManager(private val context: Context) {
 
     fun deleteInternalizedWallpaper() {
         try {
-            val internalWallpaper = internalizedWallpaper
-            internalWallpaper.delete()
+            internalizedWallpaper.delete()
             preferences.edit().remove(prefsKeyInternalWallpaperName).apply()
         } catch (e: NoInternalWallpaperException) {
             //Do nothing
@@ -84,7 +83,7 @@ class WallpaperManager(private val context: Context) {
     private inner class UriDataRetrievalException : Exception()
 
     @Throws(UriDataRetrievalException::class)
-    private fun getWallpaperFileName(uri: Uri): String? {
+    private fun getWallpaperFileName(uri: Uri): String {
 
         lateinit var stringData: String
         val contentResolver = context.contentResolver

@@ -77,12 +77,16 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
         val dimmerIntensity_key = resources.getString(R.string.pref_key_dimmer_intensity)
         val scaling_key = resources.getString(R.string.pref_key_scaling)
 
-        if (key == wallpaper_key) {
-            applyWallpaperFromPreferences()
-        } else if (key == dimmerIntensity_key) {
-            applyWallpaperDimmerFromPreferences()
-        } else if (key == scaling_key) {
-            applyScalingFromPreferences()
+        when (key) {
+            wallpaper_key -> {
+                applyWallpaperFromPreferences()
+            }
+            dimmerIntensity_key -> {
+                applyWallpaperDimmerFromPreferences()
+            }
+            scaling_key -> {
+                applyScalingFromPreferences()
+            }
         }
     }
 
@@ -90,7 +94,7 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
         try {
             val wallpaperFile = wallpaperManager!!.internalizedWallpaper
 
-            this.setDefaultWallpaper()
+            this.clearWallpaper()
 
             if (wallpaperFile.name.endsWith(".gif")) {
                 val drawable = GifDrawable(wallpaperFile)
@@ -100,29 +104,15 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
                 setImageDrawable(drawable)
             }
         } catch (e: WallpaperManager.NoInternalWallpaperException) {
-            this.setDefaultWallpaper()
+            this.clearWallpaper()
         } catch (e: IOException) {
-            this.setDefaultWallpaper()
+            this.clearWallpaper()
             Toast.makeText(context, "Can't copy wallpaper", Toast.LENGTH_LONG).show()
         }
-
     }
 
-    fun setDefaultWallpaper() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-
-        val drawDefaultBackground_key = this.resources.getString(R.string.pref_key_draw_default_background)
-        val drawDefaultBackground_default = this.resources.getBoolean(R.bool.pref_default_draw_default_background)
-
-        val drawDefaultBackground = preferences.getBoolean(drawDefaultBackground_key, drawDefaultBackground_default)
-
-        if (drawDefaultBackground) {
-            val defaultWallpaperResource = R.mipmap.beautiful_background
-            this.setImageResource(defaultWallpaperResource)
-        } else {
-            this.setImageDrawable(null)
-        }
-
+    private fun clearWallpaper() {
+        setImageDrawable(null)
     }
 
     fun applyWallpaperDimmerFromPreferences() {
@@ -139,24 +129,34 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
         val DIMMER_MODERATE = context.getString(R.string.dimmer_moderate)
         val DIMMER_INTENSE = context.getString(R.string.dimmer_intense)
 
-        if (dimmingIntensity == DIMMER_OFF) {
-            dimmerPaint!!.setARGB(0, 0, 0, 0) //transparent
-        } else if (dimmingIntensity == DIMMER_SUBTLE) {
-            dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerSubtle)
-        } else if (dimmingIntensity == DIMMER_MODERATE) {
-            dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerModerate)
-        } else if (dimmingIntensity == DIMMER_INTENSE) {
-            dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerIntense)
+        when (dimmingIntensity) {
+            DIMMER_OFF -> {
+                dimmerPaint!!.setARGB(0, 0, 0, 0) //transparent
+            }
+            DIMMER_SUBTLE -> {
+                dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerSubtle)
+            }
+            DIMMER_MODERATE -> {
+                dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerModerate)
+            }
+            DIMMER_INTENSE -> {
+                dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerIntense)
+            }
         }
         invalidate()
     }
 
+    @Suppress("DEPRECATION")
     private fun forceWallpaperBehindKeyboard() {
         /* Instead of Match Parent, which shrinks the wallpaper when the soft keyboard is active,
         set height to window height. */
         val screenSize = Point()
 
-        (context as Activity).windowManager.defaultDisplay.getRealSize(screenSize)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            (context as Activity).display!!.getRealSize(screenSize)
+        } else {
+            (context as Activity).windowManager.defaultDisplay.getRealSize(screenSize)
+        }
 
         val params = layoutParams
         params.height = screenSize.y
