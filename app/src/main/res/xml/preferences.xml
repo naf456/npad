@@ -15,7 +15,8 @@
             app:icon="@drawable/ic_action_wallpaper"/>
         <Preference
             app:key="@string/pref_key_clear_wallpaper"
-            app:title="@string/pref_title_clear_wallpaper"/>
+            app:title="@string/pref_title_clear_wallpaper"
+            app:icon="@drawable/ic_action_wallpaper_clear"/>
         <ListPreference
             app:defaultValue=
                 "@string/pref_default_shade_intensity"
