@@ -8,7 +8,7 @@ import androidx.preference.*
 
 import com.naf.npad.storage.WallpaperManager
 
-const val PICK_WALLPAPER_INTENT_ID = 0
+const val PICK_WALLPAPER_INTENT_ID = 10
 
 class SettingsFragment : PreferenceFragmentCompat() {
 

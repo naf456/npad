@@ -18,20 +18,12 @@
         <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H" android:value="300dip" />
 
         <activity
-            android:name="com.naf.npad.EditorActivity">
+            android:name="com.naf.npad.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="com.naf.npad.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName="com.naf.npad.EditorActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.naf.npad.EditorActivity" />
         </activity>
     </application>
 </manifest>

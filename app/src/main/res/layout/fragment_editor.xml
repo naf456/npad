@@ -4,14 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
-    tools:context="com.naf.npad.EditorActivity">
-
-    <com.naf.npad.widgets.WallpaperView
-        android:id="@+id/editor_wallpaperImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+    tools:context="com.naf.npad.MainActivity">
 
     <com.naf.npad.widgets.KeyboardShrinkingFrameLayout
         android:layout_width="match_parent"

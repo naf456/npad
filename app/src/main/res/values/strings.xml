@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Npad</string>
+    <string name="app_name">Npad &#945;</string>
 
     <string name="editor_action_file_menu">File</string>
     <string name="editor_action_new">New</string>
@@ -14,7 +14,6 @@
     <string name="text_styling_bold">Bold</string>
     <string name="text_styling_italic">Italic</string>
     <string name="text_styling_underline">Underline</string>
-
 
 
     <string name="save_dialog_msg">Save changes to document before closing?</string>
@@ -97,42 +96,11 @@
     <bool name="pref_default_draw_default_background">false</bool>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <!-- Custom Views -->
 
     <string name="preference_clearable_btn_text">Clear</string>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

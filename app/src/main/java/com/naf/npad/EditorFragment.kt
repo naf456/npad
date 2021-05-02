@@ -1,26 +1,27 @@
 package com.naf.npad
 
-import android.app.ActivityOptions
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import com.naf.npad.databinding.ActivityEditorBinding
-
+import com.naf.npad.databinding.FragmentEditorBinding
 import com.naf.npad.dialog.WarnUnsavedChangesDialog
-
+import io.github.mthli.knife.KnifeText
 import java.io.BufferedOutputStream
 import java.io.IOException
-import java.util.Scanner
+import java.util.*
 
-import io.github.mthli.knife.KnifeText
 
-class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
+open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     companion object {
         internal const val OPEN_DOCUMENT_REQUEST = 1
@@ -31,7 +32,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         const val DEFAULT_DOCUMENT_TYPE = DOCUMENT_TYPE_NPAD_ML
     }
 
-    private lateinit var views: ActivityEditorBinding
+    private lateinit var views: FragmentEditorBinding
     private lateinit var knifeText : KnifeText
     private lateinit var history: History
     private lateinit var knifeTextHistoryWriter: KnifeTextHistoryWriter
@@ -42,30 +43,50 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        views = ActivityEditorBinding.inflate(layoutInflater)
-        setContentView(views.root)
-
-        knifeText = views.editorKnifeText
-
         history = History(100)
         history.startRecording()
-        knifeTextHistoryWriter = KnifeTextHistoryWriter(knifeText, history)
+    }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
+
+        views = FragmentEditorBinding.inflate(inflater, container, false)
+        knifeText = views.editorKnifeText
         setupToolbar()
         setupSelectionStyling()
-        resetEditor()
+        applyFontSize()
+        return views.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        knifeTextHistoryWriter = KnifeTextHistoryWriter(knifeText, history)
         applyFontSize()
     }
 
+    private fun applyFontSize() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val fontSizeKey = getString(R.string.pref_key_font_size)
+        val fontSizeDefault = getString(R.string.pref_default_font_size)
+        val fontSize = preferences.getString(fontSizeKey, fontSizeDefault)
+        try {
+            val fontSizeInt = Integer.parseInt(fontSize!!)
+            knifeText.textSize = fontSizeInt.toFloat()
+        } catch (e: NumberFormatException) {
+            e.printStackTrace()
+        }
+
+    }
+
     private fun setupToolbar() {
-        menuInflater.inflate(R.menu.activity_editor_menu, views.editorToolbar.menu)
+        requireActivity().menuInflater.inflate(R.menu.activity_editor_menu, views.editorToolbar.menu)
         views.editorToolbar.setOnMenuItemClickListener(this)
     }
 
     private fun setupSelectionStyling() {
         knifeText.customSelectionActionModeCallback = object : ActionMode.Callback {
             override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-                menuInflater.inflate(R.menu.knife_text_selection_styling, menu)
+                activity?.menuInflater?.inflate(R.menu.knife_text_selection_styling, menu)
                 return true
             }
 
@@ -113,28 +134,22 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         return true
     }
 
-    private fun applyFontSize() {
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val fontSizeKey = getString(R.string.pref_key_font_size)
-        val fontSizeDefault = getString(R.string.pref_default_font_size)
-        val fontSize = preferences.getString(fontSizeKey, fontSizeDefault)
-        try {
-            val fontSizeInt = Integer.parseInt(fontSize!!)
-            knifeText.textSize = fontSizeInt.toFloat()
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-        }
+    private fun startSettings() {
+        val settingsFragment = SettingsFragment()
 
+        requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.main_fragment_container, settingsFragment)
+                .addToBackStack(null)
+                .commit()
     }
 
-    private fun startSettings() {
-        val settingsIntent = Intent(this, SettingsActivity::class.java)
-        val options = ActivityOptions.makeCustomAnimation(this, android.R.anim.fade_in, android.R.anim.fade_out)
-        startActivity(settingsIntent, options.toBundle())
+    override fun onPause() {
+        super.onPause()
+        knifeText.hideSoftInput()
     }
 
     private fun newDocument() {
-        warnUnsavedChanges { this@EditorActivity.resetEditor() }
+        warnUnsavedChanges { this@EditorFragment.resetEditor() }
     }
 
     private fun resetEditor() {
@@ -158,30 +173,12 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         startActivityForResult(intentChooser, OPEN_DOCUMENT_REQUEST)
     }
 
-    private fun continueOpeningDocument(documentUri: Uri?) {
-        documentUri?: return
-
-        resetEditor()
-
-        currentDocumentUri = documentUri
-
-        val extension = Utls.Uri.getExtension(this@EditorActivity, documentUri)
-
-        if (extension == DOCUMENT_TYPE_NPAD_ML) {
-            currentDocumentType = DOCUMENT_TYPE_NPAD_ML
-            loadDocumentContent()
-        } else {
-            currentDocumentType = DOCUMENT_TYPE_PLAIN_TEXT
-            loadDocumentContent()
-        }
-    }
-
     private fun loadDocumentContent() {
         try {
 
-            val resolver = contentResolver
+            val resolver = activity?.contentResolver
 
-            val inputStream = resolver.openInputStream(currentDocumentUri!!) ?: throw NullPointerException()
+            val inputStream = resolver?.openInputStream(currentDocumentUri!!) ?: throw NullPointerException()
 
             val scanner = Scanner(inputStream).useDelimiter("\\A")
             val content = if (scanner.hasNext()) scanner.next() else ""
@@ -197,10 +194,28 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             history.startRecording()
         } catch (e: Exception) {
             e.printStackTrace()
-            Utls.toast(this, "Can't read document")
+            Utls.toast(requireContext(), "Can't read document")
             resetEditor()
         }
 
+    }
+
+    private fun continueOpeningDocument(documentUri: Uri?) {
+        documentUri?: return
+
+        resetEditor()
+
+        currentDocumentUri = documentUri
+
+        val extension = Utls.Uri.getExtension(requireContext(), documentUri)
+
+        if (extension == DOCUMENT_TYPE_NPAD_ML) {
+            currentDocumentType = DOCUMENT_TYPE_NPAD_ML
+            loadDocumentContent()
+        } else {
+            currentDocumentType = DOCUMENT_TYPE_PLAIN_TEXT
+            loadDocumentContent()
+        }
     }
 
     private fun saveDocument() {
@@ -211,7 +226,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         }
 
         try {
-            val resolver = contentResolver
+            val resolver = requireActivity().contentResolver
             val outputStream = resolver.openOutputStream(currentDocumentUri!!) ?: throw IOException()
 
             val bufOutputStream = BufferedOutputStream(outputStream)
@@ -222,14 +237,14 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             bufOutputStream.write(bytes)
             bufOutputStream.close()
 
-            Utls.toast(this, "Saved")
+            Utls.toast(requireContext(), "Saved")
 
         } catch (e: IOException) {
             e.printStackTrace()
-            Utls.toastLong(this, "Save Failed! Please try \"Save As...\".")
+            Utls.toastLong(requireContext(), "Save Failed! Please try \"Save As...\".")
         } catch (e: SecurityException) {
             e.printStackTrace()
-            Utls.toastLong(this, "Permission Error. Please try \"Save As...\".")
+            Utls.toastLong(requireContext(), "Permission Error. Please try \"Save As...\".")
         }
 
     }
@@ -249,7 +264,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     private fun continueSavingDocument(documentUri: Uri?) {
         if (documentUri == null) return
 
-        val extension = Utls.Uri.getExtension(this@EditorActivity, documentUri)
+        val extension = Utls.Uri.getExtension(requireContext(), documentUri)
 
         if (extension == DOCUMENT_TYPE_NPAD_ML) {
             currentDocumentUri = documentUri
@@ -265,29 +280,29 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
 
-        if (OPEN_DOCUMENT_REQUEST == requestCode && RESULT_OK == resultCode) {
+        if (OPEN_DOCUMENT_REQUEST == requestCode && AppCompatActivity.RESULT_OK == resultCode) {
             val documentUri = intent!!.data
             continueOpeningDocument(documentUri)
         }
 
-        if (SAVE_DOCUMENT_REQUEST == requestCode && RESULT_OK == resultCode) {
+        if (SAVE_DOCUMENT_REQUEST == requestCode && AppCompatActivity.RESULT_OK == resultCode) {
             val documentUri = intent!!.data
             continueSavingDocument(documentUri)
         }
     }
 
-    private fun warnUnsavedChanges(onWarningFinished : ()->Unit) {
+    private fun warnUnsavedChanges(onWarningFinished: () -> Unit) {
         val warningDialog = WarnUnsavedChangesDialog()
         warningDialog.onWarningFinished = onWarningFinished
-        warningDialog.show(supportFragmentManager, null)
+        warningDialog.show(requireActivity().supportFragmentManager, null)
     }
 
     @Suppress("DEPRECATION")
     private fun enterPhotoMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
+            activity?.window?.setDecorFitsSystemWindows(false)
         } else {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+            activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_IMMERSIVE
                     or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
         }
@@ -304,7 +319,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             true
         }
 
-        val toast = Toast.makeText(this, R.string.toast_msg_photo_mode_instruction, Toast.LENGTH_SHORT)
+        val toast = Toast.makeText(activity, R.string.toast_msg_photo_mode_instruction, Toast.LENGTH_SHORT)
         toast.setGravity(Gravity.BOTTOM or Gravity.CENTER, 0, 0)
         toast.show()
     }
@@ -316,9 +331,9 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         views.editorToolbar.visibility = View.VISIBLE
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(true)
+            activity?.window?.setDecorFitsSystemWindows(true)
         } else {
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            activity?.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         }
 
         views.editorPhotomodeExit.visibility = View.GONE
