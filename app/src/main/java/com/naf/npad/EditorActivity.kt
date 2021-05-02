@@ -26,13 +26,15 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         internal const val OPEN_DOCUMENT_REQUEST = 1
         internal const val SAVE_DOCUMENT_REQUEST = 2
 
-        val DOCUMENT_TYPE_PLAIN_TEXT = ".txt"
-        val DOCUMENT_TYPE_NPAD_ML = ".npml"
-        val DEFAULT_DOCUMENT_TYPE = DOCUMENT_TYPE_NPAD_ML
+        const val DOCUMENT_TYPE_PLAIN_TEXT = ".txt"
+        const val DOCUMENT_TYPE_NPAD_ML = ".npml"
+        const val DEFAULT_DOCUMENT_TYPE = DOCUMENT_TYPE_NPAD_ML
     }
 
     private lateinit var views: ActivityEditorBinding
     private lateinit var knifeText : KnifeText
+    private lateinit var history: History
+    private lateinit var knifeTextHistoryWriter: KnifeTextHistoryWriter
 
     private var currentDocumentUri : Uri? = null
     private var currentDocumentType = DEFAULT_DOCUMENT_TYPE
@@ -41,14 +43,18 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         super.onCreate(savedInstanceState)
 
         views = ActivityEditorBinding.inflate(layoutInflater)
-        knifeText = views.editorKnifeText
         setContentView(views.root)
+
+        knifeText = views.editorKnifeText
+
+        history = History(100)
+        history.startRecording()
+        knifeTextHistoryWriter = KnifeTextHistoryWriter(knifeText, history)
+
         setupToolbar()
         setupSelectionStyling()
         resetEditor()
         applyFontSize()
-
-
     }
 
     private fun setupToolbar() {
@@ -101,8 +107,8 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             R.id.editor_action_save_as -> saveDocumentAs()
             R.id.editor_action_photo_mode -> enterPhotoMode()
             R.id.editor_action_gotoSetting -> startSettings()
-            R.id.editor_action_undo -> if (knifeText.undoValid()) knifeText.undo()
-            R.id.editor_action_redo -> if (knifeText.redoValid()) knifeText.redo()
+            R.id.editor_action_undo -> history.undo()
+            R.id.editor_action_redo -> history.redo()
         }
         return true
     }
@@ -134,7 +140,9 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     private fun resetEditor() {
         currentDocumentUri = null
         currentDocumentType = DEFAULT_DOCUMENT_TYPE
+        history.reset()
         knifeText.setText("")
+        history.startRecording()
     }
 
     private fun openDocument() {
@@ -152,6 +160,9 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
     private fun continueOpeningDocument(documentUri: Uri?) {
         documentUri?: return
+
+        resetEditor()
+
         currentDocumentUri = documentUri
 
         val extension = Utls.Uri.getExtension(this@EditorActivity, documentUri)
@@ -177,11 +188,13 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
             inputStream.close()
 
+            history.stopRecording()
             if (currentDocumentType == DOCUMENT_TYPE_NPAD_ML) {
                 knifeText.fromHtml(content)
             } else {
                 knifeText.setText(content)
             }
+            history.startRecording()
         } catch (e: Exception) {
             e.printStackTrace()
             Utls.toast(this, "Can't read document")
@@ -202,12 +215,10 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             val outputStream = resolver.openOutputStream(currentDocumentUri!!) ?: throw IOException()
 
             val bufOutputStream = BufferedOutputStream(outputStream)
-            val bytes: ByteArray
-            if (currentDocumentType == DOCUMENT_TYPE_NPAD_ML) {
-                bytes = knifeText.toHtml().toByteArray()
-            } else {
-                bytes = knifeText.text.toString().toByteArray()
-            }
+            val bytes: ByteArray = if (currentDocumentType == DOCUMENT_TYPE_NPAD_ML)
+                knifeText.toHtml().toByteArray()
+            else
+                knifeText.text.toString().toByteArray()
             bufOutputStream.write(bytes)
             bufOutputStream.close()
 
@@ -230,7 +241,7 @@ class EditorActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     private fun startSaveFilePicker() {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.type = "*/*"
-        intent.putExtra(Intent.EXTRA_TITLE, "document_name" + DOCUMENT_TYPE_NPAD_ML)
+        intent.putExtra(Intent.EXTRA_TITLE, "document_name$DOCUMENT_TYPE_NPAD_ML")
         val chooser = Intent.createChooser(intent, "Select Npad Document")
         startActivityForResult(chooser, SAVE_DOCUMENT_REQUEST)
     }

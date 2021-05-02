@@ -1,33 +1,71 @@
 package com.naf.npad
 
-import android.text.Editable
-import android.text.TextWatcher
-import android.widget.EditText
+class History (private val maxSize: Int) {
 
-class History {
+    private val undos : MutableList<Xdo> = mutableListOf()
+    private val redos : MutableList<Xdo> = mutableListOf()
 
-    private var watchedText : EditText? = null
+    //Accepting
+    var recording : Boolean = false
+        private set
 
-    fun watch(editText: EditText) {
-        editText.addTextChangedListener(Watcher())
+    private var busy : Boolean = false
+
+    interface Xdo {
+        fun undo()
+        fun redo()
     }
 
-    class action {
-        fun undo(){}
-        fun redo(){}
+    fun add(xdo: Xdo) {
+        if(!recording || busy) return
+        if(undos.size >= maxSize)
+            undos.removeFirst()
+        undos.add(xdo)
+        redos.clear()
     }
 
-    class Watcher : TextWatcher {
+    fun startRecording() { recording = true }
+    fun stopRecording() { recording = false}
 
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            TODO("Not yet implemented")
-        }
+    fun clear() {
+        undos.clear()
+        redos.clear()
+    }
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            TODO("Not yet implemented")
-        }
+    fun reset() {
+        clear()
+        stopRecording()
+    }
 
-        override fun afterTextChanged(s: Editable?) {}
+    val canUndo : Boolean
+    get() {
+        return undos.size > 0
+    }
 
+    fun undo() {
+        if(busy || !canUndo) return
+        busy = true
+        stopRecording()
+        val xdo = undos.removeLast()
+        xdo.undo()
+        redos.add(xdo)
+        startRecording()
+        busy = false
+    }
+
+    val canRedo : Boolean
+    get() {
+        return redos.size > 0
+    }
+
+    fun redo() {
+        if (busy || !canRedo) return
+        busy = true
+        stopRecording()
+        val xdo = redos.removeLast()
+        xdo.redo()
+        undos.add(xdo)
+        startRecording()
+        busy = false
     }
 }
