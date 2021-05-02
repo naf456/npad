@@ -4,17 +4,14 @@
 
     <item
         android:id="@+id/editor_action_text_bold"
-        android:icon="@drawable/ic_action_bold"
         android:title="@string/text_styling_bold"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/editor_action_text_italic"
-        android:icon="@drawable/ic_action_italic"
         android:title="@string/text_styling_italic"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/editor_action_text_underline"
-        android:icon="@drawable/ic_action_underline"
         android:title="@string/text_styling_underline"
         app:showAsAction="ifRoom" />
 </menu>
