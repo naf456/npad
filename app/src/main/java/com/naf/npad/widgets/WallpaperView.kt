@@ -9,7 +9,6 @@ import android.graphics.Paint
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import androidx.preference.PreferenceManager
-import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.widget.Toast
 
@@ -20,6 +19,7 @@ import java.io.IOException
 
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifImageView
+import kotlin.math.roundToInt
 
 class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -118,32 +118,18 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
     fun applyWallpaperDimmerFromPreferences() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val dimmerIntensityKey = context.getString(R.string.pref_key_dimmer_intensity)
-        val dimmerIntensityDefault = context.getString(R.string.pref_default_shade_intensity)
-        val dimmerIntensity = preferences.getString(dimmerIntensityKey, dimmerIntensityDefault)
-        applyWallpaperDimmer(dimmerIntensity!!)
+        val dimmerIntensityDefault = context.resources.getInteger(R.integer.pref_default_shade_intensity)
+        val dimmerIntensity = preferences.getInt(dimmerIntensityKey, dimmerIntensityDefault)
+        applyWallpaperDimmer(dimmerIntensity)
     }
 
-    fun applyWallpaperDimmer(dimmingIntensity: String) {
-        val DIMMER_OFF = context.getString(R.string.dimmer_off)
-        val DIMMER_SUBTLE = context.getString(R.string.dimmer_subtle)
-        val DIMMER_MODERATE = context.getString(R.string.dimmer_moderate)
-        val DIMMER_INTENSE = context.getString(R.string.dimmer_intense)
-
-        when (dimmingIntensity) {
-            DIMMER_OFF -> {
-                dimmerPaint!!.setARGB(0, 0, 0, 0) //transparent
-            }
-            DIMMER_SUBTLE -> {
-                dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerSubtle)
-            }
-            DIMMER_MODERATE -> {
-                dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerModerate)
-            }
-            DIMMER_INTENSE -> {
-                dimmerPaint!!.color = ContextCompat.getColor(context, R.color.dimmerIntense)
-            }
-        }
+    fun applyWallpaperDimmer(dimmingIntensity: Int) {
+        dimmerPaint!!.setARGB(percentageToHex(dimmingIntensity),0,0, 0)
         invalidate()
+    }
+
+    fun percentageToHex(percent: Int) : Int{
+        return (2.55 * percent).roundToInt()
     }
 
     @Suppress("DEPRECATION")

@@ -24,13 +24,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
 
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size))!!)
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_dimmer_intensity))!!)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_scaling))!!)
 
         //We let bindPreferenceSummaryToValue set are summary for us.
         findPreference<Preference>(getString(R.string.pref_key_scaling))?.onPreferenceChangeListener = OnScalingChangeListener()
-        findPreference<Preference>(getString(R.string.pref_key_dimmer_intensity))?.onPreferenceChangeListener = OnShadeIntensityChangeListener()
-
         findPreference<Preference>(getString(R.string.pref_key_pick_wallpaper))?.onPreferenceClickListener = OnPickWallpaperClickListener()
         findPreference<Preference>(getString(R.string.pref_key_clear_wallpaper))?.onPreferenceClickListener = OnClearWallpaperClickListener()
     }
@@ -113,10 +110,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         private fun bindPreferenceSummaryToValue(preference: Preference) {
             preference.onPreferenceChangeListener = sBindPreferenceSummaryToValueListener
 
+            if(preference.key == preference.context.getString(R.string.pref_key_dimmer_intensity))
+                return
+
             sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                    PreferenceManager
-                            .getDefaultSharedPreferences(preference.context)
-                            .getString(preference.key, ""))
+                PreferenceManager
+                        .getDefaultSharedPreferences(preference.context)
+                        .getString(preference.key, ""))
         }
     }
 }

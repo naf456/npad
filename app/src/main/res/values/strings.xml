@@ -58,23 +58,9 @@
 
     <string name="pref_title_dimmer_intensity">Wallpaper dimmer</string>
     <string name="pref_key_dimmer_intensity">dimmer_intensity</string>
-    <string name="dimmer_off">off</string>
-    <string name="dimmer_subtle">subtle</string>
-    <string name="dimmer_moderate">moderate</string>
-    <string name="dimmer_intense">intense</string>
-    <string-array name="pref_dimmer_intensity_titles">
-        <item>Off</item>
-        <item>Subtle</item>
-        <item>Moderate</item>
-        <item>Intense</item>
-    </string-array>
-    <string-array name="pref_dimmer_intensity_values">
-        <item>@string/dimmer_off</item>
-        <item>@string/dimmer_subtle</item>
-        <item>@string/dimmer_moderate</item>
-        <item>@string/dimmer_intense</item>
-    </string-array>
-    <string name="pref_default_shade_intensity">@string/dimmer_subtle</string>
+    <integer name="pref_default_shade_intensity">27</integer>
+    <integer name="pref_shade_intensity_min">0</integer>
+    <integer name="pref_shade_intensity_max">100</integer>
 
     <string name="pref_title_scaling">Scaling</string>
     <string name="pref_key_scaling">wallpaper_scaling</string>
