@@ -1,18 +1,16 @@
 package com.naf.npad
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.naf.npad.Utls.Uri.md5
 import com.naf.npad.databinding.FragmentEditorBinding
 import com.naf.npad.dialog.WarnUnsavedChangesDialog
 import io.github.mthli.knife.KnifeText
@@ -39,6 +37,13 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     private var currentDocumentUri : Uri? = null
     private var currentDocumentType = DEFAULT_DOCUMENT_TYPE
+    private var lastSaveDocHash : String = ""
+    private val content: String
+    get() =  if(currentDocumentType == DOCUMENT_TYPE_NPAD_ML)
+            knifeText.toHtml()
+    else
+            knifeText.text.toString()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -157,6 +162,7 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         currentDocumentType = DEFAULT_DOCUMENT_TYPE
         history.reset()
         knifeText.setText("")
+        lastSaveDocHash = md5(content)
         history.startRecording()
     }
 
@@ -191,6 +197,7 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             } else {
                 knifeText.setText(content)
             }
+            lastSaveDocHash = md5(content)
             history.startRecording()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -230,12 +237,10 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             val outputStream = resolver.openOutputStream(currentDocumentUri!!) ?: throw IOException()
 
             val bufOutputStream = BufferedOutputStream(outputStream)
-            val bytes: ByteArray = if (currentDocumentType == DOCUMENT_TYPE_NPAD_ML)
-                knifeText.toHtml().toByteArray()
-            else
-                knifeText.text.toString().toByteArray()
-            bufOutputStream.write(bytes)
+            bufOutputStream.write(content.toByteArray())
             bufOutputStream.close()
+
+            lastSaveDocHash = md5(content)
 
             Utls.toast(requireContext(), "Saved")
 
@@ -292,6 +297,10 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun warnUnsavedChanges(onWarningFinished: () -> Unit) {
+        if(md5(content).equals(lastSaveDocHash)) {
+            onWarningFinished()
+            return
+        }
         val warningDialog = WarnUnsavedChangesDialog()
         warningDialog.onWarningFinished = onWarningFinished
         warningDialog.show(requireActivity().supportFragmentManager, null)
@@ -338,4 +347,14 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
         views.editorPhotomodeExit.visibility = View.GONE
     }
+
+    fun onBackPressed() {
+        warnUnsavedChanges {
+            val act = activity
+            if(act is MainActivity) {
+                act.superBackPressed()
+            }
+        }
+    }
+
 }

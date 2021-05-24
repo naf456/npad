@@ -4,6 +4,7 @@ import android.content.Context
 import android.provider.MediaStore
 import android.view.Gravity
 import android.widget.Toast
+import java.security.MessageDigest
 
 object Utls {
 
@@ -37,6 +38,11 @@ object Utls {
         fun getExtension(context: Context, uri: android.net.Uri): String {
             val displayName = getDisplayName(context, uri) ?: return ""
             return displayName.substring(displayName.lastIndexOf("."))
+        }
+
+        fun md5(value: String) : String {
+            val digest = MessageDigest.getInstance("MD5")
+            return String(digest.digest(value.toByteArray()))
         }
     }
 }
