@@ -1,12 +1,13 @@
 package com.naf.npad
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -22,9 +23,6 @@ import java.util.*
 open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     companion object {
-        internal const val OPEN_DOCUMENT_REQUEST = 1
-        internal const val SAVE_DOCUMENT_REQUEST = 2
-
         const val DOCUMENT_TYPE_PLAIN_TEXT = ".txt"
         const val DOCUMENT_TYPE_NPAD_ML = ".npml"
         const val DEFAULT_DOCUMENT_TYPE = DOCUMENT_TYPE_NPAD_ML
@@ -44,9 +42,18 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     else
             knifeText.text.toString()
 
+    private lateinit var documentFilePicker : ActivityResultLauncher<Array<String>>
+    private lateinit var saveFilePicker: ActivityResultLauncher<String>
+    private val openDocumentCallback = ActivityResultCallback<Uri> {
+        continueOpeningDocument(it)
+    }
+    private val saveFileCallback = ActivityResultCallback<Uri> { continueSavingDocument(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        documentFilePicker = registerForActivityResult(ActivityResultContracts.OpenDocument(), openDocumentCallback)
+        saveFilePicker = registerForActivityResult(ActivityResultContracts.CreateDocument(), saveFileCallback)
 
         history = History(100)
         history.startRecording()
@@ -167,16 +174,27 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun openDocument() {
-        warnUnsavedChanges { startDocumentPicker() }
+        warnUnsavedChanges {
+            val input = arrayOf("*/*")
+            documentFilePicker.launch(input)
+        }
     }
 
-    private fun startDocumentPicker() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.type = "*/*"
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        val intentChooser = Intent.createChooser(intent, "Select Npad Document (.txt or .npml)")
+    private fun continueOpeningDocument(documentUri: Uri) {
 
-        startActivityForResult(intentChooser, OPEN_DOCUMENT_REQUEST)
+        resetEditor()
+
+        currentDocumentUri = documentUri
+
+        val extension = Utls.Uri.getExtension(requireContext(), documentUri)
+
+        if (extension == DOCUMENT_TYPE_NPAD_ML) {
+            currentDocumentType = DOCUMENT_TYPE_NPAD_ML
+            loadDocumentContent()
+        } else {
+            currentDocumentType = DOCUMENT_TYPE_PLAIN_TEXT
+            loadDocumentContent()
+        }
     }
 
     private fun loadDocumentContent() {
@@ -205,24 +223,6 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             resetEditor()
         }
 
-    }
-
-    private fun continueOpeningDocument(documentUri: Uri?) {
-        documentUri?: return
-
-        resetEditor()
-
-        currentDocumentUri = documentUri
-
-        val extension = Utls.Uri.getExtension(requireContext(), documentUri)
-
-        if (extension == DOCUMENT_TYPE_NPAD_ML) {
-            currentDocumentType = DOCUMENT_TYPE_NPAD_ML
-            loadDocumentContent()
-        } else {
-            currentDocumentType = DOCUMENT_TYPE_PLAIN_TEXT
-            loadDocumentContent()
-        }
     }
 
     private fun saveDocument() {
@@ -255,19 +255,11 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun saveDocumentAs() {
-        startSaveFilePicker()
+        val suggestedFilename = "awesome_document_name_here.npml"
+        saveFilePicker.launch(suggestedFilename)
     }
 
-    private fun startSaveFilePicker() {
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-        intent.type = "*/*"
-        intent.putExtra(Intent.EXTRA_TITLE, "document_name$DOCUMENT_TYPE_NPAD_ML")
-        val chooser = Intent.createChooser(intent, "Select Npad Document")
-        startActivityForResult(chooser, SAVE_DOCUMENT_REQUEST)
-    }
-
-    private fun continueSavingDocument(documentUri: Uri?) {
-        if (documentUri == null) return
+    private fun continueSavingDocument(documentUri: Uri) {
 
         val extension = Utls.Uri.getExtension(requireContext(), documentUri)
 
@@ -282,22 +274,8 @@ open class EditorFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, intent)
-
-        if (OPEN_DOCUMENT_REQUEST == requestCode && AppCompatActivity.RESULT_OK == resultCode) {
-            val documentUri = intent!!.data
-            continueOpeningDocument(documentUri)
-        }
-
-        if (SAVE_DOCUMENT_REQUEST == requestCode && AppCompatActivity.RESULT_OK == resultCode) {
-            val documentUri = intent!!.data
-            continueSavingDocument(documentUri)
-        }
-    }
-
     private fun warnUnsavedChanges(onWarningFinished: () -> Unit) {
-        if(md5(content).equals(lastSaveDocHash)) {
+        if(md5(content) == lastSaveDocHash) {
             onWarningFinished()
             return
         }
