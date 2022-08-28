@@ -8,12 +8,15 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import androidx.preference.PreferenceManager
 import android.util.AttributeSet
-import android.view.animation.LinearInterpolator
+import android.view.View
 import android.widget.Toast
 import com.google.android.renderscript.Toolkit
 
 import com.naf.npad.R
 import com.naf.npad.repository.WallpaperManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 
 import java.io.IOException
 
@@ -25,8 +28,7 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
 
     private var wallpaperManager: WallpaperManager? = null
     private var dimmerPaint: Paint? = null
-
-    private var ogBitmap: Bitmap? = null
+    var blurPaint = Paint()
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         if (!isInEditMode) {
@@ -53,6 +55,8 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
         this.dimmerPaint!!.color = Color.BLACK
         this.dimmerPaint!!.alpha = 0
 
+        blurPaint.color = Color.TRANSPARENT
+
 
         PreferenceManager.getDefaultSharedPreferences(context)
                 .registerOnSharedPreferenceChangeListener(this)
@@ -64,27 +68,51 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
 
     }
 
-    override fun setImageDrawable(drawable: Drawable?) {
-        super.setImageDrawable(drawable)
-        computeBlur()
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        createBlurBitmap()
+        drawBlurBitmap()
     }
 
+    override fun setImageDrawable(drawable: Drawable?) {
+        super.setImageDrawable(drawable)
+        post(Runnable {
+            drawBlurBitmap()
+        })
+    }
 
-    private fun computeBlur() {
-        //blurBitmap
+    override fun setImageBitmap(bm: Bitmap?) {
+        super.setImageBitmap(bm)
+        post(Runnable {
+            drawBlurBitmap()
+        })
+    }
+
+    private var blurBitmap : Bitmap? = null
+
+    private var renderDimmer = true
+
+    private fun createBlurBitmap() {
+        if(blurBitmap != null && blurBitmap!!.width == width && blurBitmap!!.height == height) return
+        blurBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    }
+
+    private fun drawBlurBitmap() {
+        if(blurBitmap == null) createBlurBitmap()
+        renderDimmer = false
+        draw(Canvas(blurBitmap!!))
+        renderDimmer = true
+        blurBitmap = Toolkit.blur(blurBitmap!!, radius = 25)
+        invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
-        ogBitmap = Bitmap.createBitmap(canvas.width, canvas.height, Bitmap.Config.ARGB_8888)
-        super.onDraw(Canvas(ogBitmap!!))
-        var blurRadius = (blur * 25).roundToInt()
-        if(blurRadius > 0) {
-            if(blurRadius > 25) blurRadius = 25
-            canvas.drawBitmap(Toolkit.blur(ogBitmap!!, radius = blurRadius), 0f,0f,null)
-        } else {
-            canvas.drawBitmap(ogBitmap!!, 0f,0f,null)
+        super.onDraw(canvas)
+        blurBitmap?.let {
+            canvas.drawBitmap(it, 0f,0f, blurPaint)
         }
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dimmerPaint!!)
+        if(renderDimmer)
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dimmerPaint!!)
     }
 
     override fun onAttachedToWindow() {
@@ -199,24 +227,24 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
     }
 
     var blur = 0f
-    var blurTransitionSpeed = 1000
+    var blurTransitionSpeed = 600
 
 
     fun blur() {
-        val va = ValueAnimator.ofFloat(0f, 1f)
+        val va = ValueAnimator.ofInt(0, 255)
         va.duration = blurTransitionSpeed.toLong()
         va.addUpdateListener {
-            blur = va.animatedValue as Float
+            blurPaint.alpha = va.animatedValue as Int
             invalidate()
         }
         va.start()
     }
 
     fun unBlur() {
-        val va = ValueAnimator.ofFloat(1f, 0f)
+        val va = ValueAnimator.ofInt(255, 0)
         va.duration = blurTransitionSpeed.toLong()
         va.addUpdateListener {
-            blur = va.animatedValue as Float
+            blurPaint.alpha = va.animatedValue as Int
             invalidate()
         }
         va.start()
