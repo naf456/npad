@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:icon="@drawable/ic_action_sort"
+        android:title="Sort"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/drawer_action_sort_mostrecent"
+                android:title="Most Recent" />
+            <item
+                android:id="@+id/drawer_action_sort_leastrecent"
+                android:title="Least Recent" />
+            <item
+                android:id="@+id/drawer_action_sort_alphabetically"
+                android:title="Alphabetically" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/drawer_action_import"
+        android:orderInCategory="5"
+        android:title="@string/editor_action_import"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_gotoSetting"
+        android:orderInCategory="9"
+        android:title="@string/editor_action_setting"
+        app:showAsAction="never" />
+</menu>

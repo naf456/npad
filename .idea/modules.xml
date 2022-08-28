@@ -2,9 +2,19 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/npad.iml" filepath="$PROJECT_DIR$/npad.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/npad.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/npad.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/npad.knife.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/npad.knife.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Neat_Pad.iml" filepath="$PROJECT_DIR$/.idea/modules/Neat_Pad.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Neat_Pad.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.main.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.main.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.unitTest.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,4 @@
+/Users/nathanielbennett/AndroidStudioProjects/Neat Pad/renderscript-toolkit/.cxx/Debug/4w5x3863/x86/CMakeFiles/rebuild_cache.dir
+/Users/nathanielbennett/AndroidStudioProjects/Neat Pad/renderscript-toolkit/.cxx/Debug/4w5x3863/x86/CMakeFiles/edit_cache.dir
+/Users/nathanielbennett/AndroidStudioProjects/Neat Pad/renderscript-toolkit/.cxx/Debug/4w5x3863/x86/CMakeFiles/cpufeatures.dir
+/Users/nathanielbennett/AndroidStudioProjects/Neat Pad/renderscript-toolkit/.cxx/Debug/4w5x3863/x86/CMakeFiles/renderscript-toolkit.dir

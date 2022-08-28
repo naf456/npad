@@ -1,1 +1,1 @@
-include ':app' , ':knife'
+include ':app' , ':knife', 'renderscript-toolkit'

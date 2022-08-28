@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="128dp"
+    android:layout_gravity="center"
+    android:layout_margin="8dp"
+    android:background="@drawable/shape_plain_background"
+    app:cardCornerRadius="12dp">
+
+
+    <ImageView
+        android:id="@+id/pageItem_thumbnail_imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/dimmerSubtle">
+
+        <TextView
+            android:id="@+id/pageItem_title_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            tools:text="Untitled" />
+
+        <TextView
+            android:id="@+id/pageItem_created_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            tools:text="Created 01/01/1970" />
+    </FrameLayout>
+
+
+</androidx.cardview.widget.CardView>

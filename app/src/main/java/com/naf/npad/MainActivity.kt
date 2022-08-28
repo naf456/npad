@@ -1,38 +1,190 @@
 package com.naf.npad
 
+import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.view.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
+import com.google.android.renderscript.Toolkit
+import com.naf.npad.databinding.ActivityMainBinding
+import com.naf.npad.dialogs.WarnExitDialog
+import com.naf.npad.fragments.PageManagerFragment
+import com.naf.npad.fragments.EditorFragment
+import com.naf.npad.repository.PageEntity
+import com.naf.npad.viewmodels.AppViewModel
+import kotlinx.coroutines.launch
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmentDelegate {
 
     companion object {
         const val EDITOR_FRAGMENT_TAG = "Editor"
+        const val PAGEMANAGER_FRAGMENT_TAG = "PageManager"
+    }
+
+    lateinit var binding: ActivityMainBinding
+
+    private val appViewModel : AppViewModel by viewModels()
+
+    private val currentFragment: Fragment get() {
+        return supportFragmentManager.findFragmentById(R.id.fragmentContainer) ?: Fragment()
+    }
+
+    private val drawerListener = object : DrawerLayout.SimpleDrawerListener() {
+
+        var blurredBitmap : Bitmap? = null
+
+        var blurredBitmapNeedsUpdating = true
+
+        override fun onDrawerOpened(drawerView: View) {
+            super.onDrawerOpened(drawerView)
+            updateBlur()
+        }
+
+        override fun onDrawerClosed(drawerView: View) {
+            super.onDrawerClosed(drawerView)
+            updateBlur()
+        }
+
+        override fun onDrawerStateChanged(newState: Int) {
+            super.onDrawerStateChanged(newState)
+            if(newState == DrawerLayout.STATE_IDLE)
+                blurredBitmapNeedsUpdating = true
+        }
+
+        fun updateBlur() {
+            if(blurredBitmapNeedsUpdating) {
+                updateBlurredBitmap(binding.content)
+                blurredBitmapNeedsUpdating = false
+            }
+
+            blurredBitmap?.let {
+
+                val offsetBitmap = Bitmap.createBitmap(binding.drawer.width, binding.drawer.height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(offsetBitmap)
+                canvas.drawBitmap(it, -binding.drawer.x,0F, null)
+                binding.drawer.background = BitmapDrawable(resources, offsetBitmap)
+            }
+
+        }
+
+        override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+            updateBlur()
+        }
+
+        fun updateBlurredBitmap(viewBehind: View) {
+            val bitmap = Bitmap.createBitmap(viewBehind.width, viewBehind.height, Bitmap.Config.ARGB_8888)
+            viewBehind.draw(Canvas(bitmap))
+            blurredBitmap = Toolkit.blur(bitmap, radius = 25)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.root.setScrimColor(Color.TRANSPARENT)
+
+        binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
+        val pageManagerFragment = PageManagerFragment()
+        pageManagerFragment.delegate = this
+
         supportFragmentManager.beginTransaction()
-                .replace(R.id.main_fragment_container, EditorFragment(), EDITOR_FRAGMENT_TAG)
+                .replace(R.id.fragmentContainer, pageManagerFragment, PAGEMANAGER_FRAGMENT_TAG)
+                .add(R.id.drawer, PageManagerFragment(), PageManagerFragment::class.simpleName)
                 .commit()
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            when(currentFragment) {
+                is PageManagerFragment -> binding.wallpaperImageView.blur()
+            }
+        }
+
+        binding.wallpaperImageView.blur()
+
+        appViewModel.drawerOpen.observe(this) { open ->
+            if(open) binding.root.open() else binding.root.close()
+        }
+
+        appViewModel.currentPage.observe(this) { page ->
+            page?: return@observe
+            val backgroundId = page.backgroundId
+            if(backgroundId != null) {
+                lifecycleScope.launchWhenCreated {
+                    val background = appViewModel.getBackgroundBitmap(backgroundId)
+                    binding.wallpaperImageView.setImageBitmap(background)
+                }
+            } else {
+                binding.wallpaperImageView.applyWallpaperFromPreferences()
+            }
+        }
+
+        //Check for autoload document
+        if(appViewModel.autoloadPage) {
+            appViewModel.lastOpenedPageId?.let {
+                lifecycleScope.launch {
+                    val page = appViewModel.getPageWithId(it) ?: return@launch
+                    openEditor(page)
+                    Utls.toast(
+                        this@MainActivity,
+                        "Auto-loaded ${if (page.title.isNullOrEmpty()) "[Untitled]" else page.title}"
+                    )
+                }
+            }
+        }
+
+        binding.root.addDrawerListener(drawerListener)
     }
 
-
-
     override fun onBackPressed() {
-        val editorFragment = supportFragmentManager.findFragmentByTag(EDITOR_FRAGMENT_TAG)
-        if(editorFragment != null && editorFragment is EditorFragment
-            && editorFragment.isVisible && editorFragment.isResumed) {
-            editorFragment.onBackPressed()
-        } else {
-            super.onBackPressed()
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+        when(currentFragment) {
+            is PageManagerFragment -> {
+                val dialog = WarnExitDialog()
+                dialog.onDialogFinished = {
+                    superBackPressed()
+                }
+                dialog.show(supportFragmentManager, null)
+            }
+            is EditorFragment -> {
+                (currentFragment as EditorFragment).onBackPressed()
+            }
+            else -> {
+                superBackPressed()
+            }
         }
     }
 
     fun superBackPressed() {
         super.onBackPressed()
+    }
+
+    override fun onPageSelected(page: PageEntity) {
+        openEditor(page)
+    }
+
+    private fun openEditor(page: PageEntity){
+        appViewModel.currentPage.value = page
+        supportFragmentManager.commit {
+            setCustomAnimations(
+                android.R.anim.fade_in,
+                android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left,
+                android.R.anim.fade_out
+            )
+            replace(R.id.fragmentContainer, EditorFragment(), EDITOR_FRAGMENT_TAG)
+            addToBackStack(null)
+        }
+        binding.wallpaperImageView.unBlur()
     }
 }

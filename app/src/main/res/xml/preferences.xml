@@ -1,6 +1,11 @@
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory app:title="@string/pref_category_general_name">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_page_autoload"
+            android:key="@string/pref_key_page_autoload"
+            android:title="@string/pref_title_page_autoload" />
         <ListPreference
             app:defaultValue="@string/pref_default_font_size"
             app:entries="@array/pref_font_size_titles"
