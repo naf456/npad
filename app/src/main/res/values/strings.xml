@@ -1,13 +1,14 @@
 <resources>
-    <string name="app_name">Npad &#945;</string>
+    <string name="app_name">Npad</string>
 
-    <string name="editor_action_file_menu">File</string>
+    <string name="editor_action_more">More</string>
     <string name="editor_action_new">New</string>
-    <string name="editor_action_open">Open&#8230;</string>
-    <string name="editor_action_saveAs">Save As&#8230;</string>
+    <string name="editor_action_set_background">Set background&#8230;</string>
+    <string name="editor_action_clear_background">Clear to default</string>
     <string name="editor_action_save">Save</string>
+    <string name="editor_action_import">Import&#8230;</string>
     <string name="editor_action_setting">Settings</string>
-    <string name="editor_action_photoMode">Photo mode</string>
+    <string name="editor_action_photoMode">Hide UI</string>
     <string name="editor_action_undo">Undo</string>
     <string name="editor_action_redo">Redo</string>
 
@@ -30,39 +31,20 @@
 
     <string name="pref_key_internal_wallpaper_name">internal_wallpaper_name</string>
 
-    <string name="pref_category_general_name">Editor</string>
+    <string name="pref_category_general_name">General</string>
 
-    <string name="pref_title_font_size">Font size</string>
-    <string name="pref_key_font_size">font_size</string>
-    <string-array name="pref_font_size_titles">
-        <item>Small</item>
-        <item>Medium</item>
-        <item>Large</item>
-        <item>Extra Large</item>
-    </string-array>
-    <string-array name="pref_font_size_values">
-        <item>14</item>
-        <item>16</item>
-        <item>20</item>
-        <item>28</item>
-    </string-array>
-    <string name="pref_default_font_size">16</string>
+    <string name="pref_title_page_autoload">Auto-load last page on start?</string>
+    <string name="pref_key_page_autoload">page_autoload</string>
 
-    <string name="pref_category_wallpaper_name">Wallpaper</string>
+    <string name="pref_category_wallpaper_name">Background</string>
 
-    <string name="pref_title_pick_wallpaper">Pick Wallpaper</string>
-    <string name="pref_key_pick_wallpaper">pick_wallpaper</string>
-
-    <string name="pref_title_clear_wallpaper">Clear Wallpaper</string>
-    <string name="pref_key_clear_wallpaper">clear_wallpaper</string>
-
-    <string name="pref_title_dimmer_intensity">Wallpaper dimmer</string>
+    <string name="pref_title_dimmer_intensity">Background dimmer</string>
     <string name="pref_key_dimmer_intensity">dimmer_intensity</string>
     <integer name="pref_default_shade_intensity">27</integer>
     <integer name="pref_shade_intensity_min">0</integer>
     <integer name="pref_shade_intensity_max">100</integer>
 
-    <string name="pref_title_scaling">Scaling</string>
+    <string name="pref_title_scaling">Background scaling</string>
     <string name="pref_key_scaling">wallpaper_scaling</string>
     <string name="to_width">width</string>
     <string name="to_height">height</string>
@@ -81,12 +63,15 @@
     <string name="pref_key_draw_default_background">draw_default_background</string>
     <bool name="pref_default_draw_default_background">false</bool>
 
+    <string name="pref_key_last_opened_page_id">lastOpenedPageId</string>
+
+
+
 
     <!-- Custom Views -->
 
     <string name="preference_clearable_btn_text">Clear</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 
 
 </resources>

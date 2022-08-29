@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.naf.npad.MainActivity">
 
-    <com.naf.npad.widgets.KeyboardShrinkingFrameLayout
+    <com.naf.npad.views.KeyboardShrinkingFrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -19,34 +19,73 @@
                 android:id="@+id/editor_knifeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="?attr/actionBarSize"
                 android:background="@android:color/transparent"
                 android:gravity="top|start"
-                android:textColor="@color/textColor"
                 android:imeOptions="flagNoExtractUi"
+                android:paddingLeft="8dp"
+                android:paddingTop="32dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="@dimen/actionBarInset"
+                android:textColor="@color/textColor"
                 app:historyEnable="false"
-                tools:text="Hello World"/>
+                tools:text="Hello World" />
 
         </ScrollView>
 
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/editor_toolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_gravity="bottom|end"
-            android:minHeight="48dp"
-            android:theme="@style/smallerActionBarButtons" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/editor_toolbar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal">
 
-    </com.naf.npad.widgets.KeyboardShrinkingFrameLayout>
+            <androidx.appcompat.widget.ActionMenuView
+                android:id="@+id/editor_undoMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/actionBarSize"
+                android:layout_gravity="end"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:theme="@style/centerPopup"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:menu="@menu/fragment_editor_drawer_menu" />
+
+            <androidx.appcompat.widget.ActionMenuView
+                android:id="@+id/editor_quickSaveMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/actionBarSize"
+                android:layout_gravity="end"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:theme="@style/centerPopup"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/editor_mainMenu"
+                app:layout_constraintEnd_toStartOf="@+id/editor_undoMenu"
+                tools:menu="@menu/editor_quicksave_menu" />
+
+            <androidx.appcompat.widget.ActionMenuView
+                android:id="@+id/editor_mainMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/actionBarSize"
+                android:layout_gravity="start"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:theme="@style/centerPopup"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:menu="@menu/fragment_editor_drawer_menu">
+
+            </androidx.appcompat.widget.ActionMenuView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.naf.npad.views.KeyboardShrinkingFrameLayout>
 
     <View
         android:id="@+id/editor_photomode_exit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </FrameLayout>
