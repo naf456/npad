@@ -29,15 +29,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_font_size))!!)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_scaling))!!)
 
         //We let bindPreferenceSummaryToValue set are summary for us.
         findPreference<Preference>(getString(R.string.pref_key_scaling))?.onPreferenceChangeListener = OnScalingChangeListener()
-
-        findPreference<Preference>(getString(R.string.pref_key_pick_wallpaper))?.onPreferenceClickListener = OnPickWallpaperClickListener()
-        findPreference<Preference>(getString(R.string.pref_key_clear_wallpaper))?.onPreferenceClickListener = OnClearWallpaperClickListener()
     }
 
     private inner class OnPickWallpaperClickListener : Preference.OnPreferenceClickListener {
