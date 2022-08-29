@@ -20,6 +20,7 @@ import com.naf.npad.fragments.PageManagerFragment
 import com.naf.npad.fragments.EditorFragment
 import com.naf.npad.repository.PageEntity
 import com.naf.npad.viewmodels.AppViewModel
+import jp.wasabeef.blurry.Blurry
 import kotlinx.coroutines.launch
 
 
@@ -36,55 +37,6 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
 
     private val currentFragment: Fragment get() {
         return supportFragmentManager.findFragmentById(R.id.fragmentContainer) ?: Fragment()
-    }
-
-    private val drawerListener = object : DrawerLayout.SimpleDrawerListener() {
-
-        var blurredBitmap : Bitmap? = null
-
-        var blurredBitmapNeedsUpdating = true
-
-        override fun onDrawerOpened(drawerView: View) {
-            super.onDrawerOpened(drawerView)
-            updateBlur()
-        }
-
-        override fun onDrawerClosed(drawerView: View) {
-            super.onDrawerClosed(drawerView)
-            updateBlur()
-        }
-
-        override fun onDrawerStateChanged(newState: Int) {
-            super.onDrawerStateChanged(newState)
-            if(newState == DrawerLayout.STATE_IDLE)
-                blurredBitmapNeedsUpdating = true
-        }
-
-        fun updateBlur() {
-            if(blurredBitmapNeedsUpdating) {
-                updateBlurredBitmap(binding.content)
-                blurredBitmapNeedsUpdating = false
-            }
-
-            blurredBitmap?.let {
-
-                val offsetBitmap = Bitmap.createBitmap(binding.drawer.width, binding.drawer.height, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(offsetBitmap)
-                canvas.drawBitmap(it, -binding.drawer.x,0F, null)
-                binding.drawer.background = BitmapDrawable(resources, offsetBitmap)
-            }
-
-        }
-
-        override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-            updateBlur()
-        }
-
-        fun updateBlurredBitmap(viewBehind: View) {
-            val bitmap = Bitmap.createBitmap(viewBehind.width, viewBehind.height, Bitmap.Config.ARGB_8888)
-            viewBehind.draw(Canvas(bitmap))
-            blurredBitmap = Toolkit.blur(bitmap, radius = 25)
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,11 +58,9 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
 
         supportFragmentManager.addOnBackStackChangedListener {
             when(currentFragment) {
-                is PageManagerFragment -> binding.wallpaperImageView.blur()
+                is PageManagerFragment -> binding.wallpaperImageView.applyWallpaperFromPreferences()
             }
         }
-
-        binding.wallpaperImageView.blur()
 
         appViewModel.drawerOpen.observe(this) { open ->
             if(open) binding.root.open() else binding.root.close()
@@ -142,12 +92,9 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
                 }
             }
         }
-
-        binding.root.addDrawerListener(drawerListener)
     }
 
     override fun onBackPressed() {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
         when(currentFragment) {
             is PageManagerFragment -> {
                 val dialog = WarnExitDialog()
@@ -185,6 +132,5 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
             replace(R.id.fragmentContainer, EditorFragment(), EDITOR_FRAGMENT_TAG)
             addToBackStack(null)
         }
-        binding.wallpaperImageView.unBlur()
     }
 }

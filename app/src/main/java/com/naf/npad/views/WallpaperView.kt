@@ -28,7 +28,6 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
 
     private var wallpaperManager: WallpaperManager? = null
     private var dimmerPaint: Paint? = null
-    var blurPaint = Paint()
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         if (!isInEditMode) {
@@ -55,8 +54,6 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
         this.dimmerPaint!!.color = Color.BLACK
         this.dimmerPaint!!.alpha = 0
 
-        blurPaint.color = Color.TRANSPARENT
-
 
         PreferenceManager.getDefaultSharedPreferences(context)
                 .registerOnSharedPreferenceChangeListener(this)
@@ -68,51 +65,9 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
 
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        createBlurBitmap()
-        drawBlurBitmap()
-    }
-
-    override fun setImageDrawable(drawable: Drawable?) {
-        super.setImageDrawable(drawable)
-        post(Runnable {
-            drawBlurBitmap()
-        })
-    }
-
-    override fun setImageBitmap(bm: Bitmap?) {
-        super.setImageBitmap(bm)
-        post(Runnable {
-            drawBlurBitmap()
-        })
-    }
-
-    private var blurBitmap : Bitmap? = null
-
-    private var renderDimmer = true
-
-    private fun createBlurBitmap() {
-        if(blurBitmap != null && blurBitmap!!.width == width && blurBitmap!!.height == height) return
-        blurBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    }
-
-    private fun drawBlurBitmap() {
-        if(blurBitmap == null) createBlurBitmap()
-        renderDimmer = false
-        draw(Canvas(blurBitmap!!))
-        renderDimmer = true
-        blurBitmap = Toolkit.blur(blurBitmap!!, radius = 25)
-        invalidate()
-    }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        blurBitmap?.let {
-            canvas.drawBitmap(it, 0f,0f, blurPaint)
-        }
-        if(renderDimmer)
-            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dimmerPaint!!)
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dimmerPaint!!)
     }
 
     override fun onAttachedToWindow() {
@@ -224,29 +179,5 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
         } else if (scaling == STRETCH) {
             scaleType = ScaleType.FIT_XY
         }
-    }
-
-    var blur = 0f
-    var blurTransitionSpeed = 600
-
-
-    fun blur() {
-        val va = ValueAnimator.ofInt(0, 255)
-        va.duration = blurTransitionSpeed.toLong()
-        va.addUpdateListener {
-            blurPaint.alpha = va.animatedValue as Int
-            invalidate()
-        }
-        va.start()
-    }
-
-    fun unBlur() {
-        val va = ValueAnimator.ofInt(255, 0)
-        va.duration = blurTransitionSpeed.toLong()
-        va.addUpdateListener {
-            blurPaint.alpha = va.animatedValue as Int
-            invalidate()
-        }
-        va.start()
     }
 }
