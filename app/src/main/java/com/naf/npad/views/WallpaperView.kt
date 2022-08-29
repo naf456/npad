@@ -1,6 +1,5 @@
 package com.naf.npad.views
 
-import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,15 +7,10 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import androidx.preference.PreferenceManager
 import android.util.AttributeSet
-import android.view.View
 import android.widget.Toast
-import com.google.android.renderscript.Toolkit
 
 import com.naf.npad.R
 import com.naf.npad.repository.WallpaperManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
 
 import java.io.IOException
 

@@ -13,14 +13,12 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import com.google.android.renderscript.Toolkit
 import com.naf.npad.databinding.ActivityMainBinding
 import com.naf.npad.dialogs.WarnExitDialog
 import com.naf.npad.fragments.PageManagerFragment
 import com.naf.npad.fragments.EditorFragment
 import com.naf.npad.repository.PageEntity
 import com.naf.npad.viewmodels.AppViewModel
-import jp.wasabeef.blurry.Blurry
 import kotlinx.coroutines.launch
 
 

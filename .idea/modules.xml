@@ -11,10 +11,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.main.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Neat_Pad.knife.unitTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.androidTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.main.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/renderscript-toolkit/Neat_Pad.renderscript-toolkit.unitTest.iml" />
     </modules>
   </component>
 </project>
