@@ -1,10 +1,8 @@
 package com.naf.npad
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
@@ -37,26 +35,17 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.root.setScrimColor(Color.TRANSPARENT)
-
-        binding.root.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-
         val pageManagerFragment = PageManagerFragment()
         pageManagerFragment.delegate = this
 
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, pageManagerFragment, PAGEMANAGER_FRAGMENT_TAG)
-                .add(R.id.drawer, PageManagerFragment(), PageManagerFragment::class.simpleName)
                 .commit()
 
         supportFragmentManager.addOnBackStackChangedListener {
             when(currentFragment) {
                 is PageManagerFragment -> binding.wallpaperImageView.applyWallpaperFromPreferences()
             }
-        }
-
-        appViewModel.drawerOpen.observe(this) { open ->
-            if(open) binding.root.open() else binding.root.close()
         }
 
         appViewModel.currentPage.observe(this) { page ->

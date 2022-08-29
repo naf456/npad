@@ -48,8 +48,7 @@
                 android:paddingEnd="12dp"
                 android:theme="@style/centerPopup"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:menu="@menu/fragment_editor_drawer_menu" />
+                app:layout_constraintEnd_toEndOf="parent"/>
 
             <androidx.appcompat.widget.ActionMenuView
                 android:id="@+id/editor_quickSaveMenu"
@@ -60,23 +59,9 @@
                 android:paddingEnd="12dp"
                 android:theme="@style/centerPopup"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/editor_mainMenu"
                 app:layout_constraintEnd_toStartOf="@+id/editor_undoMenu"
                 tools:menu="@menu/editor_quicksave_menu" />
 
-            <androidx.appcompat.widget.ActionMenuView
-                android:id="@+id/editor_mainMenu"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/actionBarSize"
-                android:layout_gravity="start"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:theme="@style/centerPopup"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:menu="@menu/fragment_editor_drawer_menu">
-
-            </androidx.appcompat.widget.ActionMenuView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

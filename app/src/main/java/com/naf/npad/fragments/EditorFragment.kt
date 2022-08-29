@@ -77,10 +77,8 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener {
 
     private fun setupMenus() {
         val inflater = requireActivity().menuInflater
-        inflater.inflate(R.menu.fragment_editor_drawer_menu, views.editorMainMenu.menu)
         inflater.inflate(R.menu.fragment_editor_menu, views.editorUndoMenu.menu)
         inflater.inflate(R.menu.editor_quicksave_menu, views.editorQuickSaveMenu.menu)
-        views.editorMainMenu.setOnMenuItemClickListener(this)
         views.editorUndoMenu.setOnMenuItemClickListener(this)
         views.editorQuickSaveMenu.setOnMenuItemClickListener(this)
     }
@@ -125,7 +123,6 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener {
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
 
         when (menuItem.itemId) {
-            R.id.editor_action_drawer -> (activity as MainActivity).binding.root.open()
             R.id.editor_action_save -> saveDocument()
             R.id.action_quicksave -> saveDocument()
             R.id.editor_action_photo_mode -> enterPhotoMode()

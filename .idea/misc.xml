@@ -40,6 +40,7 @@
         <entry key="app/src/main/res/menu/fragment_editor_menu.xml" value="0.2557291666666667" />
         <entry key="app/src/main/res/menu/fragment_editor_undoMenu.xml" value="0.29375" />
         <entry key="app/src/main/res/menu/fragment_editor_undo_menu.xml" value="0.29375" />
+        <entry key="app/src/main/res/menu/fragment_wallpaper_scaler.xml" value="0.24479166666666666" />
         <entry key="app/src/main/res/menu/pageitem_context_actions.xml" value="0.4296875" />
         <entry key="app/src/main/res/xml/preferences.xml" value="0.375" />
       </map>
