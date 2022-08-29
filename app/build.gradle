@@ -85,7 +85,6 @@ dependencies {
 }
 
 dependencies {
-    implementation project(path: ':renderscript-toolkit')
     def room_version = "2.4.3"
 
     implementation "androidx.room:room-runtime:$room_version"
@@ -96,8 +95,4 @@ dependencies {
 dependencies {
     def dynamicanimation_version = '1.0.0'
     implementation "androidx.dynamicanimation:dynamicanimation:$dynamicanimation_version"
-}
-
-dependencies {
-    implementation 'jp.wasabeef:blurry:4.0.1'
 }
