@@ -3,6 +3,7 @@ package com.naf.npad
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +13,7 @@ import com.naf.npad.fragments.PageManagerFragment
 import com.naf.npad.fragments.EditorFragment
 import com.naf.npad.repository.PageEntity
 import com.naf.npad.viewmodels.AppViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 
 class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmentDelegate {
@@ -35,6 +36,8 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         val pageManagerFragment = PageManagerFragment()
         pageManagerFragment.delegate = this
 
@@ -42,24 +45,6 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
                 .replace(R.id.fragmentContainer, pageManagerFragment, PAGEMANAGER_FRAGMENT_TAG)
                 .commit()
 
-        supportFragmentManager.addOnBackStackChangedListener {
-            when(currentFragment) {
-                is PageManagerFragment -> binding.wallpaperImageView.applyWallpaperFromPreferences()
-            }
-        }
-
-        appViewModel.currentPage.observe(this) { page ->
-            page?: return@observe
-            val backgroundId = page.backgroundId
-            if(backgroundId != null) {
-                lifecycleScope.launchWhenCreated {
-                    val background = appViewModel.getBackgroundBitmap(backgroundId)
-                    binding.wallpaperImageView.setImageBitmap(background)
-                }
-            } else {
-                binding.wallpaperImageView.applyWallpaperFromPreferences()
-            }
-        }
 
         //Check for autoload document
         if(appViewModel.autoloadPage) {
@@ -107,9 +92,9 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
         supportFragmentManager.commit {
             setCustomAnimations(
                 android.R.anim.fade_in,
-                android.R.anim.slide_out_right,
+                android.R.anim.fade_out,
                 android.R.anim.slide_in_left,
-                android.R.anim.fade_out
+                android.R.anim.slide_out_right
             )
             replace(R.id.fragmentContainer, EditorFragment(), EDITOR_FRAGMENT_TAG)
             addToBackStack(null)

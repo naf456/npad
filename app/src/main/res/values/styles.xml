@@ -6,31 +6,10 @@
 
         <item name="android:windowFullscreen">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-    </style>
-
-    <style name="smallerActionBarButtons" parent="Widget.AppCompat.Toolbar">
-        <item name="actionButtonStyle">@style/smallerActionBarButtons.actionButton</item>
-    </style>
-
-    <style name="smallerActionBarButtons.actionButton" parent="Base.Widget.AppCompat.ActionButton">
-        <item name="android:minWidth">24dp</item>
-        <item name="android:maxWidth">48dp</item>
-        <item name="android:width">40dp</item>
-    </style>
-
-    <style name="centerPopup" parent="AppTheme">
-        <item name="android:popupTheme">@style/centerPopup.popupTheme</item>
-        <item name="popupTheme">@style/centerPopup.popupTheme</item>
-        <item name="layout_anchorGravity"> center_horizontal</item>
-    </style>
-
-    <style name="centerPopup.popupTheme" parent="Widget.AppCompat.PopupMenu">
-        <item name="layout_anchorGravity">center_horizontal</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <dimen name="actionBarSize">48dp</dimen>
-    <dimen name="actionBarPaddingBottom">16dp</dimen>
     <dimen name="actionBarInset">64dp</dimen>
 
     <style name="NewPageShapeOverlay" parent="">

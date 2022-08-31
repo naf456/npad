@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.ActionMenuView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
@@ -17,6 +18,11 @@ import com.naf.npad.util.SafeGetContentActivityResultContract
 import com.naf.npad.viewmodels.AppViewModel
 import com.naf.npad.views.editor.KnifeTextHistoryWriter
 import io.github.mthli.knife.KnifeText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 
 open class
@@ -72,6 +78,17 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener {
             knifeText.text.clear()
         } else {
             knifeText.fromHtml(pageEntity.content)
+        }
+        val backgroundId = pageEntity.backgroundId
+        if(backgroundId != null) {
+            lifecycleScope.launchWhenCreated {
+                val background = appViewModel.getBackgroundBitmap(backgroundId)
+                views.wallpaperImageView.setImageBitmap(background)
+            }
+        } else {
+            views.wallpaperImageView.setImageDrawable(
+                AppCompatResources.getDrawable(requireContext(), R.drawable.shape_plain_background)
+            )
         }
     }
 
@@ -199,7 +216,6 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener {
     }
 
     fun onBackPressed() {
-        saveDocument()
         val act = activity
         if(act is MainActivity) {
             act.superBackPressed()

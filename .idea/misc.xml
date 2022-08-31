@@ -22,6 +22,7 @@
         <entry key="app/src/main/res/drawable/shape_actionbar_background.xml" value="0.153" />
         <entry key="app/src/main/res/drawable/shape_black_burst_vert.xml" value="0.3215" />
         <entry key="app/src/main/res/drawable/shape_black_fade_l2r.xml" value="0.2615" />
+        <entry key="app/src/main/res/drawable/shape_black_fade_u2d.xml" value="0.2185" />
         <entry key="app/src/main/res/drawable/shape_daytime_fade_l2r.xml" value="0.3225" />
         <entry key="app/src/main/res/drawable/shape_plain_background.xml" value="0.2615" />
         <entry key="app/src/main/res/drawable/shape_rect_black_gradient_transparent_horizontal.xml" value="0.3215" />

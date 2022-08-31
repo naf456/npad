@@ -8,6 +8,7 @@ import android.util.TypedValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FilenameFilter
 import java.io.IOException
 import java.lang.Exception
 
@@ -101,6 +102,18 @@ class BackgroundImageStore(val context: Context) {
     suspend fun retrieve(imageId: String) : Bitmap? {
         return withContext(Dispatchers.IO) {
             val imageFile = getBackgroundFile(imageId)
+
+            return@withContext if(imageFile != null)
+                BitmapFactory.decodeStream(imageFile.inputStream())
+            else
+                null
+        }
+    }
+
+    suspend fun retrieveRandom() : Bitmap? {
+        return withContext(Dispatchers.IO) {
+            val allBackgroundFiles = contentDir.listFiles() ?: return@withContext null
+            val imageFile = allBackgroundFiles[IntRange(0,allBackgroundFiles.size - 1).random()]
 
             return@withContext if(imageFile != null)
                 BitmapFactory.decodeStream(imageFile.inputStream())

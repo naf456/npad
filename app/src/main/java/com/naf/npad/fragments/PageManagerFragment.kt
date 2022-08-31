@@ -2,6 +2,7 @@ package com.naf.npad.fragments
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.naf.npad.MainActivity
 import com.naf.npad.R
 import com.naf.npad.Utls
 import com.naf.npad.databinding.FragmentPageManagerBinding
@@ -23,6 +25,7 @@ import com.naf.npad.repository.PageEntity
 import com.naf.npad.util.NPMLImporter
 import com.naf.npad.viewmodels.AppViewModel
 import com.naf.npad.views.BounceEdgeEffect
+import jp.wasabeef.blurry.Blurry
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
@@ -206,7 +209,6 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             }
 
             override fun onLongPress(e: MotionEvent) {
-                e?: return
                 val child = recyclerView.findChildViewUnder(e.x, e.y) ?: return
                 clickListener.onLongClick(child, recyclerView.getChildAdapterPosition(child))
             }

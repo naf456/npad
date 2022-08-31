@@ -96,3 +96,7 @@ dependencies {
     def dynamicanimation_version = '1.0.0'
     implementation "androidx.dynamicanimation:dynamicanimation:$dynamicanimation_version"
 }
+
+dependencies {
+    implementation 'jp.wasabeef:blurry:4.0.1'
+}
