@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import com.naf.npad.databinding.ActivityMainBinding
-import com.naf.npad.dialogs.WarnExitDialog
 import com.naf.npad.fragments.PageManagerFragment
 import com.naf.npad.fragments.EditorFragment
 import com.naf.npad.repository.PageEntity
@@ -64,11 +63,7 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
     override fun onBackPressed() {
         when(currentFragment) {
             is PageManagerFragment -> {
-                val dialog = WarnExitDialog()
-                dialog.onDialogFinished = {
-                    superBackPressed()
-                }
-                dialog.show(supportFragmentManager, null)
+                superBackPressed()
             }
             is EditorFragment -> {
                 (currentFragment as EditorFragment).onBackPressed()
