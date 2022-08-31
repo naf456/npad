@@ -1,28 +1,25 @@
 package com.naf.npad.fragments
 
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.ActionMenuView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.naf.npad.*
 import com.naf.npad.Utls.Uri.md5
 import com.naf.npad.databinding.FragmentEditorBinding
+import com.naf.npad.dialogs.WarnSaveDialog
 import com.naf.npad.repository.PageEntity
 import com.naf.npad.util.SafeGetContentActivityResultContract
 import com.naf.npad.viewmodels.AppViewModel
 import com.naf.npad.views.editor.KnifeTextHistoryWriter
 import io.github.mthli.knife.KnifeText
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
 
 
 open class
@@ -172,53 +169,58 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener {
         history.startRecording()
     }
 
-    @Suppress("DEPRECATION")
     private fun enterPhotoMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            activity?.window?.setDecorFitsSystemWindows(false)
-        } else {
-            activity?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-        }
 
+        //Hide system bars
+        WindowInsetsControllerCompat(requireActivity().window, requireView())
+            .hide(WindowInsetsCompat.Type.systemBars())
+
+        //Hide cursor
         knifeText.hideSoftInput()
         knifeText.clearFocus()
         knifeText.isFocusable = false
 
+        //Hide toolbar
         views.editorToolbarContainer.visibility = CoordinatorLayout.GONE
 
+        //Activate invisible touch disable control
         views.editorPhotomodeExit.visibility = View.VISIBLE
         views.editorPhotomodeExit.setOnLongClickListener {
             exitPhotoMode()
             true
         }
 
+        //Notify controls
         val toast = Toast.makeText(activity, R.string.toast_msg_photo_mode_instruction, Toast.LENGTH_SHORT)
         toast.setGravity(Gravity.BOTTOM or Gravity.CENTER, 0, 0)
         toast.show()
     }
 
-    @Suppress("DEPRECATION")
     private fun exitPhotoMode() {
+
+        //Allow textbox to be editable
         knifeText.isFocusable = true
         knifeText.isFocusableInTouchMode = true
 
+        //Show toolbar
         views.editorToolbarContainer.visibility = View.VISIBLE
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            activity?.window?.setDecorFitsSystemWindows(true)
-        } else {
-            activity?.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-        }
+        //Show system bars
+        WindowInsetsControllerCompat(requireActivity().window, requireView())
+            .show(WindowInsetsCompat.Type.systemBars())
 
+        //Hide exit touch control
         views.editorPhotomodeExit.visibility = View.GONE
     }
 
     fun onBackPressed() {
-        val act = activity
-        if(act is MainActivity) {
-            act.superBackPressed()
+        val d = WarnSaveDialog()
+        d.onDialogFinished = {
+            val act = activity
+            if(act is MainActivity) {
+                act.superBackPressed()
+            }
         }
+        d.show(parentFragmentManager, null)
     }
 }
