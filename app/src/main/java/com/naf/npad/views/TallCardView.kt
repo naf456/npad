@@ -7,21 +7,16 @@ import android.view.WindowMetrics
 import androidx.cardview.widget.CardView
 import kotlin.math.roundToInt
 
-class ScreenRatioCardView : CardView {
+class TallCardView : CardView {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
     constructor(context: Context) : super(context)
-
-    val heightMultiplier : Float get() {
-        return context.resources.displayMetrics.heightPixels.toFloat() /
-                context.resources.displayMetrics.widthPixels.toFloat()
-    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(
             widthMeasureSpec,
             MeasureSpec.makeMeasureSpec(
-                ((MeasureSpec.getSize(widthMeasureSpec) * heightMultiplier) / 1).roundToInt(),
+                ((MeasureSpec.getSize(widthMeasureSpec) * 1.7777) / 1).roundToInt(),
                 MeasureSpec.getMode(widthMeasureSpec)))
     }
 }

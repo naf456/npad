@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.naf.npad.views.ScreenRatioCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.naf.npad.views.TallCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -47,4 +47,4 @@
     </FrameLayout>
 
 
-</com.naf.npad.views.ScreenRatioCardView>
+</com.naf.npad.views.TallCardView>
