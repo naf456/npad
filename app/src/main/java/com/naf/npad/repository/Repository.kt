@@ -86,7 +86,7 @@ class Repository(val application: Application) {
         return pageEntity
     }
 
-    suspend fun getBackgroundThumbnail(backgroundId: String) : Bitmap? {
-        return backgroundImageStore.getBackgroundThumbnail(backgroundId)
+    suspend fun getBackgroundThumbnail(backgroundId: String, width: Int, height: Int) : Bitmap? {
+        return backgroundImageStore.getBackgroundThumbnail(backgroundId, width, height)
     }
 }

@@ -114,7 +114,7 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
         return backgroundImageStore.retrieveRandom()
     }
 
-    suspend fun getThumbnailForBackground(backgroundId: String): Bitmap? {
-        return repo.getBackgroundThumbnail(backgroundId)
+    suspend fun getThumbnailForBackground(backgroundId: String, width: Int, height: Int): Bitmap? {
+        return repo.getBackgroundThumbnail(backgroundId, width, height)
     }
 }

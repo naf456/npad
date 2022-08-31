@@ -28,6 +28,7 @@ import com.naf.npad.views.BounceEdgeEffect
 import jp.wasabeef.blurry.Blurry
 import kotlinx.coroutines.runBlocking
 import java.util.*
+import java.util.concurrent.CompletableFuture.runAsync
 
 class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
@@ -41,8 +42,10 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private val appViewModel : AppViewModel by activityViewModels()
 
     private val thumbnailProvider = object : PagesAdapter.ThumbnailProvider() {
-        override fun getThumbnailForBackground(backgroundId: String): Bitmap? = runBlocking {
-            return@runBlocking appViewModel.getThumbnailForBackground(backgroundId)
+        override fun getThumbnailForBackground(backgroundId: String, width: Int, height: Int): Bitmap? = runBlocking {
+            val w = requireContext().resources.displayMetrics.widthPixels / 2
+            val h = requireContext().resources.displayMetrics.heightPixels / 2
+            return@runBlocking appViewModel.getThumbnailForBackground(backgroundId, w, h)
         }
     }
 
@@ -148,7 +151,7 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
 
         abstract class ThumbnailProvider {
-            abstract fun getThumbnailForBackground(backgroundId: String) : Bitmap?
+            abstract fun getThumbnailForBackground(backgroundId: String, width: Int, height: Int) : Bitmap?
         }
 
         class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -177,6 +180,7 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
                     false)
 
 
+
             return ViewHolder(view)
         }
 
@@ -188,7 +192,7 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             holder.setThumbnail(null) //Clear any old dirty data before we retrieve new thumbnail
 
             page.backgroundId?.let { backgroundId ->
-                val bitmap = thumbnailProvider.getThumbnailForBackground(backgroundId)
+                val bitmap = thumbnailProvider.getThumbnailForBackground(backgroundId, 0, 0)
                 bitmap?.let { holder.setThumbnail(it) }
             }
         }

@@ -57,7 +57,6 @@ class BackgroundImageStore(val context: Context) {
             file.createNewFile()
             val stream = file.outputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG,0, stream)
-            thumbnail(bitmap, uid)
             return@withContext uid
         }
     }
@@ -66,22 +65,20 @@ class BackgroundImageStore(val context: Context) {
         val imageFile = getBackgroundFile(imageId)
         imageFile?.delete()
         storeImageAs(imageId, bitmap)
-        thumbnail(bitmap, imageId)
         return imageId
     }
 
-    private suspend fun thumbnail(bitmap: Bitmap, thumbnailName: String) {
-        withContext(Dispatchers.IO) {
-            val pixelWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 128F, context.resources.displayMetrics)
-            val pixelHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 128F, context.resources.displayMetrics)
-            val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, pixelWidth.toInt(), pixelHeight.toInt())
-
-            val file = File(thumbnailDir, thumbnailName)
-            if(file.exists()) file.delete()
+    private suspend fun thumbnail(backgroundId: String, width: Int, height: Int) : Bitmap? {
+        return withContext(Dispatchers.IO) {
+            val bitmap = retrieve(backgroundId) ?: return@withContext null
+            val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, width, height)
+            val file = File(thumbnailDir, backgroundId)
+            if (file.exists()) file.delete()
             file.createNewFile()
 
             val stream = file.outputStream()
             thumbnail.compress(Bitmap.CompressFormat.PNG, 0, stream)
+            return@withContext thumbnail
         }
     }
 
@@ -139,11 +136,17 @@ class BackgroundImageStore(val context: Context) {
         return String((List(20) { alphabet.random() }).toCharArray())
     }
 
-    suspend fun getBackgroundThumbnail(backgroundId: String) : Bitmap? {
+    suspend fun getBackgroundThumbnail(backgroundId: String, width: Int, height: Int) : Bitmap? {
         return withContext(Dispatchers.IO) {
             val thumbnailFile = File(thumbnailDir, backgroundId)
-            if(!thumbnailFile.exists()) return@withContext null
-            return@withContext BitmapFactory.decodeStream(thumbnailFile.inputStream())
+            if(!thumbnailFile.exists()) {
+                return@withContext thumbnail(backgroundId = backgroundId, width = width, height = height)
+            }
+            val bitmap = BitmapFactory.decodeStream(thumbnailFile.inputStream())
+            if(bitmap.width != width || bitmap.height != height) {
+                return@withContext thumbnail(backgroundId = backgroundId, width = width, height = height)
+            }
+            return@withContext bitmap
         }
     }
 }

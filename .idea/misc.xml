@@ -17,8 +17,10 @@
         <entry key="..\:/Users/natha/AndroidStudioProjects/Neat Pad/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.29074074074074074" />
         <entry key="..\:/Users/natha/AndroidStudioProjects/Neat Pad/app/src/main/res/xml/preferences.xml" value="0.28351449275362317" />
         <entry key="..\:/Users/natha/AndroidStudioProjects/npad/app/src/main/res/layout/fragment_editor.xml" value="0.36666666666666664" />
+        <entry key="app/src/main/res/drawable-anydpi/ic_action_wallpaper.xml" value="0.2185" />
         <entry key="app/src/main/res/drawable/custom_ripple.xml" value="0.3215" />
         <entry key="app/src/main/res/drawable/ic_action_record.xml" value="0.2615" />
+        <entry key="app/src/main/res/drawable/ic_action_wallpaper_clear.xml" value="0.2185" />
         <entry key="app/src/main/res/drawable/shape_actionbar_background.xml" value="0.153" />
         <entry key="app/src/main/res/drawable/shape_black_burst_vert.xml" value="0.3215" />
         <entry key="app/src/main/res/drawable/shape_black_fade_l2r.xml" value="0.2615" />

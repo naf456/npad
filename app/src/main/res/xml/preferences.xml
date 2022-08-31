@@ -7,6 +7,7 @@
             android:key="@string/pref_key_page_autoload"
             android:title="@string/pref_title_page_autoload" />
     </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/pref_category_wallpaper_name">
         <androidx.preference.SeekBarPreference
             app:defaultValue="@integer/pref_default_shade_intensity"
@@ -25,5 +26,10 @@
             app:key="@string/pref_key_scaling"
             app:title="@string/pref_title_scaling"
             app:icon="@drawable/ic_action_wallpaper_scaling"/>
+    </PreferenceCategory>
+    <PreferenceCategory app:title="Dev">
+        <Preference
+            app:title="Clear thumbnails"
+            app:icon="@drawable/ic_action_thumbnail_clear"/>
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>
