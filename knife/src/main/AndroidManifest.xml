@@ -14,8 +14,7 @@
   ~ the License.
   -->
 
-<manifest package="io.github.mthli.knife"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application android:label="@string/app_name"
                  android:allowBackup="false"

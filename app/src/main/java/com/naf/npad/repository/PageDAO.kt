@@ -5,21 +5,28 @@ import androidx.room.*
 
 @Dao
 interface PageDAO {
-    @Query("SELECT * FROM Pages")
-    fun getAll(): LiveData<List<PageEntity>>
-
-    @Query("SELECT * FROM Pages WHERE title LIKE :title LIMIT 1")
-    fun findByTitle(title: String): PageEntity
 
     @Query("SELECT * FROM Pages WHERE uid LIKE :id LIMIT 1")
-    suspend fun findById(id: Int) : PageEntity?
+    suspend fun retrieve(id: Int) : PageEntity?
+
+    @Query("SELECT * FROM Pages")
+    fun retrieveAll(): LiveData<List<PageEntity>>
+
+    @Query("SELECT uid, title, backgroundId, created, modified FROM Pages")
+    fun retrieveAllDetails(): LiveData<List<PageDetails>>
 
     @Insert
-    fun insertAll(vararg pageEntityArray: PageEntity)
+    fun insert(vararg pageEntities: PageEntity)
 
     @Update
-    fun updatePage(pageEntity: PageEntity)
+    fun update(pageEntity: PageEntity)
+
+    @Update(entity = PageEntity::class)
+    fun update(pageDetails: PageDetails)
 
     @Delete
     fun delete(pageEntity: PageEntity)
+
+    @Delete(entity = PageEntity::class)
+    fun delete(pageDetails: PageDetails)
 }

@@ -18,6 +18,7 @@
         <entry key="..\:/Users/natha/AndroidStudioProjects/Neat Pad/app/src/main/res/xml/preferences.xml" value="0.28351449275362317" />
         <entry key="..\:/Users/natha/AndroidStudioProjects/npad/app/src/main/res/layout/fragment_editor.xml" value="0.36666666666666664" />
         <entry key="app/src/main/res/drawable-anydpi/ic_action_wallpaper.xml" value="0.2185" />
+        <entry key="app/src/main/res/drawable-night/drawable.xml" value="0.197" />
         <entry key="app/src/main/res/drawable/custom_ripple.xml" value="0.3215" />
         <entry key="app/src/main/res/drawable/ic_action_record.xml" value="0.2615" />
         <entry key="app/src/main/res/drawable/ic_action_wallpaper_clear.xml" value="0.2185" />
@@ -31,9 +32,15 @@
         <entry key="app/src/main/res/drawable/shape_rect_black_gradient_transparent_vertical.xml" value="0.3215" />
         <entry key="app/src/main/res/drawable/shape_white_burst_vert.xml" value="0.3215" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/dialog_name_document.xml" value="0.15715579710144928" />
         <entry key="app/src/main/res/layout/fragment_document_manager.xml" value="0.2557291666666667" />
         <entry key="app/src/main/res/layout/fragment_editor.xml" value="0.29375" />
-        <entry key="app/src/main/res/layout/fragment_page_manager.xml" value="0.3990036231884058" />
+        <entry key="app/src/main/res/layout/fragment_page_manager.xml" value="0.2538833839305933" />
+        <entry key="app/src/main/res/layout/layout_actionview_progressindicator.xml" value="0.15715579710144928" />
+        <entry key="app/src/main/res/layout/layout_document_item.xml" value="0.15715579710144928" />
+        <entry key="app/src/main/res/layout/layout_editor.xml" value="0.15715579710144928" />
+        <entry key="app/src/main/res/layout/layout_pagemanager.xml" value="0.15715579710144928" />
+        <entry key="app/src/main/res/layout/layout_test.xml" value="0.15715579710144928" />
         <entry key="app/src/main/res/layout/page_list_item.xml" value="0.25625" />
         <entry key="app/src/main/res/menu/activity_editor_menu.xml" value="0.29375" />
         <entry key="app/src/main/res/menu/activity_main_settings_menu.xml" value="0.2557291666666667" />
@@ -44,6 +51,13 @@
         <entry key="app/src/main/res/menu/fragment_editor_undoMenu.xml" value="0.29375" />
         <entry key="app/src/main/res/menu/fragment_editor_undo_menu.xml" value="0.29375" />
         <entry key="app/src/main/res/menu/fragment_wallpaper_scaler.xml" value="0.24479166666666666" />
+        <entry key="app/src/main/res/menu/menu_document_actions.xml" value="0.24479166666666666" />
+        <entry key="app/src/main/res/menu/menu_documentmanager.xml" value="0.24479166666666666" />
+        <entry key="app/src/main/res/menu/menu_documentmanager_bottom.xml" value="0.24479166666666666" />
+        <entry key="app/src/main/res/menu/menu_documentmanager_top.xml" value="0.24479166666666666" />
+        <entry key="app/src/main/res/menu/menu_drawer_main.xml" value="0.24479166666666666" />
+        <entry key="app/src/main/res/menu/menu_editor.xml" value="0.24479166666666666" />
+        <entry key="app/src/main/res/menu/menu_text_styling.xml" value="0.24479166666666666" />
         <entry key="app/src/main/res/menu/pageitem_context_actions.xml" value="0.4296875" />
         <entry key="app/src/main/res/xml/preferences.xml" value="0.375" />
       </map>

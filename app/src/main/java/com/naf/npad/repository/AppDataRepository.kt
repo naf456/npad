@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 import java.time.LocalDateTime
 
-class Repository(val application: Application) {
+class AppDataRepository(val application: Application) {
     private val database =
         Room.databaseBuilder(application, AppDatabase::class.java, "app-database")
             .build()
@@ -20,8 +20,8 @@ class Repository(val application: Application) {
 
     private val backgroundImageStore = BackgroundImageStore(application)
 
-    val documents = liveData {
-        emitSource(pageDAO.getAll())
+    val pagesDetail = liveData {
+        emitSource(pageDAO.retrieveAllDetails())
     }
 
     suspend fun newPage(
@@ -30,7 +30,7 @@ class Repository(val application: Application) {
         backgroundId: String? = null) {
 
         withContext(Dispatchers.IO) {
-            pageDAO.insertAll(
+            pageDAO.insert(
                 PageEntity(
                     title = title,
                     content = content,
@@ -44,14 +44,21 @@ class Repository(val application: Application) {
 
     suspend fun getPageWithId(id: Int) : PageEntity? {
         return withContext(Dispatchers.IO){
-            return@withContext pageDAO.findById(id)
+            return@withContext pageDAO.retrieve(id)
         }
     }
 
     suspend fun updatePage(pageEntity: PageEntity) {
         withContext(Dispatchers.IO) {
             pageEntity.modified = LocalDateTime.now()
-            pageDAO.updatePage(pageEntity)
+            pageDAO.update(pageEntity)
+        }
+    }
+
+    suspend fun updatePage(pageDetails: PageDetails) {
+        withContext(Dispatchers.IO) {
+            pageDetails.modified = LocalDateTime.now()
+            pageDAO.update(pageDetails)
         }
     }
 
@@ -64,18 +71,28 @@ class Repository(val application: Application) {
         }
     }
 
-    suspend fun setPageBackgroundFromUri(pageEntity: PageEntity, uri: Uri) : PageEntity {
+    suspend fun deletePage(pageDetails: PageDetails) {
+        withContext(Dispatchers.IO){
+            pageDetails.backgroundId?.let {
+                backgroundImageStore.delete(it)
+            }
+            pageDAO.delete(pageDetails)
+        }
+    }
+
+    suspend fun setPageBackgroundFromUri(pageEntity: PageEntity, uri: Uri) : PageEntity
+    = withContext(Dispatchers.IO) {
         val stream = application.contentResolver.openInputStream(uri) ?: throw Exception("No such Uri: $uri")
-        val bitmap = BitmapFactory.decodeStream(stream)
+        val bitmap = BitmapFactory.decodeStream(stream) //Make sure we can actually read the bitmap
         val curBackgroundId = pageEntity.backgroundId
-        val backgroundId = if(curBackgroundId != null)
+        val newBackgroundId = if(curBackgroundId != null)
             backgroundImageStore.update(curBackgroundId, bitmap)
         else
             backgroundImageStore.store(bitmap)
 
-        pageEntity.backgroundId = backgroundId
+        pageEntity.backgroundId = newBackgroundId
         updatePage(pageEntity)
-        return pageEntity
+        return@withContext pageEntity
     }
 
     suspend fun clearPageBackground(pageEntity: PageEntity) : PageEntity {

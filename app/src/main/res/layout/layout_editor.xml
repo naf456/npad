@@ -22,7 +22,7 @@
             android:overScrollMode="always">
 
             <io.github.mthli.knife.KnifeText
-                android:id="@+id/editor_knifeText"
+                android:id="@+id/knife_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -53,18 +53,7 @@
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <androidx.appcompat.widget.ActionMenuView
-                android:id="@+id/editor_quickSaveMenu"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/actionBarSize"
-                android:layout_gravity="end"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/editor_undoMenu"
-                tools:menu="@menu/editor_quicksave_menu" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

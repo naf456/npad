@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/editor_action_photo_mode"
+        android:icon="@drawable/ic_fullscreen"
+        android:orderInCategory="8"
+        android:title="@string/editor_action_photoMode"
+        app:showAsAction="always|withText" />
+    <item
+        android:id="@+id/editor_action_wallpaper"
+        android:icon="@drawable/ic_action_wallpaper"
+        android:orderInCategory="8"
+        android:title="@string/pref_category_wallpaper_name"
+        app:showAsAction="always|withText">
+        <menu>
+            <item
+                android:id="@+id/editor_action_wallpaper_set"
+                android:title="@string/editor_action_set_background" />
+            <item
+                android:id="@+id/editor_action_wallpaper_clear"
+                android:title="@string/editor_action_clear_background" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/editor_action_save"
+        android:icon="@drawable/ic_action_record"
+        android:orderInCategory="6"
+        android:title="@string/editor_action_save"
+        app:showAsAction="always|withText" />
+
+</menu>

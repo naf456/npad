@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Npad</string>
 
+    <string name="pagemanger_new_document_dialog_title">New Document&#8230;</string>
     <string name="editor_action_more">More</string>
     <string name="editor_action_new">New</string>
     <string name="editor_action_set_background">Set background&#8230;</string>

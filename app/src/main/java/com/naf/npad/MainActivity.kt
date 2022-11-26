@@ -7,7 +7,7 @@ import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import com.naf.npad.databinding.ActivityMainBinding
+import com.naf.npad.databinding.LayoutMainBinding
 import com.naf.npad.fragments.PageManagerFragment
 import com.naf.npad.fragments.EditorFragment
 import com.naf.npad.repository.PageEntity
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
         const val PAGEMANAGER_FRAGMENT_TAG = "PageManager"
     }
 
-    lateinit var binding: ActivityMainBinding
+    lateinit var binding: LayoutMainBinding
 
     private val appViewModel : AppViewModel by viewModels()
 
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = LayoutMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -78,19 +78,23 @@ class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmen
         super.onBackPressed()
     }
 
-    override fun onPageSelected(page: PageEntity) {
-        openEditor(page)
+    override fun onPageSelected(pageId: Int): Unit = runBlocking {
+        launch {
+            appViewModel.getPageWithId(pageId)?.let { page ->
+                openEditor(page)
+            }
+        }
     }
 
     private fun openEditor(page: PageEntity){
         appViewModel.currentPage.value = page
         supportFragmentManager.commit {
-            setCustomAnimations(
+            /*setCustomAnimations(
                 android.R.anim.fade_in,
                 android.R.anim.fade_out,
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right
-            )
+            )*/
             replace(R.id.fragmentContainer, EditorFragment(), EDITOR_FRAGMENT_TAG)
             addToBackStack(null)
         }

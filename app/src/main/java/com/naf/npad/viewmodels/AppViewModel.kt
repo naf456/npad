@@ -5,26 +5,24 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
-import com.naf.npad.repository.BackgroundImageStore
-import com.naf.npad.repository.PageEntity
-import com.naf.npad.repository.Repository
+import com.naf.npad.repository.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AppViewModel(private val _application: Application) : AndroidViewModel(_application) {
 
-    private val repo = Repository(_application)
+    private val appDataRepo = AppDataRepository(_application)
     private val backgroundImageStore = BackgroundImageStore(_application)
 
-    val pages = liveData(Dispatchers.IO) {
-        emitSource(repo.documents)
+    val pagesDetail = liveData(Dispatchers.IO) {
+        emitSource(appDataRepo.pagesDetail)
     }
 
-    val pagesByModified = MediatorLiveData<List<PageEntity>>()
+    val pagesDetailByModified = MediatorLiveData<List<PageDetails>>()
 
     init {
-        pagesByModified.addSource(pages) {
-            pagesByModified.postValue(it.sortedBy { it.modified }.reversed())
+        pagesDetailByModified.addSource(pagesDetail) { pageDetails ->
+            pagesDetailByModified.postValue(pageDetails.sortedBy { it.modified }.reversed())
         }
     }
 
@@ -53,53 +51,55 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
     val currentPage = MutableLiveData<PageEntity>()
 
     init {
-        currentPage.observeForever {
-            if(it != null) lastOpenedPageId = it.uid
+        currentPage.observeForever { currentPage ->
+            if(currentPage != null) lastOpenedPageId = currentPage.uid
         }
     }
 
-    fun newPage(
-        title: String? = null,
-        content: String? = null
-    ) {
+    fun newPage(title: String? = null, content: String? = null) {
         viewModelScope.launch {
-            repo.newPage(title = title, content = content)
+            appDataRepo.newPage(title = title, content = content)
         }
     }
 
     fun updatePage(pageEntity: PageEntity) = viewModelScope.launch {
-        repo.updatePage(pageEntity)
+        appDataRepo.updatePage(pageEntity)
+    }
+
+    fun updatePage(pageDetails: PageDetails) = viewModelScope.launch {
+        appDataRepo.updatePage(pageDetails)
     }
 
     suspend fun getPageWithId(id: Int) : PageEntity? {
-            return repo.getPageWithId(id)
+            return appDataRepo.getPageWithId(id)
     }
 
     fun duplicatePage(page: PageEntity) = viewModelScope.launch {
-        repo.newPage(
+        appDataRepo.newPage(
             title = page.title,
-            content = page.title,
+            content = page.content,
             backgroundId = page.backgroundId
         )
     }
 
-    fun deletePage(pageEntity: PageEntity) = viewModelScope.launch {
-        repo.deletePage(pageEntity)
+    fun duplicatePage(pageDetails: PageDetails) = viewModelScope.launch {
+        appDataRepo.getPageWithId(pageDetails.uid)?.let { page ->
+            duplicatePage(page)
+        }
     }
 
-    val drawerOpen = MutableLiveData<Boolean>(false)
+    fun deletePage(pageEntity: PageEntity) = viewModelScope.launch {
+        appDataRepo.deletePage(pageEntity)
+    }
+
+    fun deletePage(details: PageDetails) = viewModelScope.launch {
+        appDataRepo.deletePage(details)
+    }
 
     suspend fun setCurrentPageBackgroundFromURI(uri: Uri) {
             val currentPage = currentPage.value ?: return
-            /*val updatedPage = */repo.setPageBackgroundFromUri(currentPage, uri)
+            appDataRepo.setPageBackgroundFromUri(currentPage, uri)
             this.currentPage.postValue(currentPage)
-    }
-
-    fun clearBackgroundForCurrentPage() = viewModelScope.launch {
-        currentPage.value?.let {
-            val newPage = repo.clearPageBackground(it)
-            currentPage.postValue(newPage)
-        }
     }
 
     suspend fun getBackgroundBitmap(backgroundId: String) : Bitmap? {
@@ -110,11 +110,14 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
         }
     }
 
-    suspend fun getRandomBackgroundBitmap() : Bitmap? {
-        return backgroundImageStore.retrieveRandom()
+    suspend fun getThumbnailForBackground(backgroundId: String, width: Int, height: Int): Bitmap? {
+        return appDataRepo.getBackgroundThumbnail(backgroundId, width, height)
     }
 
-    suspend fun getThumbnailForBackground(backgroundId: String, width: Int, height: Int): Bitmap? {
-        return repo.getBackgroundThumbnail(backgroundId, width, height)
+    fun clearBackgroundForCurrentPage() = viewModelScope.launch {
+        currentPage.value?.let {
+            val newPage = appDataRepo.clearPageBackground(it)
+            currentPage.postValue(newPage)
+        }
     }
 }

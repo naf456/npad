@@ -2,43 +2,32 @@ package com.naf.npad.fragments
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.view.*
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.naf.npad.MainActivity
 import com.naf.npad.R
-import com.naf.npad.Utls
-import com.naf.npad.databinding.FragmentPageManagerBinding
+import com.naf.npad.databinding.LayoutPagemanagerBinding
 import com.naf.npad.dialogs.NameDocumentDialog
-import com.naf.npad.repository.PageEntity
+import com.naf.npad.repository.PageDetails
 import com.naf.npad.util.NPMLImporter
 import com.naf.npad.viewmodels.AppViewModel
-import com.naf.npad.views.BounceEdgeEffect
-import jp.wasabeef.blurry.Blurry
 import kotlinx.coroutines.runBlocking
-import java.util.*
-import java.util.concurrent.CompletableFuture.runAsync
 
 class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     interface PageManagerFragmentDelegate {
-        fun onPageSelected(page: PageEntity)
+        fun onPageSelected(pageId: Int)
     }
 
     var delegate : PageManagerFragmentDelegate? = null
 
-    private lateinit var binding : FragmentPageManagerBinding
+    private lateinit var binding : LayoutPagemanagerBinding
     private val appViewModel : AppViewModel by activityViewModels()
 
     private val thumbnailProvider = object : PagesAdapter.ThumbnailProvider() {
@@ -55,15 +44,13 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
         override fun onClick(view: View, adapterPosition: Int) {
             val selectedPage = adapter.pages[adapterPosition]
-            delegate?.onPageSelected(selectedPage)
-            appViewModel.currentPage.postValue(selectedPage)
-            appViewModel.drawerOpen.postValue(false)
+            delegate?.onPageSelected(selectedPage.uid)
         }
 
         override fun onLongClick(view: View, adapterPosition: Int) {
             val page = adapter.pages[adapterPosition]
             val menu = PopupMenu(requireContext(), view, Gravity.CENTER)
-            menu.inflate(R.menu.pageitem_context_actions)
+            menu.inflate(R.menu.menu_document_actions)
             menu.setOnMenuItemClickListener {
                 when(it.itemId) {
                     R.id.action_pageitem_delete -> {
@@ -93,29 +80,20 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         savedInstanceState: Bundle?
     ): View {
 
-        binding = FragmentPageManagerBinding.inflate(inflater, container, false)
+        binding = LayoutPagemanagerBinding.inflate(inflater, container, false)
 
-        binding.pageManagerToolbar.setOnMenuItemClickListener(this)
+        binding.docmanToolbar.setOnMenuItemClickListener(this)
 
-        appViewModel.pages.observe(viewLifecycleOwner) { pages ->
+        appViewModel.pagesDetail.observe(viewLifecycleOwner) { pages ->
             adapter.pages = pages.sortedBy { it.modified }.reversed()
         }
 
-        binding.pageManagerFabNew.setOnClickListener {
-            val dialog = NameDocumentDialog()
-            dialog.onDialogFinished = { documentName ->
-                appViewModel.newPage(documentName)
-            }
-            activity?.let { dialog.show(it.supportFragmentManager, null) }
-        }
+        binding.docmanDocumentList.adapter = adapter
 
-        binding.pageManagerPageList.adapter = adapter
-        binding.pageManagerPageList.layoutManager = GridLayoutManager(requireContext(), 2)
+        val recyclerTouchListener = RecyclerTouchListener(requireContext(), binding.docmanDocumentList, pageListClickListener)
 
-        val recyclerTouchListener = RecyclerTouchListener(requireContext(), binding.pageManagerPageList, pageListClickListener)
-
-        binding.pageManagerPageList.addOnItemTouchListener(recyclerTouchListener)
-        binding.pageManagerPageList.edgeEffectFactory = BounceEdgeEffect(binding.pageManagerPageList)
+        binding.docmanDocumentList.addOnItemTouchListener(recyclerTouchListener)
+        //binding.pageManagerPageList.edgeEffectFactory = BounceEdgeEffect(binding.pageManagerPageList)
 
         return binding.root
     }
@@ -124,6 +102,13 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         when(menuItem.itemId) {
             R.id.drawer_action_import -> NPMLImporter(requireActivity()).importDocument()
             R.id.editor_action_gotoSetting -> startSettings()
+            R.id.documentmanager_action_new_document -> {
+                val dialog = NameDocumentDialog()
+                dialog.onDialogFinished = { documentName ->
+                    appViewModel.newPage(documentName)
+                }
+                activity?.let { dialog.show(it.supportFragmentManager, null) }
+            }
         }
         return true
     }
@@ -135,12 +120,10 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             .replace(R.id.fragmentContainer, settingsFragment)
             .addToBackStack(null)
             .commit()
-
-        appViewModel.drawerOpen.value = false
     }
 
     class PagesAdapter(
-        pages: List<PageEntity>,
+        pages: List<PageDetails>,
         private val thumbnailProvider: ThumbnailProvider
         ) : RecyclerView.Adapter<PagesAdapter.ViewHolder>() {
 
@@ -175,7 +158,7 @@ class PageManagerFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                 .inflate(
-                    R.layout.page_list_item,
+                    R.layout.layout_document_item,
                     parent,
                     false)
 

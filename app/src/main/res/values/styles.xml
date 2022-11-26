@@ -1,12 +1,8 @@
 <resources>
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <dimen name="actionBarSize">48dp</dimen>
@@ -15,6 +11,19 @@
     <style name="NewPageShapeOverlay" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">15%</item>
+    </style>
+
+    <style name="AppTheme.MonoChromeToolbar" parent="Widget.Material3.Toolbar">
+        <item name="backgroundColor">?attr/colorPrimarySurface</item>
+    </style>
+
+    <style name="AppTheme.XLTitle" parent="Theme.MaterialComponents.DayNight">
+        <item name="android:textSize">72sp</item>
+        <item name="android:textColor">#77000000</item>
+    </style>
+
+    <style name="sortByLabel">
+        <item name="android:textColor">@color/colorAccent</item>
     </style>
 
 </resources>

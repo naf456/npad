@@ -4,21 +4,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:icon="@drawable/ic_action_sort"
-        android:title="Sort"
-        app:showAsAction="always">
-        <menu>
-            <item
-                android:id="@+id/drawer_action_sort_mostrecent"
-                android:title="Most Recent" />
-            <item
-                android:id="@+id/drawer_action_sort_leastrecent"
-                android:title="Least Recent" />
-            <item
-                android:id="@+id/drawer_action_sort_alphabetically"
-                android:title="Alphabetically" />
-        </menu>
-    </item>
+        android:id="@+id/documentmanager_action_new_document"
+        android:icon="@drawable/action_new"
+        android:title="New Document"
+        app:showAsAction="always" />
     <item
         android:id="@+id/drawer_action_import"
         android:orderInCategory="5"
