@@ -7,10 +7,19 @@
     tools:context="com.naf.npad.MainActivity">
 
     <com.naf.npad.views.WallpaperView
-        android:id="@+id/wallpaperImageView"
+        android:id="@+id/editor_document_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/editor_document_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        tools:text="Document Name"
+        android:fitsSystemWindows="true"/>
 
     <com.naf.npad.views.KeyboardShrinkingFrameLayout
         android:layout_width="match_parent"
@@ -22,7 +31,7 @@
             android:overScrollMode="always">
 
             <io.github.mthli.knife.KnifeText
-                android:id="@+id/knife_text"
+                android:id="@+id/editor_knifeText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"

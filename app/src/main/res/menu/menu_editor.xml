@@ -4,6 +4,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/editor_action_gotoSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orderInCategory="9"
+        android:title="@string/editor_action_setting"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/editor_action_photo_mode"
         android:icon="@drawable/ic_fullscreen"
         android:orderInCategory="8"

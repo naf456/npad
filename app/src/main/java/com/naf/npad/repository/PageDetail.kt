@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 import androidx.room.TypeConverters
 
 @TypeConverters(com.naf.npad.repository.TypeConverters::class)
-data class PageDetails (
+data class PageDetail (
     val uid: Int,
     var title: String?,
     var backgroundId: String?,

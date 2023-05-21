@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 import java.time.LocalDateTime
 
-class AppDataRepository(val application: Application) {
+class AppRepository(val application: Application) {
     private val database =
         Room.databaseBuilder(application, AppDatabase::class.java, "app-database")
             .build()
@@ -48,6 +48,12 @@ class AppDataRepository(val application: Application) {
         }
     }
 
+    suspend fun getPageDetailsWithId(id: Int) : PageDetail? {
+        return withContext(Dispatchers.IO){
+            return@withContext pageDAO.retrievePageDetails(id)
+        }
+    }
+
     suspend fun updatePage(pageEntity: PageEntity) {
         withContext(Dispatchers.IO) {
             pageEntity.modified = LocalDateTime.now()
@@ -55,7 +61,7 @@ class AppDataRepository(val application: Application) {
         }
     }
 
-    suspend fun updatePage(pageDetails: PageDetails) {
+    suspend fun updatePage(pageDetails: PageDetail) {
         withContext(Dispatchers.IO) {
             pageDetails.modified = LocalDateTime.now()
             pageDAO.update(pageDetails)
@@ -71,7 +77,7 @@ class AppDataRepository(val application: Application) {
         }
     }
 
-    suspend fun deletePage(pageDetails: PageDetails) {
+    suspend fun deletePage(pageDetails: PageDetail) {
         withContext(Dispatchers.IO){
             pageDetails.backgroundId?.let {
                 backgroundImageStore.delete(it)
@@ -80,19 +86,27 @@ class AppDataRepository(val application: Application) {
         }
     }
 
-    suspend fun setPageBackgroundFromUri(pageEntity: PageEntity, uri: Uri) : PageEntity
-    = withContext(Dispatchers.IO) {
-        val stream = application.contentResolver.openInputStream(uri) ?: throw Exception("No such Uri: $uri")
-        val bitmap = BitmapFactory.decodeStream(stream) //Make sure we can actually read the bitmap
-        val curBackgroundId = pageEntity.backgroundId
-        val newBackgroundId = if(curBackgroundId != null)
-            backgroundImageStore.update(curBackgroundId, bitmap)
-        else
-            backgroundImageStore.store(bitmap)
+    suspend fun setPageBackgroundFromUri(pageEntity: PageEntity, uri: Uri) : PageEntity {
+        return withContext(Dispatchers.IO) {
+            val stream = application.contentResolver.openInputStream(uri) ?: throw Exception("No such Uri: $uri")
+            val bitmap = BitmapFactory.decodeStream(stream)
+            val newPage = setPageBackgroundFromBitmap(pageEntity, bitmap)
+            updatePage(newPage)
+            return@withContext pageEntity
+        }
+    }
 
-        pageEntity.backgroundId = newBackgroundId
-        updatePage(pageEntity)
-        return@withContext pageEntity
+    suspend fun setPageBackgroundFromBitmap(pageEntity: PageEntity, bitmap: Bitmap) : PageEntity {
+        return withContext(Dispatchers.IO) {
+            val curBackgroundId = pageEntity.backgroundId
+            val newBackgroundId = if (curBackgroundId != null)
+                backgroundImageStore.update(curBackgroundId, bitmap)
+            else
+                backgroundImageStore.store(bitmap)
+
+            pageEntity.backgroundId = newBackgroundId
+            return@withContext pageEntity
+        }
     }
 
     suspend fun clearPageBackground(pageEntity: PageEntity) : PageEntity {

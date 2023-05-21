@@ -7,6 +7,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.naf.npad.R
+import com.naf.npad.repository.BackgroundImageStore
 
 import com.naf.npad.repository.WallpaperManager
 import com.naf.npad.util.SafeGetContentActivityResultContract
@@ -33,6 +34,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         //We let bindPreferenceSummaryToValue set are summary for us.
         findPreference<Preference>(getString(R.string.pref_key_scaling))?.onPreferenceChangeListener = OnScalingChangeListener()
+        findPreference<Preference>(getString(R.string.pref_key_clear_thumbs))?.onPreferenceClickListener = OnClearThumbsClickListener()
+    }
+
+    private inner class OnClearThumbsClickListener : Preference.OnPreferenceClickListener {
+        override fun onPreferenceClick(preference: Preference): Boolean {
+            BackgroundImageStore(requireContext()).clearThumbs()
+            return true
+        }
     }
 
     private inner class OnPickWallpaperClickListener : Preference.OnPreferenceClickListener {

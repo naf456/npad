@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.ThumbnailUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -57,25 +58,29 @@ class BackgroundImageStore(val context: Context) {
         uid
     }
 
-    suspend fun update(imageId: String, bitmap: Bitmap) : String {
-        val newBackgroundId = store(bitmap)
+    suspend fun update(imageId: String, bitmap: Bitmap): String {
+        //Delete the old files
         val imageFile = File(contentDir, imageId)
         val thumbnailFile = File(thumbnailDir, imageId)
-        if(imageFile.exists()) imageFile.delete()
-        if(thumbnailFile.exists()) imageFile.delete()
-        return newBackgroundId
+        if (imageFile.exists()) imageFile.delete()
+        if (thumbnailFile.exists()) imageFile.delete()
+
+        //Store as a new file, return it's new UID
+        return store(bitmap)
     }
 
-    private suspend fun thumbnail(backgroundId: String, width: Int, height: Int) : Bitmap?
-    = withContext(Dispatchers.IO){
-        val bitmap = retrieve(backgroundId) ?: return@withContext null
-        val thumbnail = ThumbnailUtils.extractThumbnail(bitmap, width, height)
-        val file = File(thumbnailDir, backgroundId)
-        if (file.exists()) file.delete()
-        file.createNewFile()
+    private suspend fun thumbnail(backgroundId: String, width: Int, height: Int) : Bitmap? = withContext(Dispatchers.IO){
 
-        val stream = file.outputStream()
-        thumbnail.compress(Bitmap.CompressFormat.PNG, 0, stream)
+        val thumbnailFile = File(thumbnailDir, backgroundId)
+        val backgroundBitmap = retrieve(backgroundId) ?: return@withContext null
+        val thumbnail = ThumbnailUtils.extractThumbnail(backgroundBitmap, width, height)
+
+        //Save thumbnail
+        launch(Dispatchers.IO) {
+            if (thumbnailFile.exists()) thumbnailFile.delete()
+            thumbnailFile.createNewFile()
+            thumbnail.compress(Bitmap.CompressFormat.PNG, 0, thumbnailFile.outputStream())
+        }
         return@withContext thumbnail
     }
 
@@ -109,6 +114,15 @@ class BackgroundImageStore(val context: Context) {
                 return thumbnail(backgroundId = backgroundId, width = width, height = height)
             }
             return bitmap
+    }
+
+    fun clearThumbs(){
+        val thumbs = thumbnailDir.listFiles()
+        thumbs?.let {
+            for(thumb in it) {
+                thumb.delete()
+            }
+        }
     }
 
 }

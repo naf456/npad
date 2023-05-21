@@ -66,6 +66,7 @@
 
     <string name="pref_key_last_opened_page_id">lastOpenedPageId</string>
 
+    <string name="pref_key_clear_thumbs">clearThumbs</string>
 
 
 

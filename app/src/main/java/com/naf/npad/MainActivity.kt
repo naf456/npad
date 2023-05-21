@@ -1,102 +1,87 @@
 package com.naf.npad
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import com.naf.npad.databinding.LayoutMainBinding
 import com.naf.npad.fragments.PageManagerFragment
 import com.naf.npad.fragments.EditorFragment
 import com.naf.npad.repository.PageEntity
-import com.naf.npad.viewmodels.AppViewModel
+import com.naf.npad.util.toast
+import com.naf.npad.viewmodels.MainViewModel
 import kotlinx.coroutines.*
 
 
-class MainActivity : AppCompatActivity(), PageManagerFragment.PageManagerFragmentDelegate {
+class MainActivity : AppCompatActivity() {
 
-    companion object {
-        const val EDITOR_FRAGMENT_TAG = "Editor"
-        const val PAGEMANAGER_FRAGMENT_TAG = "PageManager"
-    }
+    private lateinit var viewBinding: LayoutMainBinding
 
-    lateinit var binding: LayoutMainBinding
+    private val mainViewModel : MainViewModel by viewModels()
 
-    private val appViewModel : AppViewModel by viewModels()
+    private val pageManagerDelegate = object : PageManagerFragment.PageManagerFragmentDelegate {
 
-    private val currentFragment: Fragment get() {
-        return supportFragmentManager.findFragmentById(R.id.fragmentContainer) ?: Fragment()
+        override fun onPageSelected(pageId: Int, viewHolder: PageManagerFragment.PageItemViewHolder) {
+            lifecycleScope.launch {
+                val page = mainViewModel.getPageWithId(pageId) ?: return@launch
+                val sharedViews = mapOf<View, String>(
+                    viewHolder.thumbnailImageView to "editorWallpaper"
+                )
+                launchEditor(page, sharedViews = sharedViews)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = LayoutMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        viewBinding = LayoutMainBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val pageManagerFragment = PageManagerFragment()
-        pageManagerFragment.delegate = this
+        pageManagerFragment.delegate = pageManagerDelegate
 
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, pageManagerFragment, PAGEMANAGER_FRAGMENT_TAG)
-                .commit()
+        supportFragmentManager.commit {
+            replace(R.id.fragmentContainer, pageManagerFragment, pageManagerFragment::class.simpleName)
+        }
 
+        /*
+        if(mainViewModel.autoloadPage) {
+            lifecycleScope.launch {
+                val lastPageId = mainViewModel.lastOpenedPageId?: return@launch
+                val lastPage = mainViewModel.getPageWithId(lastPageId) ?: return@launch
+                launchEditor(page = lastPage, toast = true)
+            }
+        }
+        */
+    }
 
-        //Check for autoload document
-        if(appViewModel.autoloadPage) {
-            appViewModel.lastOpenedPageId?.let {
-                lifecycleScope.launch {
-                    val page = appViewModel.getPageWithId(it) ?: return@launch
-                    openEditor(page)
-                    Utls.toast(
-                        this@MainActivity,
-                        "Auto-loaded ${if (page.title.isNullOrEmpty()) "[Untitled]" else page.title}"
-                    )
+    private fun launchEditor(page: PageEntity, toast: Boolean = false, sharedViews: Map<View, String>? = null){
+        mainViewModel.currentPage.value = page
+
+        supportFragmentManager.commit {
+            sharedViews?.let {
+                setReorderingAllowed(true)
+                for(sharedView in sharedViews) {
+                    addSharedElement(sharedView.key, sharedView.value)
                 }
             }
-        }
-    }
-
-    override fun onBackPressed() {
-        when(currentFragment) {
-            is PageManagerFragment -> {
-                superBackPressed()
-            }
-            is EditorFragment -> {
-                (currentFragment as EditorFragment).onBackPressed()
-            }
-            else -> {
-                superBackPressed()
-            }
-        }
-    }
-
-    fun superBackPressed() {
-        super.onBackPressed()
-    }
-
-    override fun onPageSelected(pageId: Int): Unit = runBlocking {
-        launch {
-            appViewModel.getPageWithId(pageId)?.let { page ->
-                openEditor(page)
-            }
-        }
-    }
-
-    private fun openEditor(page: PageEntity){
-        appViewModel.currentPage.value = page
-        supportFragmentManager.commit {
-            /*setCustomAnimations(
-                android.R.anim.fade_in,
-                android.R.anim.fade_out,
-                android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
-            )*/
-            replace(R.id.fragmentContainer, EditorFragment(), EDITOR_FRAGMENT_TAG)
+            setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out,
+            android.R.anim.fade_in, android.R.anim.fade_out)
+            replace(R.id.fragmentContainer, EditorFragment(), EditorFragment::class.simpleName)
             addToBackStack(null)
+        }
+
+        if(toast) {
+            val title = if (page.title.isNullOrEmpty()) "[Untitled]" else page.title
+            toast(
+                this@MainActivity,
+                "Loaded '$title'"
+            )
         }
     }
 }

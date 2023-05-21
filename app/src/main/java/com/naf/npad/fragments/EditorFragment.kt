@@ -5,74 +5,93 @@ import android.view.*
 import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.ActionMenuView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.transition.TransitionInflater
 import com.naf.npad.*
-import com.naf.npad.Utls.Uri.md5
+import com.naf.npad.util.md5
 import com.naf.npad.databinding.LayoutEditorBinding
 import com.naf.npad.repository.PageEntity
+import com.naf.npad.util.SafeCropImageToScreenActivityResultContract
 import com.naf.npad.util.SafeGetContentActivityResultContract
-import com.naf.npad.viewmodels.AppViewModel
+import com.naf.npad.viewmodels.MainViewModel
 import com.naf.npad.views.editor.KnifeTextHistoryWriter
 import io.github.mthli.knife.KnifeText
 import kotlinx.coroutines.launch
 
-
-open class
-EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.OnMenuItemClickListener {
+open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.OnMenuItemClickListener {
 
     private lateinit var views: LayoutEditorBinding
 
     private lateinit var history: History
     private lateinit var knifeTextHistoryWriter: KnifeTextHistoryWriter
 
-    private val appViewModel : AppViewModel by activityViewModels()
-
-    private val content: String
-        get() = views.knifeText.toHtml()
+    private val mainViewModel : MainViewModel by activityViewModels()
 
     private lateinit var menuButton: MenuItem
 
     private var lastSaveDocHash : String = ""
     private var isSaving = false
 
-    private val getImageFromAndroid = registerForActivityResult(SafeGetContentActivityResultContract()) { imageUri ->
+    private val backPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            saveDocument()
+            this.isEnabled = false
+            this@EditorFragment.requireActivity().onBackPressedDispatcher.onBackPressed()
+            this.isEnabled = true
+        }
+    }
+
+    private val requestExternalImagePicker = registerForActivityResult(SafeGetContentActivityResultContract()) { imageUri ->
         imageUri?.let {
-            lifecycleScope.launchWhenCreated {
-                loading = true
-                appViewModel.viewModelScope.launch {
-                    appViewModel.setCurrentPageBackgroundFromURI(it)
-                }.invokeOnCompletion {
-                    loading = false
-                }
+            requestExternalImageCropper.launch(it)
+        }
+    }
+
+    private val requestExternalImageCropper = registerForActivityResult(SafeCropImageToScreenActivityResultContract()) { imageUri ->
+        imageUri?.let {
+            loading = true
+            mainViewModel.viewModelScope.launch {
+                mainViewModel.setCurrentPageBackgroundFromURI(it)
+            }.invokeOnCompletion {
+                loading = false
             }
         }
     }
 
     private var loading: Boolean = false
-        set(it) {
-            if(it) {
-                menuButton.actionView = layoutInflater.inflate(R.layout.layout_actionview_progressindicator, FrameLayout(requireContext()))
-                menuButton.isEnabled = false
-            } else {
-                menuButton.actionView = null
-                menuButton.isEnabled = true
+        set(loading) {
+            lifecycleScope.launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                    if(loading) {
+                        menuButton.actionView = layoutInflater.inflate(R.layout.layout_actionview_progressindicator, FrameLayout(requireContext()))
+                        menuButton.isEnabled = false
+                    } else {
+                        menuButton.actionView = null
+                        menuButton.isEnabled = true
+                    }
+                    field = loading
+                }
             }
-            field = it
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         history = History(100)
         history.startRecording()
+
+        requireActivity().onBackPressedDispatcher.addCallback(this,backPressedCallback)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -82,8 +101,9 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
 
         setupMenus()
         setupOnSelectionMenu()
+        setupTransitions()
 
-        appViewModel.currentPage.observe(this.viewLifecycleOwner) { pageEntity ->
+        mainViewModel.currentPage.observe(this.viewLifecycleOwner) { pageEntity ->
             pageEntity?: return@observe
             loadPageEntity(pageEntity)
         }
@@ -91,31 +111,44 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
         return views.root
     }
 
-    override fun onStart() {
-        super.onStart()
-        knifeTextHistoryWriter = KnifeTextHistoryWriter(views.knifeText, history)
+    private fun setupTransitions() {
+        val inflater = TransitionInflater.from(requireContext())
+        sharedElementEnterTransition = inflater.inflateTransition(R.transition.shared_image)
+        sharedElementReturnTransition = inflater.inflateTransition(R.transition.shared_image)
+
+        ViewCompat.setTransitionName(views.editorDocumentBackground, "editorWallpaper")
     }
 
-    private fun loadPageEntity(pageEntity: PageEntity){
+    override fun onStart() {
+        super.onStart()
+        knifeTextHistoryWriter = KnifeTextHistoryWriter(views.editorKnifeText, history)
+    }
 
-        pageEntity.content?.let { content ->
-            views.knifeText.fromHtml(content)
+
+    private fun loadPageEntity(pageEntity: PageEntity) = lifecycleScope.launch{
+
+        lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
+
+            history.reset()
+            views.editorKnifeText.scrollTo(0,0)
+
+            val content = pageEntity.content?: ""
+            views.editorKnifeText.fromHtml(content)
             lastSaveDocHash = md5(content)
-        }?: run {
-            views.knifeText.text.clear()
-            lastSaveDocHash = md5("")
-        }
 
-        val backgroundId = pageEntity.backgroundId
-        if(backgroundId != null) {
-            lifecycleScope.launchWhenCreated {
-                val background = appViewModel.getBackgroundBitmap(backgroundId)
-                views.wallpaperImageView.setImageBitmap(background)
+            val title = pageEntity.title?: ""
+            views.editorDocumentTitle.text = title.ifEmpty { "[Untitled]" }
+
+            val backgroundId = pageEntity.backgroundId
+            if(backgroundId != null) {
+                val background = mainViewModel.getBackgroundBitmap(backgroundId)
+                views.editorDocumentBackground.setImageBitmap(background)
+            } else {
+                views.editorDocumentBackground.setImageDrawable(
+                    AppCompatResources.getDrawable(requireContext(), R.drawable.shape_plain_background)
+                )
             }
-        } else {
-            views.wallpaperImageView.setImageDrawable(
-                AppCompatResources.getDrawable(requireContext(), R.drawable.shape_plain_background)
-            )
+
         }
     }
 
@@ -142,14 +175,15 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
             R.id.editor_action_photo_mode -> enterPhotoMode()
             //R.id.editor_action_undo -> history.undo()
             //R.id.editor_action_redo -> history.redo()
-            R.id.editor_action_wallpaper_set -> getImageFromAndroid.launch("image/*")
-            R.id.editor_action_wallpaper_clear -> appViewModel.clearBackgroundForCurrentPage()
+            R.id.editor_action_wallpaper_set -> requestExternalImagePicker.launch("image/*")
+            R.id.editor_action_wallpaper_clear -> mainViewModel.clearBackgroundForCurrentPage()
+            R.id.editor_action_gotoSetting -> gotoSettings()
         }
         return true
     }
 
     private fun setupOnSelectionMenu() {
-        views.knifeText.customSelectionActionModeCallback = object : ActionMode.Callback {
+        views.editorKnifeText.customSelectionActionModeCallback = object : ActionMode.Callback {
 
             override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
                 activity?.menuInflater?.inflate(R.menu.menu_text_styling, menu)
@@ -165,15 +199,15 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
                 item.title?: return false
                 when(item.title){
                     getString(R.string.text_styling_bold) -> {
-                        views.knifeText.bold(!views.knifeText.contains(KnifeText.FORMAT_BOLD))
+                        views.editorKnifeText.bold(!views.editorKnifeText.contains(KnifeText.FORMAT_BOLD))
                         return true
                     }
                     getString(R.string.text_styling_italic) -> {
-                        views.knifeText.italic(!views.knifeText.contains(KnifeText.FORMAT_ITALIC))
+                        views.editorKnifeText.italic(!views.editorKnifeText.contains(KnifeText.FORMAT_ITALIC))
                         return true
                     }
                     getString(R.string.text_styling_underline) -> {
-                        views.knifeText.underline(!views.knifeText.contains(KnifeText.FORMAT_UNDERLINED))
+                        views.editorKnifeText.underline(!views.editorKnifeText.contains(KnifeText.FORMAT_UNDERLINED))
                         return true
                     }
                 }
@@ -187,12 +221,12 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
 
     private fun saveDocument() {
         isSaving = true
-        val page = appViewModel.currentPage.value ?: return
-        val content = views.knifeText.toHtml()
+        val page = mainViewModel.currentPage.value ?: return
+        val content = views.editorKnifeText.toHtml()
         val thisHash = md5(content)
         if(lastSaveDocHash != thisHash) {
             page.content = content
-            appViewModel.updatePage(page).invokeOnCompletion {
+            mainViewModel.updatePage(page).invokeOnCompletion {
                 isSaving = false
             }
         }
@@ -200,14 +234,7 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
 
     override fun onPause() {
         super.onPause()
-        views.knifeText.hideSoftInput()
-    }
-
-    private fun resetEditor() {
-        history.reset()
-        views.knifeText.setText("")
-        lastSaveDocHash = md5(content)
-        history.startRecording()
+        views.editorKnifeText.hideSoftInput()
     }
 
     private fun enterPhotoMode() {
@@ -217,9 +244,9 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
             .hide(WindowInsetsCompat.Type.systemBars())
 
         //Hide cursor
-        views.knifeText.hideSoftInput()
-        views.knifeText.clearFocus()
-        views.knifeText.isFocusable = false
+        views.editorKnifeText.hideSoftInput()
+        views.editorKnifeText.clearFocus()
+        views.editorKnifeText.isFocusable = false
 
         //Hide toolbar
         views.editorToolbarContainer.visibility = CoordinatorLayout.GONE
@@ -240,8 +267,8 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
     private fun exitPhotoMode() {
 
         //Allow textbox to be editable
-        views.knifeText.isFocusable = true
-        views.knifeText.isFocusableInTouchMode = true
+        views.editorKnifeText.isFocusable = true
+        views.editorKnifeText.isFocusableInTouchMode = true
 
         //Show toolbar
         views.editorToolbarContainer.visibility = View.VISIBLE
@@ -254,11 +281,12 @@ EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, PopupMenu.O
         views.editorPhotomodeExit.visibility = View.GONE
     }
 
-    fun onBackPressed() {
-        saveDocument()
-        val act = activity
-        if(act is MainActivity) {
-            act.superBackPressed()
-        }
+    private fun gotoSettings(){
+        val settingsFragment = SettingsFragment()
+
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, settingsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

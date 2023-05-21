@@ -15,7 +15,7 @@ class NameDocumentDialog : AppCompatDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogContent = requireActivity().layoutInflater.inflate(R.layout.dialog_name_document, null)
         val textBox = dialogContent.findViewById<EditText>(R.id.dialog_name_document_name)
-        textBox.setOnKeyListener { v, keyCode, _ ->
+        textBox.setOnKeyListener { _, keyCode, _ ->
             if(keyCode ==  KeyEvent.KEYCODE_ENTER){
                 onDialogFinished?.invoke(textBox.text.toString())
                 dismiss()

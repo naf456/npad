@@ -21,7 +21,7 @@ import kotlin.math.roundToInt
 class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var wallpaperManager: WallpaperManager? = null
-    private var dimmerPaint: Paint? = null
+    private var dimmerPaint = Paint()
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         if (!isInEditMode) {
@@ -45,8 +45,7 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
         wallpaperManager = WallpaperManager(context)
 
         this.dimmerPaint = Paint()
-        this.dimmerPaint!!.color = Color.BLACK
-        this.dimmerPaint!!.alpha = 0
+        applyWallpaperDimmer(27)
 
 
         PreferenceManager.getDefaultSharedPreferences(context)
@@ -61,7 +60,7 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dimmerPaint!!)
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), dimmerPaint)
     }
 
     override fun onAttachedToWindow() {
@@ -127,7 +126,7 @@ class WallpaperView : GifImageView, SharedPreferences.OnSharedPreferenceChangeLi
     }
 
     fun applyWallpaperDimmer(dimmingIntensity: Int) {
-        dimmerPaint!!.setARGB(percentageToHex(dimmingIntensity),0,0, 0)
+        dimmerPaint.setARGB(percentageToHex(dimmingIntensity),0,0, 0)
         invalidate()
     }
 

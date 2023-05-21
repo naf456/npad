@@ -29,7 +29,8 @@
     </PreferenceCategory>
     <PreferenceCategory app:title="Dev">
         <Preference
-            app:title="Clear thumbnails"
-            app:icon="@drawable/ic_action_thumbnail_clear"/>
+            app:icon="@drawable/ic_action_thumbnail_clear"
+            app:key="@string/pref_key_clear_thumbs"
+            app:title="Clear thumbnails" />
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

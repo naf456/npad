@@ -2,15 +2,16 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.nbennettsoftware.npad"
         minSdkVersion 26
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -26,6 +27,10 @@ android {
         dataBinding true
         viewBinding true
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     namespace 'com.naf.npad'
 }
 
@@ -33,32 +38,37 @@ repositories {
     mavenCentral()
 }
 
-//Basic
+//Essential
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
 }
 
 //Android support
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.5.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
-    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation "androidx.dynamicanimation:dynamicanimation-ktx:1.0.0-alpha03"
 
-    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
-}
+    def lifecycle_version = "2.6.1"
+    implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
-//Remote 3rd party
-dependencies {
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
+    def fragment_version = "1.5.7"
+    implementation "androidx.fragment:fragment-ktx:$fragment_version"
+    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
+
+    def room_version = '2.5.1'
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 }
 
 //Local 3rd party
@@ -66,38 +76,20 @@ dependencies {
     implementation project(':knife')
 }
 
+//Remote 3rd party
+dependencies {
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.25'
+    implementation 'com.github.yalantis:ucrop:2.2.6-native'
+
+    //Image loading and caching library
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
+}
+
 //Testing
 dependencies {
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testImplementation 'junit:junit:4.13.2'
-}
-
-dependencies {
-    def fragment_version = "1.5.2"
-
-    // Java language implementation
-    implementation "androidx.fragment:fragment-ktx:$fragment_version"
-    // Kotlin
-    implementation "androidx.fragment:fragment-ktx:$fragment_version"
-    // Testing Fragments in Isolation
-    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
-}
-
-dependencies {
-    def room_version = "2.4.3"
-
-    implementation "androidx.room:room-runtime:$room_version"
-    implementation "androidx.room:room-ktx:2.4.3"
-    kapt "androidx.room:room-compiler:$room_version"
-}
-
-dependencies {
-    def dynamicanimation_version = '1.0.0'
-    implementation "androidx.dynamicanimation:dynamicanimation:$dynamicanimation_version"
-}
-
-dependencies {
-    implementation 'jp.wasabeef:blurry:4.0.1'
 }

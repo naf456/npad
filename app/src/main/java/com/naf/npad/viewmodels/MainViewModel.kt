@@ -9,16 +9,16 @@ import com.naf.npad.repository.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AppViewModel(private val _application: Application) : AndroidViewModel(_application) {
+class MainViewModel(private val app: Application) : AndroidViewModel(app) {
 
-    private val appDataRepo = AppDataRepository(_application)
-    private val backgroundImageStore = BackgroundImageStore(_application)
+    private val appDataRepo = AppRepository(app)
+    private val backgroundImageStore = BackgroundImageStore(app)
 
     val pagesDetail = liveData(Dispatchers.IO) {
         emitSource(appDataRepo.pagesDetail)
     }
 
-    val pagesDetailByModified = MediatorLiveData<List<PageDetails>>()
+    val pagesDetailByModified = MediatorLiveData<List<PageDetail>>()
 
     init {
         pagesDetailByModified.addSource(pagesDetail) { pageDetails ->
@@ -26,25 +26,27 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
         }
     }
 
+
+
     var lastOpenedPageId : Int?
     get() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(_application)
-        val key = _application.resources.getString(com.naf.npad.R.string.pref_key_last_opened_page_id)
-        val id = prefs.getInt(key, -1)
-        return if (id > -1) id else null
+        val prefs = PreferenceManager.getDefaultSharedPreferences(app)
+        val key = app.resources.getString(com.naf.npad.R.string.pref_key_last_opened_page_id)
+        val pageId = prefs.getInt(key, -1)
+        return if (pageId > -1) pageId else null
     }
     set(value) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(_application)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(app)
         val editor = prefs.edit()
-        val key = _application.resources.getString(com.naf.npad.R.string.pref_key_last_opened_page_id)
+        val key = app.resources.getString(com.naf.npad.R.string.pref_key_last_opened_page_id)
         if (value == null) editor.remove(key) else editor.putInt(key, value)
         editor.apply()
     }
 
     val autoloadPage: Boolean
     get() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(_application)
-        val key = _application.resources.getString(com.naf.npad.R.string.pref_key_page_autoload)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(app)
+        val key = app.resources.getString(com.naf.npad.R.string.pref_key_page_autoload)
         return prefs.getBoolean(key, false)
     }
 
@@ -66,12 +68,16 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
         appDataRepo.updatePage(pageEntity)
     }
 
-    fun updatePage(pageDetails: PageDetails) = viewModelScope.launch {
+    fun updatePage(pageDetails: PageDetail) = viewModelScope.launch {
         appDataRepo.updatePage(pageDetails)
     }
 
     suspend fun getPageWithId(id: Int) : PageEntity? {
             return appDataRepo.getPageWithId(id)
+    }
+
+    suspend fun getPageDetailsWithId(id: Int) : PageDetail? {
+        return appDataRepo.getPageDetailsWithId(id)
     }
 
     fun duplicatePage(page: PageEntity) = viewModelScope.launch {
@@ -82,7 +88,7 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
         )
     }
 
-    fun duplicatePage(pageDetails: PageDetails) = viewModelScope.launch {
+    fun duplicatePage(pageDetails: PageDetail) = viewModelScope.launch {
         appDataRepo.getPageWithId(pageDetails.uid)?.let { page ->
             duplicatePage(page)
         }
@@ -92,7 +98,7 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
         appDataRepo.deletePage(pageEntity)
     }
 
-    fun deletePage(details: PageDetails) = viewModelScope.launch {
+    fun deletePage(details: PageDetail) = viewModelScope.launch {
         appDataRepo.deletePage(details)
     }
 
@@ -102,7 +108,13 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
             this.currentPage.postValue(currentPage)
     }
 
-    suspend fun getBackgroundBitmap(backgroundId: String) : Bitmap? {
+    suspend fun setCurrentPageBackgroundFromBitmap(bitmap: Bitmap) {
+        val currentPage = currentPage.value ?: return
+        appDataRepo.setPageBackgroundFromBitmap(currentPage, bitmap)
+        this.currentPage.postValue(currentPage)
+    }
+
+    fun getBackgroundBitmap(backgroundId: String) : Bitmap? {
         return try {
             backgroundImageStore.retrieve(backgroundId)
         } catch (e: Exception) {
@@ -115,6 +127,7 @@ class AppViewModel(private val _application: Application) : AndroidViewModel(_ap
     }
 
     fun clearBackgroundForCurrentPage() = viewModelScope.launch {
+        
         currentPage.value?.let {
             val newPage = appDataRepo.clearPageBackground(it)
             currentPage.postValue(newPage)
