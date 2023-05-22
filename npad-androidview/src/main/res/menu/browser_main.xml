@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/documentmanager_action_new_document"
+        android:icon="@drawable/action_new"
+        android:title="New Document"
+        android:visible="false"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/drawer_action_import"
+        android:orderInCategory="5"
+        android:title="@string/editor_action_import"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/editor_action_gotoSetting"
+        android:orderInCategory="9"
+        android:title="@string/editor_action_setting"
+        app:showAsAction="never" />
+</menu>

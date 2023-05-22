@@ -1,1 +1,3 @@
-include ':app' , ':knife'
+include ':npad-androidview', ':knife'
+include ':npad-compose'
+include ':npad-data'

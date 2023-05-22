@@ -3,14 +3,22 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Npad.iml" filepath="$PROJECT_DIR$/.idea/modules/Npad.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Npad.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Npad.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Npad.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Npad.app.androidTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Npad.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Npad.app.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Npad.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Npad.app.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Npad.knife.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Npad.knife.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Npad.knife.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Npad.knife.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Npad.knife.main.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Npad.knife.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/knife/Npad.knife.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/knife/Npad.knife.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Npad.npad-androidview.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Npad.npad-androidview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-androidview/Npad.npad-androidview.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-androidview/Npad.npad-androidview.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-androidview/Npad.npad-androidview.main.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-androidview/Npad.npad-androidview.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-androidview/Npad.npad-androidview.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-androidview/Npad.npad-androidview.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.main.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-compose/Npad.npad-compose.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.main.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/npad-data/Npad.npad-data.unitTest.iml" />
     </modules>
   </component>
 </project>
