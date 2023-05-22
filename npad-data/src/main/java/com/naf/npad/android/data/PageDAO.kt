@@ -32,4 +32,7 @@ interface PageDAO {
 
     @Delete(entity = PageEntity::class)
     fun delete(pageDetails: PageDetail)
+
+    @Query("DELETE from Pages WHERE uid = :id")
+    fun deleteWithID(id: Int)
 }

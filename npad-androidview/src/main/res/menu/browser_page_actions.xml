@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_pageitem_rename"
+        android:id="@+id/menu_pageitem_rename"
         android:title="Rename" />
     <item
-        android:id="@+id/action_pageitem_duplicate"
+        android:id="@+id/menu_pageitem_duplicate"
         android:title="Duplicate" />
     <item
-        android:id="@+id/action_pageitem_delete"
+        android:id="@+id/menu_pageitem_delete"
         android:title="Delete" />
 </menu>

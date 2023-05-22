@@ -18,6 +18,7 @@ import com.naf.npad.R
 import com.naf.npad.databinding.BrowserMainBinding
 import com.naf.npad.android.util.NPMLImporter
 import com.naf.npad.android.MainViewModel
+import com.naf.npad.android.data.PageDetail
 import kotlinx.coroutines.*
 
 class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
@@ -52,7 +53,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private val pageListClickListener = object : RecyclerTouchToClickListener.ClickListener() {
 
         override fun onClick(view: View, adapterPosition: Int) {
-            if(adapterPosition == 0) { newDocument(); return }
+            if(adapterPosition == 0) { newPage(); return }
 
             val selectedPage = adapter.pages[-1 + adapterPosition] //-1 counts as the welcome tile
             val viewHolder = views.docmanDocumentList.findViewHolderForAdapterPosition(adapterPosition)?: return
@@ -61,30 +62,33 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
         override fun onLongClick(view: View, adapterPosition: Int) {
             if(adapterPosition == 0) return
+
             val page = adapter.pages[-1 + adapterPosition]
-            val menu = PopupMenu(requireContext(), view, Gravity.CENTER)
-            menu.inflate(R.menu.browser_page_actions)
-            menu.setOnMenuItemClickListener {
-                when(it.itemId) {
-                    R.id.action_pageitem_delete -> {
-                        mainViewModel.deletePage(page)
-                    }
-                    R.id.action_pageitem_duplicate -> {
-                        mainViewModel.duplicatePage(page)
-                    }
-                    R.id.action_pageitem_rename -> {
-                        val dialog = NameDocumentDialog()
-                        dialog.onDialogFinished = { title ->
-                            page.title = title
-                            mainViewModel.updatePage(page)
-                        }
-                        dialog.show(requireActivity().supportFragmentManager, null)
-                    }
-                }
-                return@setOnMenuItemClickListener true
-            }
-            menu.show()
+            presentPageActionMenu(view, page)
         }
+    }
+
+    fun presentPageActionMenu(pageView: View, page: PageDetail) =
+        PopupMenu(requireContext(), pageView, Gravity.CENTER_HORIZONTAL).apply {
+            inflate(R.menu.browser_page_actions)
+
+            setOnMenuItemClickListener { item ->
+                when(item.itemId) {
+                    R.id.menu_pageitem_delete -> mainViewModel.deletePage(page)
+                    R.id.menu_pageitem_duplicate -> mainViewModel.duplicatePage(page)
+                    R.id.menu_pageitem_rename -> renamePage(page)
+                }
+                false
+            }
+            show()
+        }
+
+    private fun renamePage(page: PageDetail) = NameDocumentDialog().apply {
+        onDialogSuccess = { title ->
+            page.title = title
+            mainViewModel.updatePage(page)
+        }
+        show(this@BrowserFragment.requireActivity().supportFragmentManager, null)
     }
 
     override fun onCreateView(
@@ -110,9 +114,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun setupTransitions(){
-
         postponeEnterTransition()
-
     }
 
     private fun getLastPosition() : Int? = runBlocking {
@@ -141,19 +143,18 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    private fun newDocument(){
-        val dialog = NameDocumentDialog()
-        dialog.onDialogFinished = { documentName ->
+    private fun newPage() = NameDocumentDialog().apply {
+        onDialogSuccess = { documentName ->
             mainViewModel.newPage(documentName)
         }
-        activity?.let { dialog.show(it.supportFragmentManager, null) }
+        show(this@BrowserFragment.requireActivity().supportFragmentManager, null)
     }
 
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
         when(menuItem.itemId) {
             R.id.drawer_action_import -> NPMLImporter(requireActivity()).importDocument()
             R.id.editor_action_gotoSetting -> (requireActivity() as? MainActivity)?.openSettings()
-            R.id.documentmanager_action_new_document -> newDocument()
+            R.id.documentmanager_action_new_document -> newPage()
         }
         return true
     }

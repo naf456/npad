@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 import java.time.LocalDateTime
 
-class AppRepository(val application: Application) {
+class Repository(val application: Application) {
     private val database =
         Room.databaseBuilder(application, AppDatabase::class.java, "app-database")
             .build()
@@ -82,7 +82,24 @@ class AppRepository(val application: Application) {
             pageDetails.backgroundId?.let {
                 backgroundImageStore.delete(it)
             }
-            pageDAO.delete(pageDetails)
+            pageDAO.deleteWithID(pageDetails.uid)
+        }
+    }
+
+    suspend fun duplicatePage(pageDetails: PageDetail) {
+        withContext(Dispatchers.IO) {
+            //Todo exception?
+            val oldPage = pageDAO.retrieve(pageDetails.uid)?: return@withContext
+            val dupPage = PageEntity()
+            dupPage.title = oldPage.title
+            dupPage.content = oldPage.content
+            dupPage.backgroundId = oldPage.backgroundId?.let { backgroundId ->
+                //Duplicate background
+                backgroundImageStore.retrieve(backgroundId)?.let {
+                    backgroundImageStore.store(it)
+                }
+            }
+            pageDAO.insert(dupPage)
         }
     }
 

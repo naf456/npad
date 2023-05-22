@@ -42,7 +42,7 @@ class BackgroundImageStore(val context: Context) {
         }
 
     /**
-     * @return id of the bitmap entry in store
+     * @return the id of the newly stored background image
      */
     suspend fun store(bitmap: Bitmap) : String = withContext(Dispatchers.IO) {
         var uid = generateUID()

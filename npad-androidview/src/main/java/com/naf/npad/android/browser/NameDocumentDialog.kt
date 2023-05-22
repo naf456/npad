@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import com.naf.npad.R
 
 class NameDocumentDialog : AppCompatDialogFragment() {
-    var onDialogFinished: ((documentName: String?)->Unit)? = null
+    var onDialogSuccess: ((documentName: String?)->Unit)? = null
 
     private lateinit var textBox: EditText
 
@@ -43,7 +43,7 @@ class NameDocumentDialog : AppCompatDialogFragment() {
     }
 
     private fun finish(){
-        onDialogFinished?.invoke(textBox.text.toString())
+        onDialogSuccess?.invoke(textBox.text.toString())
         dismiss()
     }
 

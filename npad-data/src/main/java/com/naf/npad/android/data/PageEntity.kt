@@ -11,8 +11,8 @@ data class PageEntity (
     var title: String? = null,
     var content : String? = null,
     var backgroundId: String? = null,
-    var created: LocalDateTime,
-    var modified: LocalDateTime
+    var created: LocalDateTime = LocalDateTime.now(),
+    var modified: LocalDateTime = LocalDateTime.now()
         ) {
     @PrimaryKey(autoGenerate = true) var uid: Int? = null
 
