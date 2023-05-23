@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 @Entity(tableName = "Pages")
 @TypeConverters(AppDatabase.TypeConverters::class)
-data class PageEntity (
+data class Page (
     var title: String? = null,
     var content : String? = null,
     var backgroundId: String? = null,
@@ -16,12 +16,15 @@ data class PageEntity (
         ) {
     @PrimaryKey(autoGenerate = true) var uid: Int? = null
 
-    fun getCreatedTimestamp() : String {
-        val day = String.format("%02d", created.dayOfMonth)
-        val month = String.format("%02d", created.monthValue)
-        val year = created.year
-        val hour = String.format("%02d", created.hour)
-        val minute = String.format("%02d", created.minute)
-        return "$day/$month/$year $hour:$minute"
+    companion object {
+        fun fromInfo(info: PageInfo, content: String? = null) : Page {
+            return Page(
+                title = info.title,
+                content = content,
+                backgroundId = info.backgroundId,
+                created = info.created,
+                modified = info.modified
+            )
+        }
     }
 }

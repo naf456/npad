@@ -8,7 +8,10 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 
-@Database(entities = [PageEntity::class], version = 1)
+@Database(
+    entities = [Page::class],
+    version = 1)
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun pageDAO() : PageDAO
 

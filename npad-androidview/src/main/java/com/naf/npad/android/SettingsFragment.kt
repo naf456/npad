@@ -25,7 +25,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private inner class OnClearThumbsClickListener : Preference.OnPreferenceClickListener {
         override fun onPreferenceClick(preference: Preference): Boolean {
-            com.naf.npad.android.data.BackgroundImageStore(requireContext()).clearThumbs()
+            com.naf.npad.android.data.BackgroundStore(requireContext()).clearThumbs()
             return true
         }
     }

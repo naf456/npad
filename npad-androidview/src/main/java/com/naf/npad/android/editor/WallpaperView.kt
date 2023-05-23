@@ -1,4 +1,4 @@
-package com.naf.npad.android.views
+package com.naf.npad.android.editor
 
 import android.app.Activity
 import android.content.Context
@@ -8,6 +8,7 @@ import androidx.preference.PreferenceManager
 import android.util.AttributeSet
 
 import com.naf.npad.R
+import com.naf.npad.android.views.DimmedImageView
 
 class WallpaperView : DimmedImageView, SharedPreferences.OnSharedPreferenceChangeListener {
 

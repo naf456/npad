@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.naf.npad.android.MainActivity">
 
-    <com.naf.npad.android.views.WallpaperView
+    <com.naf.npad.android.editor.WallpaperView
         android:id="@+id/editor_document_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

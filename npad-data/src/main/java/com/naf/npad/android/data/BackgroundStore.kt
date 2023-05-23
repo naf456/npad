@@ -9,9 +9,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
-import java.lang.Exception
 
-class BackgroundImageStore(val context: Context) {
+class BackgroundStore(val context: Context) {
 
     companion object {
         const val CONTENT_DIRECTORY = "content/"
@@ -92,8 +91,6 @@ class BackgroundImageStore(val context: Context) {
         else
             null
     }
-
-    class ImageStoreUpdateException(msg: String): Exception(msg)
 
     fun delete(imageId: String) : Boolean {
         val imageFile = File(contentDir, imageId)

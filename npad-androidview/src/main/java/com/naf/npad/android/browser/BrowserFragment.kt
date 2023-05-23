@@ -18,7 +18,7 @@ import com.naf.npad.R
 import com.naf.npad.databinding.BrowserMainBinding
 import com.naf.npad.android.util.NPMLImporter
 import com.naf.npad.android.MainViewModel
-import com.naf.npad.android.data.PageDetail
+import com.naf.npad.android.data.PageInfo
 import kotlinx.coroutines.*
 
 class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
@@ -68,7 +68,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    fun presentPageActionMenu(pageView: View, page: PageDetail) =
+    fun presentPageActionMenu(pageView: View, page: PageInfo) =
         PopupMenu(requireContext(), pageView, Gravity.CENTER_HORIZONTAL).apply {
             inflate(R.menu.browser_page_actions)
 
@@ -83,7 +83,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             show()
         }
 
-    private fun renamePage(page: PageDetail) = NameDocumentDialog().apply {
+    private fun renamePage(page: PageInfo) = NameDocumentDialog().apply {
         onDialogSuccess = { title ->
             page.title = title
             mainViewModel.updatePage(page)
@@ -119,7 +119,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     private fun getLastPosition() : Int? = runBlocking {
         val lastOpenPageId = mainViewModel.lastOpenedPageId?: return@runBlocking null
-        val lastOpenedPageDetail = mainViewModel.getPageDetailsWithId(lastOpenPageId)?: return@runBlocking null
+        val lastOpenedPageDetail = mainViewModel.getPageInfoWithId(lastOpenPageId)?: return@runBlocking null
         val position = adapter.pages.indexOf(lastOpenedPageDetail)
         return@runBlocking if(position > -1) position else null
     }
@@ -133,7 +133,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         launch {
             val layoutManager = views.docmanDocumentList.layoutManager?: return@launch
             val lastPageId = mainViewModel.lastOpenedPageId?: return@launch
-            val lastPageDetails = mainViewModel.getPageDetailsWithId(lastPageId)?: return@launch
+            val lastPageDetails = mainViewModel.getPageInfoWithId(lastPageId)?: return@launch
             val position = adapter.pages.indexOf(lastPageDetails)
             val laidOutView = views.docmanDocumentList.layoutManager?.findViewByPosition(position)
             if(laidOutView == null ||
@@ -206,7 +206,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     class PagesAdapter(
         private val fragment: Fragment,
-        pages: List<com.naf.npad.android.data.PageDetail>,
+        pages: List<com.naf.npad.android.data.PageInfo>,
         private val thumbnailLoader: ThumbnailLoader,
         ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

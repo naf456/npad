@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         */
     }
 
-    private fun launchEditor(page: com.naf.npad.android.data.PageEntity, toast: Boolean = false, sharedViews: Map<View, String>? = null){
+    private fun launchEditor(page: com.naf.npad.android.data.Page, toast: Boolean = false, sharedViews: Map<View, String>? = null){
         mainViewModel.currentPage.value = page
 
         supportFragmentManager.commit {

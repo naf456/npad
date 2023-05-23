@@ -94,7 +94,7 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
         history = History(100)
         history.startRecording()
 
-        requireActivity().onBackPressedDispatcher.addCallback(this,backPressedCallback)
+        //requireActivity().onBackPressedDispatcher.addCallback(this,backPressedCallback)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -104,11 +104,11 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
 
         setupMenus()
         setupOnSelectionMenu()
-        setupTransitions()
+        //setupTransitions()
 
         mainViewModel.currentPage.observe(this.viewLifecycleOwner) { pageEntity ->
             pageEntity?: return@observe
-            loadPageEntity(pageEntity)
+            loadPage(pageEntity)
         }
 
         return views.root
@@ -128,23 +128,23 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
     }
 
 
-    private fun loadPageEntity(pageEntity: com.naf.npad.android.data.PageEntity) = lifecycleScope.launch{
+    private fun loadPage(page: com.naf.npad.android.data.Page) = lifecycleScope.launch{
 
         lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
 
             history.reset()
             views.editorKnifeText.scrollTo(0,0)
 
-            val content = pageEntity.content?: ""
+            val content = page.content?: ""
             views.editorKnifeText.fromHtml(content)
             lastSaveDocHash = md5(content)
 
-            val title = pageEntity.title?: ""
+            val title = page.title?: ""
             views.editorDocumentTitle.text = title.ifEmpty { "[Untitled]" }
 
-            val backgroundId = pageEntity.backgroundId
+            val backgroundId = page.backgroundId
             if(backgroundId != null) {
-                val background = mainViewModel.getBackgroundBitmap(backgroundId)
+                val background = mainViewModel.currentPageBackground
                 views.editorDocumentBackground.setImageBitmap(background)
             } else {
                 views.editorDocumentBackground.setImageDrawable(

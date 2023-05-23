@@ -11,17 +11,17 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 import java.time.LocalDateTime
 
-class Repository(val application: Application) {
+class Repository(private val application: Application) {
     private val database =
         Room.databaseBuilder(application, AppDatabase::class.java, "app-database")
             .build()
 
     private val pageDAO = database.pageDAO()
 
-    private val backgroundImageStore = BackgroundImageStore(application)
+    private val backgroundStore = BackgroundStore(application)
 
     val pagesDetail = liveData {
-        emitSource(pageDAO.retrieveAllDetails())
+        emitSource(pageDAO.retrieveAllInfo())
     }
 
     suspend fun newPage(
@@ -31,7 +31,7 @@ class Repository(val application: Application) {
 
         withContext(Dispatchers.IO) {
             pageDAO.insert(
-                PageEntity(
+                Page(
                     title = title,
                     content = content,
                     backgroundId = backgroundId,
@@ -42,99 +42,90 @@ class Repository(val application: Application) {
         }
     }
 
-    suspend fun getPageWithId(id: Int) : PageEntity? {
+    suspend fun getPageWithId(id: Int) : Page? {
         return withContext(Dispatchers.IO){
             return@withContext pageDAO.retrieve(id)
         }
     }
 
-    suspend fun getPageDetailsWithId(id: Int) : PageDetail? {
+    suspend fun getPageInfoWithId(id: Int) : PageInfo? {
         return withContext(Dispatchers.IO){
-            return@withContext pageDAO.retrievePageDetails(id)
+            return@withContext pageDAO.retrieveInfo(id)
         }
     }
 
-    suspend fun updatePage(pageEntity: PageEntity) {
+    suspend fun updatePage(page: Page) {
         withContext(Dispatchers.IO) {
-            pageEntity.modified = LocalDateTime.now()
-            pageDAO.update(pageEntity)
+            page.modified = LocalDateTime.now()
+            pageDAO.update(page)
         }
     }
 
-    suspend fun updatePage(pageDetails: PageDetail) {
+    suspend fun updatePage(pageDetails: PageInfo) {
         withContext(Dispatchers.IO) {
             pageDetails.modified = LocalDateTime.now()
             pageDAO.update(pageDetails)
         }
     }
 
-    suspend fun deletePage(pageEntity: PageEntity) {
-        withContext(Dispatchers.IO){
-            pageEntity.backgroundId?.let {
-                backgroundImageStore.delete(it)
-            }
-            pageDAO.delete(pageEntity)
-        }
-    }
-
-    suspend fun deletePage(pageDetails: PageDetail) {
+    suspend fun deletePage(pageDetails: PageInfo) {
         withContext(Dispatchers.IO){
             pageDetails.backgroundId?.let {
-                backgroundImageStore.delete(it)
+                backgroundStore.delete(it)
             }
-            pageDAO.deleteWithID(pageDetails.uid)
+            pageDAO.delete(pageDetails.uid)
         }
     }
 
-    suspend fun duplicatePage(pageDetails: PageDetail) {
+    suspend fun duplicatePage(pageDetails: PageInfo) {
         withContext(Dispatchers.IO) {
             //Todo exception?
             val oldPage = pageDAO.retrieve(pageDetails.uid)?: return@withContext
-            val dupPage = PageEntity()
+            val dupPage = Page()
             dupPage.title = oldPage.title
             dupPage.content = oldPage.content
             dupPage.backgroundId = oldPage.backgroundId?.let { backgroundId ->
                 //Duplicate background
-                backgroundImageStore.retrieve(backgroundId)?.let {
-                    backgroundImageStore.store(it)
+                backgroundStore.retrieve(backgroundId)?.let {
+                    backgroundStore.store(it)
                 }
             }
             pageDAO.insert(dupPage)
         }
     }
 
-    suspend fun setPageBackgroundFromUri(pageEntity: PageEntity, uri: Uri) : PageEntity {
+    suspend fun setBackgroundForPageFromUri(page: Page, uri: Uri) : Page {
         return withContext(Dispatchers.IO) {
             val stream = application.contentResolver.openInputStream(uri) ?: throw Exception("No such Uri: $uri")
             val bitmap = BitmapFactory.decodeStream(stream)
-            val newPage = setPageBackgroundFromBitmap(pageEntity, bitmap)
+            val newPage = setPageBackgroundFromBitmap(page, bitmap)
             updatePage(newPage)
-            return@withContext pageEntity
+            return@withContext page
         }
     }
 
-    suspend fun setPageBackgroundFromBitmap(pageEntity: PageEntity, bitmap: Bitmap) : PageEntity {
+    suspend fun setPageBackgroundFromBitmap(page: Page, bitmap: Bitmap) : Page {
         return withContext(Dispatchers.IO) {
-            val curBackgroundId = pageEntity.backgroundId
+            val curBackgroundId = page.backgroundId
             val newBackgroundId = if (curBackgroundId != null)
-                backgroundImageStore.update(curBackgroundId, bitmap)
+                backgroundStore.update(curBackgroundId, bitmap)
             else
-                backgroundImageStore.store(bitmap)
+                backgroundStore.store(bitmap)
 
-            pageEntity.backgroundId = newBackgroundId
-            return@withContext pageEntity
+            page.backgroundId = newBackgroundId
+            return@withContext page
         }
     }
 
-    suspend fun clearPageBackground(pageEntity: PageEntity) : PageEntity {
-        val backgroundId = pageEntity.backgroundId ?: return pageEntity
-        backgroundImageStore.delete(backgroundId)
-        pageEntity.backgroundId = null
-        updatePage(pageEntity)
-        return pageEntity
+    suspend fun clearBackgroundForPage(page: Page) : Page {
+        val backgroundId = page.backgroundId ?: return page
+        backgroundStore.delete(backgroundId)
+        page.backgroundId = null
+        updatePage(page)
+        return page
     }
 
     suspend fun getBackgroundThumbnail(backgroundId: String, width: Int, height: Int) : Bitmap? {
-        return backgroundImageStore.getBackgroundThumbnail(backgroundId, width, height)
+        return backgroundStore.getBackgroundThumbnail(backgroundId, width, height)
     }
 }
