@@ -1,5 +1,6 @@
 package com.naf.npad.android.editor
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
@@ -9,15 +10,18 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.ActionMenuView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.palette.graphics.Palette
 import androidx.transition.TransitionInflater
 import com.naf.npad.*
 import com.naf.npad.android.util.md5
@@ -43,12 +47,13 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
     private var lastSaveDocHash : String = ""
     private var isSaving = false
 
+
+    //This is called with the lifecycle, so it'll be enabled everytime the fragment is resumed
     private val backPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             saveDocument()
             this.isEnabled = false
             this@EditorFragment.requireActivity().onBackPressedDispatcher.onBackPressed()
-            this.isEnabled = true
         }
     }
 
@@ -94,7 +99,7 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
         history = History(100)
         history.startRecording()
 
-        //requireActivity().onBackPressedDispatcher.addCallback(this,backPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(this,backPressedCallback)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -146,12 +151,32 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
             if(backgroundId != null) {
                 val background = mainViewModel.currentPageBackground
                 views.editorDocumentBackground.setImageBitmap(background)
+                updateLocalAdaptiveColors(background)
             } else {
                 views.editorDocumentBackground.setImageDrawable(
-                    AppCompatResources.getDrawable(requireContext(), R.drawable.shape_plain_background)
-                )
+                    AppCompatResources.getDrawable(requireContext(), R.drawable.shape_plain_background))
+                updateLocalAdaptiveColors()
             }
 
+        }
+    }
+
+    private fun updateLocalAdaptiveColors(background: Bitmap? = null) {
+        val defaultColor = resources.getColor(R.color.colorPrimaryDark, requireContext().theme)
+        val toolbarDrawable = DrawableCompat.wrap(views.editorToolbarContainer.background)
+        val adaptiveFade = DrawableCompat.wrap(views.editorAdaptiveFade.background)
+
+        toolbarDrawable.setTint(defaultColor)
+        adaptiveFade.setTint(defaultColor)
+
+        if(background != null) {
+            Palette.from(background).generate { palette ->
+                palette?: return@generate
+
+                toolbarDrawable.setTint(palette.getMutedColor(defaultColor))
+                adaptiveFade.setTint(palette.getDarkMutedColor(defaultColor))
+
+            }
         }
     }
 
@@ -254,6 +279,9 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
         //Hide toolbar
         views.editorToolbarContainer.visibility = CoordinatorLayout.GONE
 
+        //Hide Accent
+        views.editorAdaptiveFade.visibility = View.INVISIBLE
+
         //Activate invisible touch disable control
         views.editorPhotomodeExit.visibility = View.VISIBLE
         views.editorPhotomodeExit.setOnLongClickListener {
@@ -276,6 +304,9 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
         //Show toolbar
         views.editorToolbarContainer.visibility = View.VISIBLE
 
+        //Show Accent
+        views.editorAdaptiveFade.visibility = View.VISIBLE
+
         //Show system bars
         WindowInsetsControllerCompat(requireActivity().window, requireView())
             .show(WindowInsetsCompat.Type.systemBars())
@@ -287,9 +318,9 @@ open class EditorFragment : Fragment(), ActionMenuView.OnMenuItemClickListener, 
     private fun gotoSettings(){
         val settingsFragment = SettingsFragment()
 
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, settingsFragment)
-            .addToBackStack(null)
-            .commit()
+        requireActivity().supportFragmentManager.commit {
+            replace(R.id.fragmentContainer, settingsFragment)
+            addToBackStack(null)
+        }
     }
 }

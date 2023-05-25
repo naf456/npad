@@ -4,24 +4,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows = "false">
+    android:fitsSystemWindows="true">
+
+    <FrameLayout
+        android:id="@+id/browser_title"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/actionBarSize"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/horz_pill_adaptivecolor"
+        android:elevation="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="32dp"
+            android:gravity="center"
+            android:text="Documents"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+    </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/docman_document_list"
+        android:id="@+id/browser_page_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:clipToPadding="false"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:overScrollMode="always"
-        android:paddingTop="28dp"
-        android:paddingBottom="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:spanCount="2"
+        app:layout_constraintTop_toBottomOf="@+id/browser_title"
+        app:spanCount="3"
         tools:listitem="@layout/browser_page_item" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="@dimen/actionBarSize"
+        android:layout_height="@dimen/actionBarSize"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/horz_pill_adaptivecolor"
+        android:elevation="32dp"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toStartOf="@+id/browser_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_launcher_foreground" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

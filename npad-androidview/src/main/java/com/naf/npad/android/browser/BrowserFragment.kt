@@ -3,16 +3,13 @@ package com.naf.npad.android.browser
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.*
-import android.widget.ImageView
 import android.widget.PopupMenu
-import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.naf.npad.android.MainActivity
 import com.naf.npad.R
 import com.naf.npad.databinding.BrowserMainBinding
@@ -20,13 +17,14 @@ import com.naf.npad.android.util.NPMLImporter
 import com.naf.npad.android.MainViewModel
 import com.naf.npad.android.data.PageInfo
 import kotlinx.coroutines.*
+import kotlin.math.roundToInt
 
 class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     interface BrowserFragmentDelegate {
         //Passing view holder is required in order to setup shared view transition animations
         //We could not pass it and require a list lookup in the delegate, but that would be wasteful.
-        fun onPageSelected(pageId: Int, viewHolder: PageItemViewHolder)
+        fun onPageSelected(pageId: Int, viewHolder: PagesAdapter.PageItemViewHolder)
     }
 
     var delegate : BrowserFragmentDelegate? = null
@@ -34,21 +32,39 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private lateinit var views : BrowserMainBinding
     private val mainViewModel : MainViewModel by activityViewModels()
 
-    private val thumbnailLoader = object : PagesAdapter.ThumbnailLoader() {
-
-        override fun getThumbnailForBackground(backgroundId: String, width: Int, height: Int): Bitmap? {
-            return runBlocking {
+    private val thumbnailGetter = object: PagesAdapter.ThumbnailGetter {
+        override suspend fun getThumbnailForBackground(
+            backgroundId: String,
+            width: Int,
+            height: Int
+        ): Bitmap? {
                 //Todo, plugin actual view pixel size
                 val w = requireContext().resources.displayMetrics.widthPixels / 3
                 val h = requireContext().resources.displayMetrics.heightPixels / 3
-                return@runBlocking withContext(Dispatchers.IO) {
+                return withContext(Dispatchers.IO) {
                     return@withContext mainViewModel.getThumbnailForBackground(backgroundId, w, h)
                 }
-            }
+        }
+
+    }
+
+    private val handleLateLoad = PagesAdapter.OnLateLoadedListener { pageItem->
+        val display = resources.displayMetrics
+        val isOnScreen =
+            pageItem.position.intersect(0, 0, display.widthPixels, display.heightPixels)
+        if (isOnScreen) {
+            //Animate the thumbnail
+//            ValueAnimator.ofFloat(0.0f, 1.0f).apply {
+//                duration = 700
+//                addUpdateListener { va ->
+//                    pageItem.thumbnailImageView.alpha = va.animatedValue as Float
+//                }
+//                start()
+//            }
         }
     }
 
-    private var adapter = PagesAdapter(this,listOf(), thumbnailLoader)
+    private lateinit var adapter : PagesAdapter
 
     private val pageListClickListener = object : RecyclerTouchToClickListener.ClickListener() {
 
@@ -56,8 +72,8 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             if(adapterPosition == 0) { newPage(); return }
 
             val selectedPage = adapter.pages[-1 + adapterPosition] //-1 counts as the welcome tile
-            val viewHolder = views.docmanDocumentList.findViewHolderForAdapterPosition(adapterPosition)?: return
-            delegate?.onPageSelected(selectedPage.uid, viewHolder as PageItemViewHolder)
+            val viewHolder = views.browserPageList.findViewHolderForAdapterPosition(adapterPosition)?: return
+            delegate?.onPageSelected(selectedPage.uid, viewHolder as PagesAdapter.PageItemViewHolder)
         }
 
         override fun onLongClick(view: View, adapterPosition: Int) {
@@ -99,13 +115,15 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
         views = BrowserMainBinding.inflate(inflater, container, false)
 
+        adapter =  PagesAdapter(requireContext(), listOf(), thumbnailGetter, handleLateLoad)
+
         mainViewModel.pagesDetail.observe(viewLifecycleOwner) { pages ->
             adapter.pages = pages.sortedBy { it.modified }.reversed()
         }
 
-        views.docmanDocumentList.adapter = adapter
-        views.docmanDocumentList.addOnItemTouchListener(
-            RecyclerTouchToClickListener(requireContext(), views.docmanDocumentList, pageListClickListener)
+        views.browserPageList.adapter = adapter
+        views.browserPageList.addOnItemTouchListener(
+            RecyclerTouchToClickListener(requireContext(), views.browserPageList, pageListClickListener)
         )
 
         setupTransitions()
@@ -114,7 +132,7 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun setupTransitions(){
-        postponeEnterTransition()
+        //postponeEnterTransition()
     }
 
     private fun getLastPosition() : Int? = runBlocking {
@@ -127,18 +145,27 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         scrollToLastPageItem()
+
+        /*//Setup recycler padding
+        val itemHeightDP = 220
+        val itemHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, itemHeightDP.toFloat(), requireActivity().resources.displayMetrics)
+        val itemHalfWidth = (itemHeight * 0.5625 / 2)
+        val listHalfWidth = (requireActivity().resources.displayMetrics.widthPixels / 2)
+        val padding = (listHalfWidth - itemHalfWidth).roundToInt()
+
+        views.browserPageList.setPadding(padding, 0,padding,0)*/
     }
 
     private fun scrollToLastPageItem() = runBlocking {
         launch {
-            val layoutManager = views.docmanDocumentList.layoutManager?: return@launch
-            val lastPageId = mainViewModel.lastOpenedPageId?: return@launch
-            val lastPageDetails = mainViewModel.getPageInfoWithId(lastPageId)?: return@launch
-            val position = adapter.pages.indexOf(lastPageDetails)
-            val laidOutView = views.docmanDocumentList.layoutManager?.findViewByPosition(position)
+            val layoutManager = views.browserPageList.layoutManager?: return@launch
+            val lastOpenedPageId = mainViewModel.lastOpenedPageId?: return@launch
+            val lastOpenedPage = mainViewModel.getPageInfoWithId(lastOpenedPageId)?: return@launch
+            val position = adapter.pages.indexOf(lastOpenedPage)
+            val laidOutView = views.browserPageList.layoutManager?.findViewByPosition(position)
             if(laidOutView == null ||
                 layoutManager.isViewPartiallyVisible(laidOutView, false, true)) {
-                views.docmanDocumentList.post { layoutManager.scrollToPosition(position) }
+                views.browserPageList.post { layoutManager.scrollToPosition(position) }
             }
         }
     }
@@ -157,134 +184,6 @@ class BrowserFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             R.id.documentmanager_action_new_document -> newPage()
         }
         return true
-    }
-
-    interface ViewHolderListener {
-        fun onLoadComplete(position: Int)
-        fun onItemClicked()
-        fun onItemLongClicked()
-    }
-
-    class WelcomeViewHolder(itemView: View, private var fragment: Fragment) : RecyclerView.ViewHolder(itemView) {
-        private val toolbar : Toolbar = itemView.findViewById(R.id.home_toolbar)
-        init {
-            toolbar.setOnMenuItemClickListener {
-                when(it.itemId) {
-                    R.id.editor_action_gotoSetting -> {
-                        (fragment.requireActivity() as? MainActivity)?.openSettings()
-                        return@setOnMenuItemClickListener true
-                    }
-                    else -> return@setOnMenuItemClickListener false
-                }
-            }
-        }
-
-    }
-
-    class PageItemViewHolder(itemView: View, viewHolderListener: ViewHolderListener? = null) : RecyclerView.ViewHolder(itemView) {
-        var titleTextView : TextView = itemView.findViewById(R.id.pageItem_title_textView)
-        var timeStampTextView : TextView = itemView.findViewById(R.id.pageItem_created_textView)
-        var thumbnailImageView : ImageView = itemView.findViewById(R.id.pageItem_thumbnail_imageView)
-
-        fun setTitle(title: String?) {
-            titleTextView.text = if(title.isNullOrEmpty()) "[Untitled]" else title
-        }
-
-        fun setTimeStamp(timestamp: String?) {
-            timeStampTextView.text = timestamp
-        }
-
-        fun setThumbnail(bitmap: Bitmap?) {
-            thumbnailImageView.setImageBitmap(bitmap)
-        }
-
-        fun setTransitionId(id: String){
-            ViewCompat.setTransitionName(thumbnailImageView, "$id-background")
-            ViewCompat.setTransitionName(titleTextView, "$id-title")
-        }
-    }
-
-    class PagesAdapter(
-        private val fragment: Fragment,
-        pages: List<com.naf.npad.android.data.PageInfo>,
-        private val thumbnailLoader: ThumbnailLoader,
-        ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-        companion object {
-            const val VIEWTYPE_WELCOME = 0
-            const val VIEWTYPE_PAGEITEM = 1
-        }
-
-        var pages = pages
-        set(value) {
-            field = value
-            this.notifyDataSetChanged()
-        }
-
-        abstract class ThumbnailLoader {
-            abstract fun getThumbnailForBackground(backgroundId: String, width: Int, height: Int) : Bitmap?
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            return if(position == 0) VIEWTYPE_WELCOME else VIEWTYPE_PAGEITEM
-        }
-
-        //View holder creation and setup
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            val layout = when(viewType) {
-                VIEWTYPE_WELCOME -> R.layout.browser_home_item
-                else -> R.layout.browser_page_item
-            }
-            val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
-
-            val holder = when(viewType) {
-                VIEWTYPE_WELCOME -> WelcomeViewHolder(view, fragment)
-                else -> PageItemViewHolder(view)
-            }
-            return holder
-        }
-
-        //View holder assignment
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) : Unit {
-            when(holder.itemViewType) {
-                VIEWTYPE_PAGEITEM -> {
-                    bindPageItemHolder(holder as PageItemViewHolder, position)
-                }
-            }
-        }
-
-        private fun bindPageItemHolder(holder: PageItemViewHolder, position: Int) = runBlocking {
-
-            val page = pages[position-1] //Welcome item take position one, shifting all the pages.
-
-            holder.setTitle(page.title)
-            holder.setTimeStamp(page.getCreatedTimestamp())
-            holder.setThumbnail(null) //Clear any old dirty data before we retrieve new thumbnail
-
-            holder.setTransitionId(page.uid.toString())
-
-            page.backgroundId?.let { backgroundId ->
-                val thumbWidth = holder.thumbnailImageView.width
-                val thumbHeight = holder.thumbnailImageView.height
-                val bitmap =
-                    thumbnailLoader.getThumbnailForBackground(
-                        backgroundId,
-                        thumbWidth,
-                        thumbHeight
-                    )
-                Glide.with(this@PagesAdapter.fragment).load(bitmap)
-                    .into(holder.thumbnailImageView)
-
-                launch {
-                    val mainViewModel: MainViewModel by fragment.activityViewModels()
-                    mainViewModel.lastOpenedPageId?.let { id ->
-                        if (page.uid == id) fragment.startPostponedEnterTransition()
-                    }
-                }
-            }
-        }
-
-        override fun getItemCount(): Int = 1 + pages.size //1 for welcome screen
     }
 
     class RecyclerTouchToClickListener(

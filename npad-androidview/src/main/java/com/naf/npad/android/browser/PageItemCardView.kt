@@ -20,7 +20,7 @@ class PageItemCardView : CardView {
     }
 
 
-    //For Vertical Lists
+    /*For Vertical Lists
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(
             widthMeasureSpec,
@@ -28,14 +28,21 @@ class PageItemCardView : CardView {
                 ((MeasureSpec.getSize(widthMeasureSpec) * 1.61) / 1).roundToInt(),
                 //MeasureSpec.getSize(widthMeasureSpec),
                 MeasureSpec.getMode(widthMeasureSpec)))
-    }
+    }*/
 
     //For Horizontal Lists
-    /*override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(
+
+            //Width
             MeasureSpec.makeMeasureSpec(
                 ((MeasureSpec.getSize(heightMeasureSpec) * 0.5625) / 1).roundToInt(),
                 MeasureSpec.getMode(heightMeasureSpec)),
-        heightMeasureSpec)
-    }*/
+
+            //Height
+            MeasureSpec.makeMeasureSpec(
+                MeasureSpec.getSize(heightMeasureSpec),
+                MeasureSpec.getMode(heightMeasureSpec))
+            )
+    }
 }

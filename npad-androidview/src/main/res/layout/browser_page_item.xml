@@ -6,89 +6,90 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:layout_margin="0dp"
-    android:background="@android:color/transparent"
-    android:backgroundTint="@android:color/transparent"
-    app:cardBackgroundColor="@android:color/transparent">
+    android:layout_margin="4dp"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:elevation="3dp">
 
-        <TextView
-            android:id="@+id/pageItem_title_textView"
+        <com.naf.npad.android.views.DimmedImageView
+            android:id="@+id/pageItem_thumbnail"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <View
+            android:id="@+id/pageItem_accent_shade"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp"
-            android:elevation="4dp"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toTopOf="@+id/pageItem_created_textView"
+            android:alpha="0.5"
+            android:background="@drawable/gradient_adaptive_fade"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/pageItem_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="8dp"
+            android:gravity="center"
+            android:textColor="@color/material_dynamic_primary80"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/pageItem_thumbnail"
             tools:text="Untitled" />
 
         <View
+            android:id="@+id/pageItem_seperator"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:alpha="0.6"
-            android:background="#FFFFFF"
-            android:backgroundTint="#FFFFFF"
+            android:background="@color/material_dynamic_primary80"
             android:elevation="3dp"
-            app:layout_constraintBottom_toTopOf="@+id/pageItem_created_textView"
+            app:layout_constraintBottom_toTopOf="@+id/pageItem_detail"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pageItem_title_textView" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/pageItem_created_textView"
-            android:layout_width="match_parent"
+            android:id="@+id/pageItem_detail"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:elevation="4dp"
             android:gravity="center"
-            android:textColor="@android:color/white"
+            android:textAllCaps="false"
+            android:textColor="@color/material_dynamic_primary80"
             android:textSize="11sp"
-            app:layout_constraintBottom_toBottomOf="@+id/cardView"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/pageItem_thumbnail"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="Created 01/01/1970"
             tools:visibility="visible" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            app:cardBackgroundColor="#000000"
-            app:cardCornerRadius="16dp"
-            app:cardPreventCornerOverlap="false"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <ProgressBar
+            android:id="@+id/pageItem_loading_indicator"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/pageItem_thumbnail"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.naf.npad.android.views.DimmedImageView
-                android:id="@+id/pageItem_thumbnail_imageView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
-        </androidx.cardview.widget.CardView>
+            app:layout_constraintTop_toTopOf="@+id/pageItem_thumbnail" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.naf.npad.android.browser.PageItemCardView>

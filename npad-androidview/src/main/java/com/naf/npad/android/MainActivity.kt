@@ -7,9 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.color.DynamicColors
 import com.naf.npad.R
 import com.naf.npad.databinding.AppMainBinding
 import com.naf.npad.android.browser.BrowserFragment
+import com.naf.npad.android.browser.PagesAdapter
 import com.naf.npad.android.editor.EditorFragment
 import com.naf.npad.android.util.toast
 import kotlinx.coroutines.*
@@ -23,12 +25,14 @@ class MainActivity : AppCompatActivity() {
 
     private val pageManagerDelegate = object : BrowserFragment.BrowserFragmentDelegate {
 
-        override fun onPageSelected(pageId: Int, viewHolder: BrowserFragment.PageItemViewHolder) {
+        override fun onPageSelected(pageId: Int, viewHolder: PagesAdapter.PageItemViewHolder) {
             lifecycleScope.launch {
                 val page = mainViewModel.getPageWithId(pageId) ?: return@launch
+                /*
                 val sharedViews = mapOf<View, String>(
                     viewHolder.thumbnailImageView to "editorWallpaper"
                 )
+                 */
                 launchEditor(page)
             }
         }
@@ -38,6 +42,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewBinding = AppMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+
+        DynamicColors.applyToActivitiesIfAvailable(application)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -71,8 +77,8 @@ class MainActivity : AppCompatActivity() {
             }
             setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out,
             android.R.anim.fade_in, android.R.anim.fade_out)
-            replace(R.id.fragmentContainer, EditorFragment(), EditorFragment::class.simpleName)
-            addToBackStack(null)
+            replace(R.id.fragmentContainer, EditorFragment())
+            addToBackStack("EditorFragment")
         }
 
         if(toast) {
@@ -87,9 +93,9 @@ class MainActivity : AppCompatActivity() {
     fun openSettings() {
         val settingsFragment = SettingsFragment()
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, settingsFragment)
-            .addToBackStack(null)
-            .commit()
+        supportFragmentManager.commit {
+            replace(R.id.fragmentContainer, settingsFragment)
+            addToBackStack("SettingsFragment")
+        }
     }
 }
